@@ -541,7 +541,10 @@ class GamePlayWindow_0 extends Window {
     this._updateHandFilter();
     this.board.update({
       input: {
-        card: null,
+        card:
+          this.handId >= 0
+            ? getCardById(this.game.players[Lobby.playerId].hand[this.handId])
+            : null,
         rotation: (2 * Lobby.playerId) as any,
         pointer: null,
         isSpecialAttack: false,
@@ -554,14 +557,12 @@ class GamePlayWindow_0 extends Window {
       move = await Promise.race([
         this.receive("player.pass"),
         this.board.receive("player.input").then((input: CardPlacement) => {
-          // TODO: refactor this
-          const { handId, isSpecialAttack } = this.board.props.input
-            .value as any;
+          const { isSpecialAttack } = this.board.props.input.value;
           const { rotation, position } = input;
           const move: PlayerMovement = {
             player: Lobby.playerId,
             action: isSpecialAttack ? "special" : "trivial",
-            hand: handId,
+            hand: this.handId,
             params: {
               rotation,
               position,

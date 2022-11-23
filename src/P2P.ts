@@ -13,7 +13,7 @@ import { TableturfClientState } from "./Game";
 import { DB } from "./Database";
 
 const logger = getLogger("peerjs-host");
-logger.setLevel("debug");
+logger.setLevel("info");
 
 const deployUrl = "https://xlnx.github.io/tableturf-replica/";
 const baseUrl = import.meta.env.DEV
