@@ -73,7 +73,7 @@ class P2PHost_0 extends Host {
   protected handleStateUpdate(state: TableturfClientState) {
     super.handleStateUpdate(state);
     if (!state.G.players[this.playerId]) {
-      this.send("updatePlayerInfo", DB.player);
+      this.updatePlayerInfo(DB.player);
     }
   }
 }
@@ -90,6 +90,7 @@ export class P2PClient extends Client {
           logger.warn(err);
         },
         onClose: () => {
+          console.log("closed");
           if (this.isConnected) {
             this.handleDisconnect();
           }
@@ -108,7 +109,7 @@ export class P2PClient extends Client {
   protected handleStateUpdate(state: TableturfClientState) {
     super.handleStateUpdate(state);
     if (!state.G.players[this.playerId]) {
-      this.send("updatePlayerInfo", DB.player);
+      this.updatePlayerInfo(DB.player);
     }
   }
 

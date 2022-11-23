@@ -21,6 +21,7 @@
     "bezier-easing": "^2.1.0",
     "boardgame.io": "^0.50.2",
     "buffer": "^6.0.3",
+    "gsap": "^3.11.3",
     "js-cookie": "^3.0.1",
     "loglevel": "^1.8.1",
     "mobile-detect": "^1.4.5",

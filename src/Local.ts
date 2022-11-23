@@ -34,7 +34,7 @@ class LocalHost_0 extends Host {
       protected handleStateUpdate(state: TableturfClientState) {
         super.handleStateUpdate(state);
         if (!state.G.players[this.playerId]) {
-          this.send("updatePlayerInfo", DB.player);
+          this.updatePlayerInfo(DB.player);
         }
       }
     })({
@@ -58,11 +58,10 @@ class LocalHost_0 extends Host {
         this.bot.close();
       }
       this.bot = bot;
-      const info: TableturfPlayerInfo = {
+      this.updatePlayerInfo({
         name,
         deck: StarterDeck.slice(),
-      };
-      this.send("updatePlayerInfo", info);
+      });
       /* this section shall not throw */
     } finally {
       this.isBusy = false;
@@ -128,11 +127,9 @@ class LocalHost_0 extends Host {
       console.assert(ctx.phase == "prepare");
       /* this section shall not throw */
       this.botState = state;
-      const info: TableturfPlayerInfo = {
-        ...G.players[this.playerId],
+      this.updatePlayerInfo({
         // deck: TODO: fix this
-      };
-      this.send("updatePlayerInfo", info);
+      });
       this.send("toggleReady");
       /* this section shall not throw */
     } finally {

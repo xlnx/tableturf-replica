@@ -9,6 +9,7 @@ import {
   TableturfClientState,
   TableturfGame,
   TableturfGameState,
+  TableturfPlayerInfo,
 } from "./Game";
 
 const logger = getLogger("ui-controller");
@@ -127,6 +128,15 @@ export class Controller {
     } catch (err) {
       logger.warn(err);
     }
+  }
+
+  updatePlayerInfo({ name, ...rest }: Partial<TableturfPlayerInfo>) {
+    const state = this.client.getState().G.players[this.playerId];
+    let time: string;
+    if (!state || name != state.name) {
+      time = new Date().toUTCString();
+    }
+    this.send("updatePlayerInfo", { name, ...rest, time });
   }
 
   stop() {

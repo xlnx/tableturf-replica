@@ -20,7 +20,7 @@ export interface TableturfPlayerInfo {
 
 export interface TableturfGameState {
   // prepare phase
-  players: (TableturfPlayerInfo | null)[];
+  players: ((TableturfPlayerInfo & { time: string }) | null)[];
   ready: boolean[];
   stage: number;
   // game phase
@@ -104,9 +104,12 @@ export const TableturfGame: Game<TableturfGameState> = {
           ignoreStaleStateID: true,
         },
         updatePlayerInfo: {
-          move: ({ G, playerID }, info: TableturfPlayerInfo) => {
+          move: (
+            { G, playerID },
+            info: Partial<TableturfPlayerInfo & { time: string }>
+          ) => {
             const player = parseInt(playerID);
-            G.players[player] = info;
+            G.players[player] = { ...G.players[player], ...info };
           },
           ignoreStaleStateID: true,
         },

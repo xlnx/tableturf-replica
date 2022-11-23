@@ -59,7 +59,7 @@ class Lobby_0 {
 
   updatePlayerInfo(player: Partial<TableturfPlayerInfo>) {
     DB.player = { ...DB.player, ...player };
-    this.send("updatePlayerInfo", DB.player);
+    this.controller && this.controller.updatePlayerInfo(DB.player);
   }
 
   async connectLocal() {

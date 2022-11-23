@@ -1,9 +1,9 @@
-import * as React from "react";
+import React from "react";
 import { getLogger } from "loglevel";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import { ReactComponent } from "../engine/ReactComponent";
-import { Box } from "@mui/system";
+import { Box } from "@mui/material";
 import { ColorPalette } from "./ColorPalette";
 import { Lobby } from "../Lobby";
 import { TableturfClientState, TableturfPlayerInfo } from "../Game";
@@ -20,7 +20,7 @@ interface LobbyPanelProps {
   open: boolean;
   // prepare phase
   ready: boolean;
-  players: TableturfPlayerInfo[];
+  players: (TableturfPlayerInfo & { time: string })[];
   // game info
   playing: boolean;
 }
