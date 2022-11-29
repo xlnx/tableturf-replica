@@ -1,6 +1,6 @@
 # tableturf-replica
 
-![example workflow](https://github.com/xlnx/tableturf-replica/actions/workflows/node.js.yml/badge.svg)
+![example workflow](https://github.com/xlnx/tableturf-replica/actions/workflows/cicd.yml/badge.svg)
 
 `tableturf-replica` is a fan-made game aims at reproducing the original game in a portable way with html5.
 
