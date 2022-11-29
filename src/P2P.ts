@@ -11,14 +11,13 @@ import QRCode from "qrcode";
 import { Lobby } from "./Lobby";
 import { TableturfClientState } from "./Game";
 import { DB } from "./Database";
+import { System } from "./engine/System";
 
 const logger = getLogger("peerjs-host");
 logger.setLevel("info");
 
-const deployUrl = "https://xlnx.github.io/tableturf-replica/";
-const baseUrl = import.meta.env.DEV
-  ? new URL(import.meta.url).origin
-  : deployUrl;
+const baseUrl = System.url.origin;
+console.log(`base: ${baseUrl}`);
 
 const matchId = base64url.encode(Buffer.from(randomBytes(16)));
 const url = new URL(`?peer=${matchId}`, baseUrl).href;
