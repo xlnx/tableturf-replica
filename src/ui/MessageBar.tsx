@@ -1,5 +1,4 @@
 import React from "react";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import { v4 } from "uuid";
 import { ReactComponent } from "../engine/ReactComponent";
 import { Box, List, Paper, Typography } from "@mui/material";
@@ -7,13 +6,6 @@ import { ResponsiveBox } from "./Theme";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import "./MessageBar.less";
-
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
-  props,
-  ref
-) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
 
 type MessageLevel = "error" | "warning" | "info" | "success";
 
@@ -51,7 +43,6 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
   }
 
   render(): React.ReactNode {
-    // const handleClose = () => this.update({ open: false });
     return (
       <Box
         sx={{
@@ -71,31 +62,6 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
             ))}
           </TransitionGroup>
         </List>
-        {/* <AnimatedList
-          animation="slide"
-          animationProps={{
-            direction: "left",
-            in: true,
-          }}
-        >
-          {this.state.messages.map(({ id, text, level }) => (
-            <MessageBarImpl key={id} message={text}></MessageBarImpl>
-          ))}
-        </AnimatedList> */}
-        {/* <Snackbar
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        open={this.state.open}
-        // autoHideDuration={6000}
-        onClose={handleClose}
-      >
-        <Alert
-          onClose={handleClose}
-          severity={this.state.level}
-          sx={{ width: "100%" }}
-        >
-          {this.state.message}
-        </Alert>
-      </Snackbar> */}
       </Box>
     );
   }
