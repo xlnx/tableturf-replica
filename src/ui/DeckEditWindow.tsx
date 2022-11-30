@@ -130,8 +130,7 @@ class DeckEditWindow_0 extends Window {
             height: 80,
           }}
           onClick={() => {
-            TryOutWindow.panel.update({ deck: getDeck() });
-            TryOutWindow.panel.reset();
+            TryOutWindow.panel.reset({ deck: getDeck() });
             Lobby.togglePixiWindow(TryOutWindow);
           }}
         >

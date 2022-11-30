@@ -54,7 +54,7 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
         <List>
           <TransitionGroup>
             {this.props.messages.map((msg) => (
-              <CSSTransition timeout={1000} classNames="msg-bar" key={msg.id}>
+              <CSSTransition timeout={3000} classNames="msg-bar" key={msg.id}>
                 <Box sx={{ p: 1 }}>
                   <MessageBarImpl msg={msg}></MessageBarImpl>
                 </Box>

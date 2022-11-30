@@ -19,13 +19,24 @@ import { Lobby } from "../Lobby";
 import { DB } from "../Database";
 import BgMotionGlsl from "./shaders/BgMotion.glsl?raw";
 import React from "react";
-import { Box, Card, Grid, List, ThemeProvider } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Grid,
+  List,
+  ThemeProvider,
+  Typography,
+  styled,
+} from "@mui/material";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Theme, BasicButton } from "./Theme";
 import { CardSmall } from "./components/CardSmall";
 import { ReactComponent } from "../engine/ReactComponent";
 import { StarterDeck } from "../Game";
 import { getLogger } from "loglevel";
 import { MatrixUtil } from "../core/Utils";
+
+import "./TryOutWindow.less";
 
 const logger = getLogger("try-out-window");
 logger.setLevel("debug");
@@ -34,121 +45,44 @@ function initBoard(stage: number): BoardState {
   return initGame(stage, [StarterDeck, StarterDeck]).board;
 }
 
-interface IRecordBarComponentProps {
+interface HistoryRecord {
   card: number;
-  inDeck: boolean;
+  isInDeck: boolean;
+  prevState: BoardState;
 }
 
-class RecordBarComponent extends Component<IRecordBarComponentProps> {
-  layout = {
-    width: 342,
-    height: 73,
-    radius: 10,
-  };
-
-  constructor() {
-    super({
-      card: 1,
-      inDeck: false,
-    });
-
-    const { height, width, radius } = this.layout;
-
-    const bg = this.addGraphics()
-      .beginFill(Color.WHITE.i32)
-      .drawRoundedRect(0, 0, width, height, radius);
-
-    const textRoot = this.addContainer({
-      x: 10,
-      y: 20,
-    });
-
-    const fontSize = height * 0.4;
-    const text1 = this.addText({
-      parent: textRoot,
-      x: 2,
-      y: 2,
-      style: {
-        fill: Color.BLACK.i32,
-        fontFamily: "Splatoon2",
-        fontSize,
-      },
-    });
-    text1.alpha = 0.5;
-    const text = this.addText({
-      parent: textRoot,
-      style: {
-        fill: 0xeeeeee,
-        fontFamily: "Splatoon2",
-        fontSize,
-      },
-    });
-
-    this.lock();
-
-    this.props.card.onUpdate((card) => {
-      const { name } = getCardById(card);
-      text.text = name;
-      text1.text = name;
-      this.lock();
-    });
-    this.props.inDeck.onUpdate((ok) => {
-      if (ok) {
-        bg.tint = ColorPalette.Main.bg.primary.i32;
-        bg.alpha = 0.8;
-      } else {
-        bg.tint = Color.BLACK.i32;
-        bg.alpha = 0.4;
-      }
-      this.lock();
-    });
-  }
-}
-
-interface TryOutWindowPanelProps {
-  // config
+interface PublicProps {
   stage: number;
   deck: number[];
-  // state
+}
+
+interface Props extends PublicProps {
   selectedCard: number;
-  placed: Set<number>;
+  history: HistoryRecord[];
   state: BoardState;
 }
 
-class TryOutWindowPanel extends ReactComponent<TryOutWindowPanelProps> {
-  private readonly layout = {
-    deckEdit: {
-      x: 1650,
-      y: 790,
-      width: 220,
-      height: 90,
-    },
-    reset: {
-      x: 1650,
-      y: 900,
-      width: 220,
-      height: 90,
-    },
-  };
-
+class Panel extends ReactComponent<Props> {
   constructor(private readonly window: TryOutWindow_0) {
     super();
   }
 
-  init(): TryOutWindowPanelProps {
+  init(): Props {
     this.window.board.onInput((move) => this.processMove(move));
     const stage = 3;
     return {
+      // ...
       stage,
       deck: DB.player.deck.slice(),
-      placed: new Set(),
+      // ...
       selectedCard: -1,
+      history: [],
       state: initBoard(stage),
     };
   }
 
   async processMove(move: CardPlacement) {
-    let { state, placed } = this.props;
+    let { state, history } = this.props;
     const ok = isBoardMoveValid(state, move, false);
     if (!ok) {
       logger.debug("invalid move:", MatrixUtil.print(state), move);
@@ -162,9 +96,16 @@ class TryOutWindowPanel extends ReactComponent<TryOutWindowPanelProps> {
         card: null,
       },
     });
+    history = [
+      ...history,
+      {
+        card: move.card,
+        isInDeck: true,
+        prevState: state,
+      },
+    ];
     state = moveBoard(state, [move]);
-    placed.add(move.card);
-    await this.update({ state, placed });
+    await this.update({ state, history });
     await this.selectCard(-1);
     // TODO: move gui into self
     await board.uiPlaceCards([move]);
@@ -186,85 +127,177 @@ class TryOutWindowPanel extends ReactComponent<TryOutWindowPanelProps> {
     await this.update({ selectedCard: card });
   }
 
-  async reset() {
-    const { stage, placed } = this.props;
-    placed.clear();
+  async reset(props?: Partial<PublicProps>) {
+    await this.update({ ...props });
+    const { stage } = this.props;
     const state = initBoard(stage);
-    await this.update({ state, placed });
+    await this.update({ state, history: [] });
     // TODO: move gui into self
     const { board } = this.window;
     board.uiReset(state);
   }
 
-  componentDidMount(): void {
+  async undo() {
+    let { history } = this.props;
+    if (history.length == 0) {
+      MessageBar.error("no further actions.");
+      return;
+    }
+    history = history.slice();
+    const { prevState: state } = history.pop();
+    this.update({ history, state });
+    // TODO: move gui into self
+    const { board } = this.window;
+    await board.uiReset(state);
+  }
+
+  componentDidMount() {
     this.reset();
   }
 
   render(): React.ReactNode {
-    const { deckEdit, reset } = this.layout;
-    return (
-      <ThemeProvider theme={Theme}>
-        <Card
-          sx={{
-            position: "absolute",
-            width: 520,
-            height: 1000,
-            left: 30,
-            top: 40,
-            p: 3,
-            boxSizing: "border-box",
-            boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-          }}
-        >
-          <List>
-            <Grid container>
-              {this.props.deck.map((card) => (
-                <Grid key={card} item xs={4}>
+    const deckPanel = (
+      <Paper
+        sx={{
+          position: "absolute",
+          width: 520,
+          height: 1000,
+          left: 30,
+          top: 40,
+          p: 3,
+          boxSizing: "border-box",
+          boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
+        }}
+      >
+        <List>
+          <Grid container>
+            {this.props.deck.map((card) => (
+              <Grid key={card} item xs={4}>
+                <Box sx={{ p: 1 }}>
+                  <CardSmall
+                    active={
+                      this.props.history.findIndex((e) => e.card == card) < 0
+                    }
+                    width={136}
+                    card={card}
+                    selected={this.props.selectedCard == card}
+                    onClick={() => this.selectCard(card)}
+                  ></CardSmall>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </List>
+      </Paper>
+    );
+
+    const historyPanel = (
+      <Box
+        sx={{
+          position: "absolute",
+          width: 350,
+          height: 690,
+          left: 1550,
+          top: 32,
+          overflowX: "hidden",
+          overflowY: "auto",
+          pointerEvents: "all",
+          userSelect: "none",
+        }}
+      >
+        <List>
+          <TransitionGroup>
+            {this.props.history
+              .slice()
+              .reverse()
+              .map(({ card, isInDeck }) => (
+                <CSSTransition
+                  timeout={200}
+                  classNames="try-out-history-bar"
+                  key={card}
+                >
                   <Box sx={{ p: 1 }}>
-                    <CardSmall
-                      active={!this.props.placed.has(card)}
-                      width={136}
-                      card={card}
-                      selected={this.props.selectedCard == card}
-                      onClick={() => this.selectCard(card)}
-                    ></CardSmall>
+                    <Paper
+                      sx={{
+                        height: 72,
+                        p: 1,
+                        boxSizing: "border-box",
+                        boxShadow: "4px 4px 2px rgba(0, 0, 0, 0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        backgroundColor: isInDeck
+                          ? ColorPalette.Main.bg.primary.hexSharp
+                          : Color.BLACK.hexSharp,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          textShadow: "2px 2px black",
+                        }}
+                      >
+                        {getCardById(card).name}
+                      </Typography>
+                    </Paper>
                   </Box>
-                </Grid>
+                </CSSTransition>
               ))}
-            </Grid>
-          </List>
-        </Card>
-        <BasicButton
+          </TransitionGroup>
+        </List>
+      </Box>
+    );
+
+    const MyBtn = styled(BasicButton)(({ theme }) => ({
+      position: "absolute",
+      width: 220,
+      height: 90,
+    }));
+
+    const y0 = 750;
+    const h = 100;
+    const btnPanel = (
+      <React.Fragment>
+        <MyBtn
           sx={{
-            position: "absolute",
-            left: deckEdit.x,
-            top: deckEdit.y,
-            width: deckEdit.width,
-            height: deckEdit.height,
+            left: 1650,
+            top: y0 + h * 0,
           }}
           onClick={() => Lobby.togglePixiWindow(DeckEditWindow)}
         >
           Edit Deck
-        </BasicButton>
-        <BasicButton
+        </MyBtn>
+        <MyBtn
           sx={{
-            position: "absolute",
-            left: reset.x,
-            top: reset.y,
-            width: reset.width,
-            height: reset.height,
+            left: 1650,
+            top: y0 + h * 1,
           }}
           onClick={() => this.reset()}
         >
           Reset
-        </BasicButton>
+        </MyBtn>
+        <MyBtn
+          sx={{
+            left: 1650,
+            top: y0 + h * 2,
+          }}
+          onClick={() => this.undo()}
+        >
+          Undo
+        </MyBtn>
+      </React.Fragment>
+    );
+
+    return (
+      <ThemeProvider theme={Theme}>
+        {deckPanel}
+        {historyPanel}
+        {btnPanel}
       </ThemeProvider>
     );
   }
 }
 
 class TryOutWindow_0 extends Window {
-  readonly panel: TryOutWindowPanel = new TryOutWindowPanel(this);
+  readonly panel: Panel = new Panel(this);
 
   readonly board: BoardComponent;
 
@@ -276,16 +309,6 @@ class TryOutWindow_0 extends Window {
       y: -16,
       width: 1e8,
       height: 1040,
-    },
-    deck: {
-      x: -900,
-      y: -450,
-    },
-    record: {
-      x: 590,
-      y: -480,
-      width: 350,
-      height: 690,
     },
   };
 
@@ -342,15 +365,6 @@ class TryOutWindow_0 extends Window {
   renderReact(): React.ReactNode {
     return this.panel.node;
   }
-
-  // private async addRecord(card: number, inDeck: boolean) {
-  //   const idx = this.recordView.props.items.value.length;
-  //   while (this.records.length <= idx) {
-  //     this.records.push(new RecordBarComponent());
-  //   }
-  //   this.records[idx].update({ card, inDeck });
-  //   this.recordView.update({ items: this.records.slice(0, idx + 1) });
-  // }
 }
 
 export const TryOutWindow = new TryOutWindow_0();

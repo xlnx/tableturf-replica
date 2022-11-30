@@ -1,0 +1,25 @@
+@dt: 0.2s;
+
+.try-out-history-bar-enter-active, .try-out-history-bar-exit-active {
+  transition: all @dt ease-out;
+}
+
+.try-out-history-bar-enter {
+  transform: translateX(150%);
+  max-height: 0px;
+}
+
+.try-out-history-bar-enter-active {
+  transform: translateX(0);
+  max-height: 80px;
+}
+
+.try-out-history-bar-exit {
+  transform: translateX(0);
+  // max-height: 80px;
+}
+
+.try-out-history-bar-exit-active {
+  transform: translateX(150%);
+  // max-height: 0;
+}
