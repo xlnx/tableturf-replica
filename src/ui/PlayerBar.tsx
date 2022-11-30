@@ -89,7 +89,7 @@ export function PlayerBar(props: PlayerBarProps) {
         left: 0,
         top: 0,
         transformOrigin: "center",
-        transform: "scale(0.99)",
+        transform: "scale(0.98)",
         width: "100%",
         height: "100%",
         border: "4px dashed #eeeeee",

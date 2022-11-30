@@ -4,7 +4,6 @@ import { Lobby } from "./Lobby";
 import { ControlPanel } from "./ui/ControlPanel";
 import { getLogger } from "loglevel";
 import { TryOutWindow } from "./ui/TryOutWindow";
-import { DB } from "./Database";
 import { System } from "./engine/System";
 import { WindowManager } from "./engine/WindowManager";
 import { GamePlayWindow } from "./ui/GamePlayWindow";
@@ -31,9 +30,7 @@ WindowManager.install({
   ],
 });
 
-TryOutWindow.uiReset(3, DB.player.deck.slice());
 TryOutWindow.show();
-
 ControlPanel.show();
 
 const peer = System.args.get("peer");

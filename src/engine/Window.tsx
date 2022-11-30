@@ -37,10 +37,10 @@ export class Window<Props extends {} = {}> extends Component<
 
     this.rootElement = document.createElement("div");
     this.rootElement.classList.add("window");
-    setTimeout(
-      () => createRoot(this.rootElement).render(this.renderReact()),
-      0
-    );
+    setTimeout(() => {
+      const Fn = () => <React.Fragment>{this.renderReact()}</React.Fragment>;
+      createRoot(this.rootElement).render(<Fn />);
+    }, 0);
 
     this.props.bgTint.onUpdate((v) => (this.bg.tint = v.i32));
     this.props.bgAlpha.onUpdate((v) => (this.bg.alpha = v));

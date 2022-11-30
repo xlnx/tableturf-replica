@@ -211,7 +211,7 @@ class GamePlayWindow_0 extends Window {
         height: this.layout.board.height,
       },
     });
-    this.board.onPlayerInput((e, ok) => {
+    this.board.onUpdateInput((e, ok) => {
       if (!ok) {
         this.szMeter.update({ preview: false });
       } else {

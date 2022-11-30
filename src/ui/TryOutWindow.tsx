@@ -3,15 +3,12 @@ import { BoardComponent } from "./BoardComponent";
 import { ColorPalette } from "./ColorPalette";
 import {
   BoardState,
-  Card,
   CardPlacement,
   getCardById,
   initGame,
   isBoardMoveValid,
   moveBoard,
 } from "../core/Tableturf";
-import { ItemListComponent } from "./ItemListComponent";
-import { SmallCardComponent } from "./SmallCardComponent";
 import { Color } from "../engine/Color";
 import { Texture } from "pixi.js";
 import { MessageBar } from "./MessageBar";
@@ -21,12 +18,24 @@ import { DeckEditWindow } from "./DeckEditWindow";
 import { Lobby } from "../Lobby";
 import { DB } from "../Database";
 import BgMotionGlsl from "./shaders/BgMotion.glsl?raw";
-import { ReactNode } from "react";
-import { ThemeProvider } from "@mui/material";
+import React from "react";
+import { Box, Card, Grid, List, ThemeProvider } from "@mui/material";
 import { Theme, BasicButton } from "./Theme";
+import { CardSmall } from "./components/CardSmall";
+import { ReactComponent } from "../engine/ReactComponent";
+import { StarterDeck } from "../Game";
+import { getLogger } from "loglevel";
+import { MatrixUtil } from "../core/Utils";
+
+const logger = getLogger("try-out-window");
+logger.setLevel("debug");
+
+function initBoard(stage: number): BoardState {
+  return initGame(stage, [StarterDeck, StarterDeck]).board;
+}
 
 interface IRecordBarComponentProps {
-  card: Card;
+  card: number;
   inDeck: boolean;
 }
 
@@ -39,7 +48,7 @@ class RecordBarComponent extends Component<IRecordBarComponentProps> {
 
   constructor() {
     super({
-      card: getCardById(1),
+      card: 1,
       inDeck: false,
     });
 
@@ -78,8 +87,9 @@ class RecordBarComponent extends Component<IRecordBarComponentProps> {
     this.lock();
 
     this.props.card.onUpdate((card) => {
-      text.text = card.name;
-      text1.text = card.name;
+      const { name } = getCardById(card);
+      text.text = name;
+      text1.text = name;
       this.lock();
     });
     this.props.inDeck.onUpdate((ok) => {
@@ -95,21 +105,168 @@ class RecordBarComponent extends Component<IRecordBarComponentProps> {
   }
 }
 
-interface ITryOutWindowProps {
-  acceptInput: boolean;
+interface TryOutWindowPanelProps {
+  // config
+  stage: number;
+  deck: number[];
+  // state
+  selectedCard: number;
+  placed: Set<number>;
+  state: BoardState;
 }
 
-class TryOutWindow_0 extends Window<ITryOutWindowProps> {
-  private readonly board: BoardComponent;
-  private readonly cards: SmallCardComponent[] = [];
-  private readonly deckView: ItemListComponent<SmallCardComponent>;
-  private readonly records: RecordBarComponent[] = [];
-  private readonly recordView: ItemListComponent<RecordBarComponent>;
+class TryOutWindowPanel extends ReactComponent<TryOutWindowPanelProps> {
+  private readonly layout = {
+    deckEdit: {
+      x: 1650,
+      y: 790,
+      width: 220,
+      height: 90,
+    },
+    reset: {
+      x: 1650,
+      y: 900,
+      width: 220,
+      height: 90,
+    },
+  };
 
-  private card: SmallCardComponent;
-  private state: BoardState;
-  private stage: number = 1;
-  private deck: number[] = DB.player.deck.slice();
+  constructor(private readonly window: TryOutWindow_0) {
+    super();
+  }
+
+  init(): TryOutWindowPanelProps {
+    this.window.board.onInput((move) => this.processMove(move));
+    const stage = 3;
+    return {
+      stage,
+      deck: DB.player.deck.slice(),
+      placed: new Set(),
+      selectedCard: -1,
+      state: initBoard(stage),
+    };
+  }
+
+  async processMove(move: CardPlacement) {
+    let { state, placed } = this.props;
+    const ok = isBoardMoveValid(state, move, false);
+    if (!ok) {
+      logger.debug("invalid move:", MatrixUtil.print(state), move);
+      MessageBar.error("you can't put it there.");
+      return;
+    }
+    const { board } = this.window;
+    board.update({
+      input: {
+        ...board.props.input.value,
+        card: null,
+      },
+    });
+    state = moveBoard(state, [move]);
+    placed.add(move.card);
+    await this.update({ state, placed });
+    await this.selectCard(-1);
+    // TODO: move gui into self
+    await board.uiPlaceCards([move]);
+    board.uiUpdateFire();
+  }
+
+  async selectCard(card: number) {
+    const { selectedCard } = this.props;
+    const { board } = this.window;
+    if (card > 0 && selectedCard == card) {
+      board.uiRotateInput(1);
+    }
+    board.update({
+      input: {
+        ...board.props.input.value,
+        card: card > 0 ? getCardById(card) : null,
+      },
+    });
+    await this.update({ selectedCard: card });
+  }
+
+  async reset() {
+    const { stage, placed } = this.props;
+    placed.clear();
+    const state = initBoard(stage);
+    await this.update({ state, placed });
+    // TODO: move gui into self
+    const { board } = this.window;
+    board.uiReset(state);
+  }
+
+  componentDidMount(): void {
+    this.reset();
+  }
+
+  render(): React.ReactNode {
+    const { deckEdit, reset } = this.layout;
+    return (
+      <ThemeProvider theme={Theme}>
+        <Card
+          sx={{
+            position: "absolute",
+            width: 520,
+            height: 1000,
+            left: 30,
+            top: 40,
+            p: 3,
+            boxSizing: "border-box",
+            boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          <List>
+            <Grid container>
+              {this.props.deck.map((card) => (
+                <Grid key={card} item xs={4}>
+                  <Box sx={{ p: 1 }}>
+                    <CardSmall
+                      active={!this.props.placed.has(card)}
+                      width={136}
+                      card={card}
+                      selected={this.props.selectedCard == card}
+                      onClick={() => this.selectCard(card)}
+                    ></CardSmall>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </List>
+        </Card>
+        <BasicButton
+          sx={{
+            position: "absolute",
+            left: deckEdit.x,
+            top: deckEdit.y,
+            width: deckEdit.width,
+            height: deckEdit.height,
+          }}
+          onClick={() => Lobby.togglePixiWindow(DeckEditWindow)}
+        >
+          Edit Deck
+        </BasicButton>
+        <BasicButton
+          sx={{
+            position: "absolute",
+            left: reset.x,
+            top: reset.y,
+            width: reset.width,
+            height: reset.height,
+          }}
+          onClick={() => this.reset()}
+        >
+          Reset
+        </BasicButton>
+      </ThemeProvider>
+    );
+  }
+}
+
+class TryOutWindow_0 extends Window {
+  readonly panel: TryOutWindowPanel = new TryOutWindowPanel(this);
+
+  readonly board: BoardComponent;
 
   layout = {
     width: 1920,
@@ -130,26 +287,11 @@ class TryOutWindow_0 extends Window<ITryOutWindowProps> {
       width: 350,
       height: 690,
     },
-    btn: {
-      deckEdit: {
-        x: 1650,
-        y: 790,
-        width: 220,
-        height: 90,
-      },
-      reset: {
-        x: 1650,
-        y: 900,
-        width: 220,
-        height: 90,
-      },
-    },
   };
 
   constructor() {
     super({
       bgTint: ColorPalette.TryOut.bg.primary,
-      acceptInput: true,
     });
 
     const root = this.addContainer({
@@ -186,197 +328,29 @@ class TryOutWindow_0 extends Window<ITryOutWindowProps> {
         width: this.layout.board.width,
         height: this.layout.board.height,
       },
-    });
-
-    // init deck view
-    for (let i = 0; i < 15; ++i) {
-      const card = new SmallCardComponent().update({ card: getCardById(1) });
-      card.interactions.onTap(() => {
-        if (this.card != null) {
-          this.card.interactions.selected.update(false);
-        }
-        if (this.card == card) {
-          this.board.uiRotateInput(1);
-          return;
-        }
-        this.board.update({
-          input: {
-            ...this.board.props.input.value,
-            card: card.props.card.value,
-          },
-        });
-        card.interactions.selected.update(true);
-        this.card = card;
-      });
-      this.cards.push(card);
-    }
-
-    this.addGraphics({ parent: root })
-      .beginFill(Color.fromHex(0x101010).i32)
-      .drawRoundedRect(-940, -520, 560, 1030, 24);
-
-    this.deckView = this.addComponent(
-      new ItemListComponent<SmallCardComponent>({
-        width: 460,
-        height: 1080,
-      }),
-      {
-        parent: root,
-        x: this.layout.deck.x,
-        y: this.layout.deck.y,
-      }
-    ).update({
-      bg: {
-        color: Color.BLACK,
-        alpha: 0,
-      },
-      layout: {
-        xlimit: 3,
-        padding: {
-          x: 10,
-        },
-        anchor: {
-          x: 0.5,
-        },
-      },
-    });
-
-    // init record view
-    this.recordView = this.addComponent(
-      new ItemListComponent<RecordBarComponent>({
-        width: this.layout.record.width,
-        height: this.layout.record.height,
-      }),
-      {
-        parent: root,
-        x: this.layout.record.x,
-        y: this.layout.record.y,
-      }
-    ).update({
-      bg: {
-        color: Color.BLACK,
-        alpha: 0,
-      },
-      layout: {
-        xlimit: 1,
-        anchor: {
-          x: 0.5,
-        },
-        padding: {
-          x: 0,
-          y: 11,
-        },
-      },
-    });
-
-    this.props.acceptInput.onUpdate((ok) => {
-      this.board.update({
-        input: {
-          card: null,
-          rotation: 0,
-          pointer: null,
-          isSpecialAttack: false,
-        },
-        acceptInput: ok,
-      });
-    });
-
-    this._mainLoop();
-  }
-
-  renderReact(): ReactNode {
-    const { deckEdit, reset } = this.layout.btn;
-    return (
-      <ThemeProvider theme={Theme}>
-        <BasicButton
-          sx={{
-            position: "absolute",
-            left: deckEdit.x,
-            top: deckEdit.y,
-            width: deckEdit.width,
-            height: deckEdit.height,
-          }}
-          onClick={() => Lobby.togglePixiWindow(DeckEditWindow)}
-        >
-          Edit Deck
-        </BasicButton>
-        <BasicButton
-          sx={{
-            position: "absolute",
-            left: reset.x,
-            top: reset.y,
-            width: reset.width,
-            height: reset.height,
-          }}
-          onClick={() => this.uiReset(this.stage, this.deck)}
-        >
-          Reset
-        </BasicButton>
-      </ThemeProvider>
-    );
-  }
-
-  uiReset(stage?: number, deck?: number[]) {
-    if (stage != null) {
-      this.stage = stage;
-    }
-    if (deck != null) {
-      this.deck = deck.slice();
-    }
-    this.state = initGame(this.stage, [this.deck, this.deck]).board;
-    this.deckView.update({
-      items: deck.map((id, i) =>
-        this.cards[i].update({ card: getCardById(id) })
-      ),
-    });
-    this.recordView.update({ items: [] });
-    this.cards.forEach((card) => card.interactions.disabled.update(false));
-    this.board.uiReset(this.state);
-    if (this.card) {
-      this.card.interactions.selected.update(false);
-      this.card = null;
-    }
-    this.board.update({
+    }).update({
       input: {
-        ...this.board.props.input.value,
         card: null,
+        rotation: 0,
+        pointer: null,
+        isSpecialAttack: false,
       },
+      acceptInput: true,
     });
   }
 
-  private async addRecord(card: Card, inDeck: boolean) {
-    const idx = this.recordView.props.items.value.length;
-    while (this.records.length <= idx) {
-      this.records.push(new RecordBarComponent());
-    }
-    this.records[idx].update({ card, inDeck });
-    this.recordView.update({ items: this.records.slice(0, idx + 1) });
+  renderReact(): React.ReactNode {
+    return this.panel.node;
   }
 
-  private async _mainLoop() {
-    while (true) {
-      const e: CardPlacement = await this.board.receive("player.input");
-      if (!this.state) {
-        continue;
-      }
-      const ok = isBoardMoveValid(this.state, e, false);
-      if (!ok) {
-        MessageBar.error("you can't put it here.");
-        continue;
-      }
-      this.state = moveBoard(this.state, [e]);
-      this.addRecord(getCardById(e.card), true);
-      this.card.interactions.disabled.update(true);
-      this.board.update({
-        input: {
-          ...this.board.props.input.value,
-          card: null,
-        },
-      });
-      await this.board.uiPlaceCards([e]);
-      this.board.uiUpdateFire();
-    }
-  }
+  // private async addRecord(card: number, inDeck: boolean) {
+  //   const idx = this.recordView.props.items.value.length;
+  //   while (this.records.length <= idx) {
+  //     this.records.push(new RecordBarComponent());
+  //   }
+  //   this.records[idx].update({ card, inDeck });
+  //   this.recordView.update({ items: this.records.slice(0, idx + 1) });
+  // }
 }
 
 export const TryOutWindow = new TryOutWindow_0();

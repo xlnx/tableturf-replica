@@ -1,24 +1,36 @@
-import * as React from "react";
+import React from "react";
 import { Awaiter } from "./Awaiter";
 
 export abstract class ReactComponent<Props = {}> extends Awaiter {
   private _props0: Partial<Props>;
   private _props: Props;
-  private _setProps: React.Dispatch<React.SetStateAction<Props>>;
+  private _setProps: any;
   private _node: React.ReactNode = (() => {
-    const Fn = () => {
-      [this._props, this._setProps] = React.useState<Props>({
-        ...this.init(),
-        ...this._props0,
-      });
-      return <React.Fragment>{this.render()}</React.Fragment>;
-    };
-    return <Fn></Fn>;
+    const self = this;
+    class Outer extends React.Component<{}, Props> {
+      state = {
+        ...self.init(),
+        ...self._props0,
+      };
+      Inner = () => <React.Fragment>{self.render()}</React.Fragment>;
+      componentDidMount() {
+        self.componentDidMount();
+      }
+      render(): React.ReactNode {
+        const { Inner } = this;
+        self._props = this.state;
+        self._setProps = this.setState.bind(this);
+        return <Inner />;
+      }
+    }
+    return <Outer />;
   })();
 
   abstract init(): Props;
 
   abstract render(): React.ReactNode;
+
+  componentDidMount() {}
 
   get node() {
     return this._node;
@@ -28,15 +40,14 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
     return this._props;
   }
 
-  get setProps() {
-    return this._setProps;
-  }
-
-  update(newProps: Partial<Props>) {
-    if (this._setProps) {
-      this.setProps({ ...this.props, ...newProps });
-    } else {
-      this._props0 = { ...this._props0, ...newProps };
-    }
+  update(newProps: Partial<Props>): Promise<void> {
+    return new Promise((resolve) => {
+      if (this._setProps) {
+        this._setProps({ ...this.props, ...newProps }, resolve);
+      } else {
+        this._props0 = { ...this._props0, ...newProps };
+        resolve();
+      }
+    });
   }
 }

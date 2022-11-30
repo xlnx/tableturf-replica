@@ -1,0 +1,65 @@
+@ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+
+.card-small-overlay {
+  background: white;
+  opacity: 0;
+  transition: all 0.3s @ease-in-out-expo;
+}
+
+.card-small-active:hover .card-small-overlay,
+.card-small-active.card-small-selected .card-small-overlay {
+  opacity: 0.2;
+}
+
+.card-small-inactive .card-small-overlay {
+  background: black;
+  opacity: 0.5
+}
+
+.card-small-body {
+  transform-origin: center;
+  transition: rotate 0.15s @ease-in-out-expo;
+}
+
+.card-small-active:hover .card-small-body,
+.card-small-active.card-small-selected .card-small-body {
+  rotate: -2deg;
+}
+
+.card-small-glow {
+  opacity: 0;
+  transition: all 0.3s @ease-in-out-expo;
+}
+
+.card-small-active:hover .card-small-glow,
+.card-small-active.card-small-selected .card-small-glow {
+  opacity: 0.3;
+}
+
+.card-small-glow:before {
+  content: "";
+  position: absolute;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url(textures/LightDS_00.webp);
+  background-repeat: repeat-y;
+  background-position: 0 0;
+  animation: card-small-glow-motion 2.5s linear infinite;
+  transform-origin: center;
+  transform: rotate(60deg);
+}
+
+.card-small-glow {
+  filter: url(#svg-filter-multiply);
+}
+
+@keyframes card-small-glow-motion {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 1000px 0;
+  }
+}

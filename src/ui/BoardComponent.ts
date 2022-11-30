@@ -39,7 +39,8 @@ interface IBoardComponentProps {
   acceptInput: boolean;
 }
 
-type OnPlayerInputFn = (e: CardPlacement, ok: boolean) => void;
+type OnUpdateInputFn = (e: CardPlacement, ok: boolean) => void;
+type OnInputFn = (e: CardPlacement) => void;
 
 export class BoardComponent extends Component<IBoardComponentProps> {
   private readonly root: Container;
@@ -59,7 +60,8 @@ export class BoardComponent extends Component<IBoardComponentProps> {
   private lk: boolean = false;
   private selection: number[];
 
-  private onPlayerInputFn: OnPlayerInputFn = () => {};
+  private onUpdateInputFn: OnUpdateInputFn = () => {};
+  private onInputFn: OnInputFn = () => {};
 
   layout = {
     width: 24,
@@ -220,6 +222,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
         return;
       }
       self.send("player.input", move);
+      this.onInputFn(move);
       self.lk = true;
       self.flash.update({
         matrix: {
@@ -235,7 +238,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       this.handle(
         class extends PointerHandler {
           move(pos: Coordinate): void {
-            if (self.lk) {
+            if (self.lk || !self.board) {
               return;
             }
             if (!self.props.acceptInput.value) {
@@ -444,8 +447,12 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     await this.flashAnimation.play();
   }
 
-  onPlayerInput(fn: OnPlayerInputFn) {
-    this.onPlayerInputFn = fn;
+  onUpdateInput(fn: OnUpdateInputFn) {
+    this.onUpdateInputFn = fn;
+  }
+
+  onInput(fn: OnInputFn) {
+    this.onInputFn = fn;
   }
 
   private uiUpdateInput(input?: IPlayerInput): CardPlacement {
@@ -493,7 +500,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       matrix: { ...this.board, values: this.selection.slice() },
     });
 
-    this.onPlayerInputFn(move, ok);
+    this.onUpdateInputFn(move, ok);
 
     return move;
   }

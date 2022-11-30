@@ -25,8 +25,6 @@ export class PulseAnimation {
       options
     );
     this.v = this.opts.from;
-
-    setTimeout(() => this.opts.update(this.v), 0);
   }
 
   send(): Promise<void> {
@@ -59,6 +57,7 @@ export class PulseAnimation {
       const dts = (t - t0) / 1000;
       if (dts >= dt) {
         this.v = v2;
+        keyframe(this.v);
         resolve();
         return;
       }
