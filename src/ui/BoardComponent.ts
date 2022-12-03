@@ -214,7 +214,10 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     const getGridPos = (pos: Coordinate) => {
       const { x, y } = getLocalPos(pos, self.hitbox);
       const [w, h] = self.board.size;
-      return { x: Math.floor(x * w), y: Math.floor(y * h) };
+      return {
+        x: Math.min(w - 1, Math.max(0, Math.floor(x * w))),
+        y: Math.min(h - 1, Math.max(0, Math.floor(y * h))),
+      };
     };
 
     const sendPlayerInput = async (move: CardPlacement) => {
