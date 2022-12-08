@@ -12,7 +12,6 @@ import {
 import { Color } from "../engine/Color";
 import { Texture } from "pixi.js";
 import { MessageBar } from "./MessageBar";
-import { Component } from "../engine/Component";
 import { System } from "../engine/System";
 import { DeckEditWindow } from "./DeckEditWindow";
 import { Lobby } from "../Lobby";
@@ -194,18 +193,20 @@ class Panel extends ReactComponent<Props> {
     const historyPanel = (
       <Box
         sx={{
-          position: "absolute",
-          width: 350,
-          height: 690,
-          left: 1550,
-          top: 32,
-          overflowX: "hidden",
-          overflowY: "auto",
           pointerEvents: "all",
           userSelect: "none",
         }}
       >
-        <List>
+        <List
+          sx={{
+            position: "absolute",
+            width: 350,
+            maxHeight: 690,
+            left: 1550,
+            top: 16,
+            overflow: "auto",
+          }}
+        >
           <TransitionGroup>
             {this.props.history
               .slice()
