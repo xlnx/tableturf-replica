@@ -6,7 +6,7 @@ import { BasicButton } from "../Theme";
 import { P2PHost } from "../../P2P";
 import { Lobby } from "../../Lobby";
 import { MessageBar } from "../components/MessageBar";
-import { LoadingScreen } from "../components/LoadingScreen";
+import { LoadingBar } from "../components/LoadingBar";
 
 class OnlinePlayActivity_0 extends Activity {
   init() {
@@ -30,7 +30,9 @@ class OnlinePlayActivity_0 extends Activity {
         if (!peer) {
           throw `invalid invite link: ${url}`;
         }
-        await LoadingScreen.wait(Lobby.connectP2P(peer, 20));
+        await LoadingBar.wait(Lobby.connectP2P(peer, 20), {
+          message: "Connecting...",
+        });
         MessageBar.success(`connected to peer ${url}`);
       } catch (err) {
         MessageBar.error(err);

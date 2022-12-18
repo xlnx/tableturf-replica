@@ -4,7 +4,7 @@ import { MessageBar } from "./components/MessageBar";
 import { Theme } from "./Theme";
 import { Window } from "../engine/Window";
 import { ActivityPanel } from "./Activity";
-import { LoadingScreen } from "./components/LoadingScreen";
+import { LoadingBar } from "./components/LoadingBar";
 
 class ControlPanel_0 extends Window {
   renderReact(): React.ReactNode {
@@ -13,7 +13,7 @@ class ControlPanel_0 extends Window {
         {/* <SquidDialDialog /> */}
         {ActivityPanel.node}
         {MessageBar.node}
-        {LoadingScreen.node}
+        {LoadingBar.node}
       </ThemeProvider>
     );
   }
