@@ -11,7 +11,7 @@ import {
 } from "../core/Tableturf";
 import { Color } from "../engine/Color";
 import { Texture } from "pixi.js";
-import { MessageBar } from "./MessageBar";
+import { MessageBar } from "./components/MessageBar";
 import { System } from "../engine/System";
 import { DeckEditWindow } from "./DeckEditWindow";
 import { Lobby } from "../Lobby";
@@ -67,7 +67,6 @@ class Panel extends ReactComponent<Props> {
   }
 
   init(): Props {
-    this.window.board.onInput((move) => this.processMove(move));
     const stage = 3;
     return {
       // ...
@@ -191,60 +190,53 @@ class Panel extends ReactComponent<Props> {
     );
 
     const historyPanel = (
-      <Box
+      <List
         sx={{
-          pointerEvents: "all",
-          userSelect: "none",
+          position: "absolute",
+          width: 350,
+          maxHeight: 690,
+          left: 1550,
+          top: 16,
+          overflow: "auto",
         }}
       >
-        <List
-          sx={{
-            position: "absolute",
-            width: 350,
-            maxHeight: 690,
-            left: 1550,
-            top: 16,
-            overflow: "auto",
-          }}
-        >
-          <TransitionGroup>
-            {this.props.history
-              .slice()
-              .reverse()
-              .map(({ card, isInDeck }) => (
-                <CSSTransition
-                  timeout={200}
-                  classNames="try-out-history-bar"
-                  key={card}
-                >
-                  <Box sx={{ p: 1 }}>
-                    <Paper
+        <TransitionGroup>
+          {this.props.history
+            .slice()
+            .reverse()
+            .map(({ card, isInDeck }) => (
+              <CSSTransition
+                timeout={200}
+                classNames="try-out-history-bar"
+                key={card}
+              >
+                <Box sx={{ p: 1 }}>
+                  <Paper
+                    sx={{
+                      height: 72,
+                      p: 1,
+                      boxSizing: "border-box",
+                      boxShadow: "4px 4px 2px rgba(0, 0, 0, 0.3)",
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: isInDeck
+                        ? ColorPalette.Main.bg.primary.hexSharp
+                        : Color.BLACK.hexSharp,
+                    }}
+                  >
+                    <Typography
                       sx={{
-                        height: 72,
-                        p: 1,
-                        boxSizing: "border-box",
-                        boxShadow: "4px 4px 2px rgba(0, 0, 0, 0.3)",
-                        display: "flex",
-                        alignItems: "center",
-                        backgroundColor: isInDeck
-                          ? ColorPalette.Main.bg.primary.hexSharp
-                          : Color.BLACK.hexSharp,
+                        textShadow: "2px 2px black",
                       }}
                     >
-                      <Typography
-                        sx={{
-                          textShadow: "2px 2px black",
-                        }}
-                      >
-                        {getCardById(card).name}
-                      </Typography>
-                    </Paper>
-                  </Box>
-                </CSSTransition>
-              ))}
-          </TransitionGroup>
-        </List>
-      </Box>
+                      {getCardById(card).name}
+                    </Typography>
+                  </Paper>
+                </Box>
+              </CSSTransition>
+            ))}
+        </TransitionGroup>
+      </List>
     );
 
     const MyBtn = styled(BasicButton)(({ theme }) => ({
@@ -361,6 +353,7 @@ class TryOutWindow_0 extends Window {
       },
       acceptInput: true,
     });
+    this.board.onInput((move) => this.panel.processMove(move));
   }
 
   renderReact(): React.ReactNode {

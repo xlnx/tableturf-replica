@@ -74,8 +74,6 @@ export function CardSmall({
       style={{
         width,
         height: (h / w) * width,
-        pointerEvents: "all",
-        userSelect: "none",
       }}
       onClick={handleClick}
     >

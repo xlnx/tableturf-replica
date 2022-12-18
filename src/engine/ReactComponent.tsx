@@ -2,16 +2,13 @@ import React from "react";
 import { Awaiter } from "./Awaiter";
 
 export abstract class ReactComponent<Props = {}> extends Awaiter {
-  private _props0: Partial<Props>;
+  private _props0: Props = this.init();
   private _props: Props;
   private _setProps: any;
   private _node: React.ReactNode = (() => {
     const self = this;
     class Outer extends React.Component<{}, Props> {
-      state = {
-        ...self.init(),
-        ...self._props0,
-      };
+      state = { ...self._props0 };
       Inner = () => <React.Fragment>{self.render()}</React.Fragment>;
       componentDidMount() {
         self.componentDidMount();
@@ -37,7 +34,7 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
   }
 
   get props() {
-    return this._props;
+    return this._props || this._props0;
   }
 
   update(newProps: Partial<Props>): Promise<void> {

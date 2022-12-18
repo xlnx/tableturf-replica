@@ -9,6 +9,7 @@ import { WindowManager } from "./engine/WindowManager";
 import { GamePlayWindow } from "./ui/GamePlayWindow";
 import { DeckEditWindow } from "./ui/DeckEditWindow";
 import { InkResetAnimation } from "./ui/InkResetAnimation";
+import { RootActivity } from "./ui/activities/RootActivity";
 
 const logger = getLogger("main");
 logger.setLevel("debug");
@@ -30,6 +31,8 @@ WindowManager.install({
   ],
 });
 
+RootActivity.show();
+
 TryOutWindow.show();
 ControlPanel.show();
 
@@ -42,3 +45,23 @@ if (peer) {
     logger.log(err);
   }
 }
+
+// import "./Main.less";
+
+// import { getLogger } from "loglevel";
+// import { WindowManager } from "./engine/WindowManager";
+// import { TestWindow } from "./ui/TestWindow";
+
+// const logger = getLogger("main");
+// logger.setLevel("debug");
+
+// WindowManager.install({
+//   name: "Tableturf Replica",
+//   layers: [
+//     {
+//       windows: [TestWindow],
+//     },
+//   ],
+// });
+
+// TestWindow.show();

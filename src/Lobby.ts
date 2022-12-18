@@ -2,7 +2,7 @@ import { getLogger } from "loglevel";
 import { GamePlayWindow } from "./ui/GamePlayWindow";
 import { InkResetAnimation } from "./ui/InkResetAnimation";
 import { TryOutWindow } from "./ui/TryOutWindow";
-import { MessageBar } from "./ui/MessageBar";
+import { MessageBar } from "./ui/components/MessageBar";
 import { Controller } from "./Controller";
 import { Window } from "./engine/Window";
 import { TableturfClientState, TableturfPlayerInfo } from "./Game";
@@ -67,13 +67,9 @@ class Lobby_0 {
   }
 
   async connectP2P(matchId: string, timeout: number) {
-    try {
-      const client = await P2PClient.connect(matchId, timeout);
-      this.activate(client);
-      MessageBar.success(`connection established: ${matchId}`);
-    } catch (err) {
-      MessageBar.error(err.toString());
-    }
+    const client = await P2PClient.connect(matchId, timeout);
+    this.activate(client);
+    MessageBar.success(`connection established: ${matchId}`);
   }
 
   async handleClientConenct() {

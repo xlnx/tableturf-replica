@@ -14,7 +14,6 @@
     "@boardgame.io/p2p": "https://github.com/xlnx/p2p#dist",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
-    "@mui/icons-material": "^5.10.14",
     "@mui/material": "^5.10.10",
     "@pixi/tilemap": "^3.2.2",
     "base64url": "^3.0.1",

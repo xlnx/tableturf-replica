@@ -20,22 +20,21 @@
   height: 100%;
 }
 
-.window {
+.layer {
   .box-full;
   position: absolute;
-}
-
-.layer {
-  .window;
+  pointer-events: none;
 }
 
 .layer-h5-root {
   position: absolute;
 }
 
-.canvas {
-  .window;
+.window, .canvas {
+  .box-full;
+  position: absolute;
   pointer-events: all;
+  user-select: none;
 }
 
 .overlay {

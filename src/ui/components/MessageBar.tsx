@@ -1,8 +1,8 @@
 import React from "react";
 import { v4 } from "uuid";
-import { ReactComponent } from "../engine/ReactComponent";
+import { ReactComponent } from "../../engine/ReactComponent";
 import { Box, List, Paper, Typography } from "@mui/material";
-import { ResponsiveBox } from "./Theme";
+import { ResponsiveBox } from "../Theme";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import "./MessageBar.less";

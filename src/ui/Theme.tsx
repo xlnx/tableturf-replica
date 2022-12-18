@@ -49,6 +49,7 @@ interface MyDialogProps extends PaperProps_0 {
   onClose: () => void;
 }
 
+// TODO: dialogs aren't needed anymore
 export function MyDialog({ children, open, sx, onClose }: MyDialogProps) {
   return (
     <div
@@ -143,16 +144,8 @@ export const Theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          pointerEvents: "all",
-          backgroundColor: "rgba(0, 0, 0, 0.9)",
+          backgroundColor: "rgba(0, 0, 0, 0.92)",
           boxShadow: "5px 5px 10px 5px rgba(0, 0, 0, 0.4)",
-        },
-      },
-    },
-    MuiButtonBase: {
-      styleOverrides: {
-        root: {
-          pointerEvents: "all",
         },
       },
     },

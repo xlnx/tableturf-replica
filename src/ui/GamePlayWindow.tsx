@@ -23,7 +23,7 @@ import {
   CardPlacement,
 } from "../core/Tableturf";
 import { Controller } from "../Controller";
-import { MessageBar } from "./MessageBar";
+import { MessageBar } from "./components/MessageBar";
 import { ReactNode } from "react";
 import { ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "./Theme";

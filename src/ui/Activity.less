@@ -1,0 +1,69 @@
+@slide-offset: -15%;
+
+@keyframes front-activity-in {
+  0% {
+    left: @slide-offset;
+    opacity: 0;
+    pointer-events: none;
+  }
+  99% {
+    left: 0;
+    opacity: 1;
+    pointer-events: none;
+  }
+  100% {
+    left: 0;
+    opacity: 1;
+    pointer-events: inherit;
+  }
+}
+
+@keyframes front-activity-out {
+  0% {
+    left: 0;
+    opacity: 1;
+    pointer-events: none;
+  }
+  99% {
+    left: @slide-offset;
+    opacity: 0;
+    pointer-events: none;
+  }
+  100% {
+    left: @slide-offset;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+}
+
+@keyframes back-activity-in {
+  0% {
+    opacity: 0;
+    pointer-events: none;
+  }
+  99% {
+    opacity: 1;
+    pointer-events: none;
+  }
+  100% {
+    opacity: 1;
+    pointer-events: inherit;
+  }
+}
+
+@keyframes back-activity-out {
+  0% {
+    opacity: 1;
+    pointer-events: none;
+  }
+  99% {
+    opacity: 0;
+    pointer-events: none;
+  }
+  100% {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+}

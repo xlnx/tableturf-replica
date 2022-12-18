@@ -1,0 +1,15 @@
+@keyframes loading-circle-rotate {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-circle {
+  transform-origin: center;
+  background: url(/textures/IconUp_00.webp);
+  background-size: 100% 100%;
+  animation: loading-circle-rotate 2s infinite linear;
+}
