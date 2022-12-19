@@ -13,6 +13,9 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
       componentDidMount() {
         self.componentDidMount();
       }
+      componentDidUpdate(_, prevState: Readonly<Props>) {
+        self.componentDidUpdate(prevState);
+      }
       render(): React.ReactNode {
         const { Inner } = this;
         self._props = this.state;
@@ -28,6 +31,8 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
   abstract render(): React.ReactNode;
 
   componentDidMount() {}
+
+  componentDidUpdate(prevProps: Readonly<Props>) {}
 
   get node() {
     return this._node;

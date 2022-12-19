@@ -3,6 +3,7 @@ import "./Activity.less";
 import React from "react";
 import { Box, Button, Card, Paper, CardHeader, Divider } from "@mui/material";
 import { ReactComponent } from "../engine/ReactComponent";
+import { v4 } from "uuid";
 
 interface ActivityProps {
   zIndex: number;
@@ -13,6 +14,8 @@ interface ActivityProps {
 export abstract class Activity<Props extends {} = {}> extends ReactComponent<
   Props & ActivityProps
 > {
+  public readonly id = v4();
+
   async back() {
     return true;
   }
@@ -81,70 +84,89 @@ function ActivityBody({ activity }: ActivityBodyProps) {
   );
 }
 
-interface TransitionProps {
-  src: Activity;
-  dst: Activity;
-  dt: number;
-}
-
-function Transition({ src, dst, dt }: TransitionProps) {
-  const frontIn = dst.props.zIndex > src.props.zIndex;
-  return (
-    <>
-      <div
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          zIndex: dst.props.zIndex,
-          animationName: frontIn ? "front-activity-in" : "back-activity-in",
-          animationDuration: `${dt}ms`,
-          animationTimingFunction: frontIn
-            ? "ease-out"
-            : "cubic-bezier(0.16, 1, 0.3, 1)",
-          animationFillMode: "forwards",
-        }}
-      >
-        <ActivityBody activity={dst} />
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-          zIndex: src.props.zIndex,
-          animationName: frontIn ? "back-activity-out" : "front-activity-out",
-          animationDuration: `${dt}ms`,
-          animationTimingFunction: frontIn
-            ? "cubic-bezier(0.7, 0, 0.84, 0)"
-            : "ease-in",
-          animationFillMode: "forwards",
-        }}
-      >
-        <ActivityBody activity={src} />
-      </div>
-    </>
-  );
-}
-
 interface ActivityPanelProps {
-  activity: Activity;
-  view: React.ReactNode;
+  activities: Set<Activity>;
+  current: Activity;
+  previous: Activity;
 }
 
 class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
   init() {
     return {
-      activity: null,
-      view: null,
+      activities: new Set<Activity>(),
+      current: null,
+      previous: null,
     };
   }
 
+  async toggle(activity: Activity) {
+    if (activity == this.props.current) {
+      return;
+    }
+    this.props.activities.add(activity);
+    await this.update({
+      current: activity,
+      previous: this.props.current,
+      activities: this.props.activities,
+    });
+  }
+
   render(): React.ReactNode {
-    const w = 128;
-    const wi = 32;
     const [state, setState] = React.useState({
       open: false,
+    });
+    const w = 128;
+    const wi = 32;
+    const dt = 300;
+    const activities = [];
+    this.props.activities.forEach((activity) => {
+      let extra: any = {
+        visibility: "hidden",
+      };
+      const isDst = this.props.current == activity;
+      const isSrc = this.props.previous == activity;
+      if (!this.props.previous) {
+        if (isDst) {
+          extra = { visibility: "visible" };
+        }
+      } else {
+        const frontIn =
+          this.props.current.props.zIndex > this.props.previous.props.zIndex;
+        if (isDst) {
+          extra = {
+            animationName: frontIn ? "front-activity-in" : "back-activity-in",
+            animationDuration: `${dt}ms`,
+            animationTimingFunction: frontIn
+              ? "ease-out"
+              : "cubic-bezier(0.16, 1, 0.3, 1)",
+            animationFillMode: "forwards",
+          };
+        }
+        if (isSrc) {
+          extra = {
+            animationName: frontIn ? "back-activity-out" : "front-activity-out",
+            animationDuration: `${dt}ms`,
+            animationTimingFunction: frontIn
+              ? "cubic-bezier(0.7, 0, 0.84, 0)"
+              : "ease-in",
+            animationFillMode: "forwards",
+          };
+        }
+      }
+      activities.push(
+        <div
+          key={activity.id}
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            zIndex: activity.props.zIndex,
+            ...extra,
+          }}
+        >
+          <ActivityBody activity={activity} />
+        </div>
+      );
     });
     return (
       <Box
@@ -186,30 +208,10 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
             ></div>
           </Box>
         </Paper>
-        {this.props.view}
+        {activities}
+        {/* {this.props.view} */}
       </Box>
     );
-  }
-
-  async toggle(activity: Activity) {
-    if (this.props.activity == null) {
-      await this.update({
-        activity,
-        view: <ActivityBody activity={activity} />,
-      });
-      return;
-    }
-    console.assert(activity.props.zIndex != this.props.activity.props.zIndex);
-    await this.update({
-      activity,
-      view: (
-        <Transition
-          src={this.props.activity}
-          dst={activity}
-          dt={300}
-        ></Transition>
-      ),
-    });
   }
 }
 
