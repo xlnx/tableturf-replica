@@ -2,11 +2,12 @@ import React from "react";
 import { Grid, TextField, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
-import { P2PHost } from "../../P2P";
 import { Lobby } from "../../Lobby";
 import { MessageBar } from "../components/MessageBar";
-import { LoadingBar } from "../components/LoadingBar";
+import { LoadingDialog } from "../components/LoadingDialog";
 import { OnlinePlayActivity } from "./OnlinePlayActivity";
+import { Client } from "../../net/Client";
+import { P2PClient } from "../../net/P2P";
 
 class ViaInviteLinkActivity_0 extends Activity {
   init() {
@@ -23,17 +24,18 @@ class ViaInviteLinkActivity_0 extends Activity {
     const handleConnect = async () => {
       const { url } = state;
       try {
-        const peer = new URL(url).searchParams.get("peer");
-        if (peer == P2PHost.matchId) {
-          throw `cannot connect to yourself`;
-        }
-        if (!peer) {
+        const matchId = new URL(url).searchParams.get("peer");
+        if (!matchId) {
           throw `invalid invite link: ${url}`;
         }
-        await LoadingBar.wait(Lobby.connectP2P(peer, 20), {
+        if (Client.current && Client.current.matchId == matchId) {
+          throw `cannot connect to yourself`;
+        }
+        await LoadingDialog.wait({
+          task: P2PClient.connect(matchId),
           message: "Connecting...",
         });
-        MessageBar.success(`connected to peer ${url}`);
+        MessageBar.success(`connected to ${url}`);
       } catch (err) {
         MessageBar.error(err);
       }
@@ -65,7 +67,7 @@ class ViaInviteLinkActivity_0 extends Activity {
         >
           <Grid container spacing={4} justifyContent={"flex-end"}>
             <Grid item xs={6}>
-              <BasicButton sx={{ width: "100%" }} onClick={handleConnect}>
+              <BasicButton fullWidth onClick={handleConnect}>
                 Connect
               </BasicButton>
             </Grid>

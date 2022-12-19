@@ -3,11 +3,12 @@ import { Grid, TextField, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
-import { P2PHost } from "../../P2P";
 import { Lobby } from "../../Lobby";
 import { MessageBar } from "../components/MessageBar";
-import { LoadingBar } from "../components/LoadingBar";
+import { LoadingDialog } from "../components/LoadingDialog";
 import { ViaInviteLinkActivity } from "./ViaInviteLinkActivity";
+import { P2PHost } from "../../net/P2P";
+import { MatchActivity } from "./MatchActivity";
 
 class OnlinePlayActivity_0 extends Activity {
   init() {
@@ -19,16 +20,13 @@ class OnlinePlayActivity_0 extends Activity {
   }
 
   render() {
-    // const newRoom = () => {
-    //   if (navigator.clipboard) {
-    //     navigator.clipboard.writeText(P2PHost.url);
-    //     MessageBar.success(`successfully copied invite link to clipboard`);
-    //   } else {
-    //     console.log(P2PHost.url);
-    //     MessageBar.warning(`logged to console since context is not secure`);
-    //   }
-    // };
-    const newRoom = () => {};
+    const newRoom = async () => {
+      const client = await LoadingDialog.wait({
+        task: P2PHost.create(),
+        message: "Creating Room...",
+      });
+      MatchActivity.run(client);
+    };
 
     return (
       <>
@@ -46,14 +44,14 @@ class OnlinePlayActivity_0 extends Activity {
           <Grid container spacing={4} justifyContent={"flex-end"}>
             <Grid item xs={6}>
               <BasicButton
-                sx={{ width: "100%" }}
+                fullWidth
                 onClick={() => ViaInviteLinkActivity.show()}
               >
                 Via Invite Link
               </BasicButton>
             </Grid>
             <Grid item xs={6}>
-              <BasicButton sx={{ width: "100%" }} onClick={newRoom}>
+              <BasicButton fullWidth onClick={newRoom}>
                 + New Room
               </BasicButton>
             </Grid>

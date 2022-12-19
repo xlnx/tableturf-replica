@@ -16,22 +16,12 @@ class RootActivity_0 extends Activity {
     return (
       <Grid container spacing={4} sx={{ p: 2 }}>
         <Grid item xs={12}>
-          <BasicButton
-            sx={{ width: "100%" }}
-            onClick={() => {
-              OnlinePlayActivity.show();
-            }}
-          >
+          <BasicButton fullWidth onClick={() => OnlinePlayActivity.show()}>
             Online Play
           </BasicButton>
         </Grid>
         <Grid item xs={12}>
-          <BasicButton
-            sx={{ width: "100%" }}
-            onClick={() => {
-              LocalPlayActivity.show();
-            }}
-          >
+          <BasicButton fullWidth onClick={() => LocalPlayActivity.show()}>
             Local Play
           </BasicButton>
         </Grid>
