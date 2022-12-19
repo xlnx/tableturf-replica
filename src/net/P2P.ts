@@ -49,7 +49,7 @@ export class P2PClient extends Client {
           logger.warn(err);
         },
         onClose: () => {
-          console.log("closed");
+          console.info("client closed");
           // if (this.isConnected) {
           //   this.handleDisconnect();
           // }

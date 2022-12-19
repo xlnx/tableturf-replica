@@ -14,7 +14,7 @@ import { Texture } from "pixi.js";
 import { MessageBar } from "./components/MessageBar";
 import { System } from "../engine/System";
 import { DeckEditWindow } from "./DeckEditWindow";
-import { Lobby } from "../Lobby";
+// import { Lobby } from "../Lobby";
 import { DB } from "../Database";
 import BgMotionGlsl from "./shaders/BgMotion.glsl?raw";
 import React from "react";

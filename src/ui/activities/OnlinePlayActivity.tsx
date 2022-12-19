@@ -25,7 +25,7 @@ class OnlinePlayActivity_0 extends Activity {
         task: P2PHost.create(),
         message: "Creating Room...",
       });
-      MatchActivity.run(client);
+      MatchActivity.start(client);
     };
 
     return (

@@ -2,12 +2,12 @@ import React from "react";
 import { Grid, TextField, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
-import { Lobby } from "../../Lobby";
 import { MessageBar } from "../components/MessageBar";
 import { LoadingDialog } from "../components/LoadingDialog";
 import { OnlinePlayActivity } from "./OnlinePlayActivity";
 import { Client } from "../../net/Client";
 import { P2PClient } from "../../net/P2P";
+import { MatchActivity } from "./MatchActivity";
 
 class ViaInviteLinkActivity_0 extends Activity {
   init() {
@@ -31,11 +31,12 @@ class ViaInviteLinkActivity_0 extends Activity {
         if (Client.current && Client.current.matchId == matchId) {
           throw `cannot connect to yourself`;
         }
-        await LoadingDialog.wait({
+        const client = await LoadingDialog.wait({
           task: P2PClient.connect(matchId),
           message: "Connecting...",
         });
         MessageBar.success(`connected to ${url}`);
+        MatchActivity.start(client);
       } catch (err) {
         MessageBar.error(err);
       }

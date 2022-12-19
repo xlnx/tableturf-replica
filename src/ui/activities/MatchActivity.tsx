@@ -2,17 +2,19 @@ import { Box, Grid } from "@mui/material";
 import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
-import { Lobby } from "../../Lobby";
 import { getLogger } from "loglevel";
 import { TableturfClientState, TableturfPlayerInfo } from "../../Game";
-import { Client } from "../../net/Client";
+import { Client, TransportData } from "../../net/Client";
 import { AlertDialog } from "../components/AlertDialog";
 import { P2PHost } from "../../net/P2P";
 import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
+import { GamePlayWindow } from "../GamePlayWindow";
+import { InkResetAnimation } from "../InkResetAnimation";
+import { TryOutWindow } from "../TryOutWindow";
 
 const logger = getLogger("main-dialog");
-logger.setLevel("info");
+logger.setLevel("debug");
 
 interface MatchActivityProps {
   client: Client;
@@ -24,16 +26,6 @@ interface MatchActivityProps {
 }
 
 class MatchActivity_0 extends Activity<MatchActivityProps> {
-  constructor() {
-    super();
-    // Controller.subscribe(this._handleUpdate.bind(this));
-  }
-
-  async run(client: Client) {
-    await this.update({ client });
-    this.show();
-  }
-
   init() {
     return {
       zIndex: 10,
@@ -45,6 +37,14 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       players: Array(2).fill(null),
       playing: false,
     };
+  }
+
+  async start(client: Client) {
+    await this.update({ client });
+    client.on("data", this.handleData.bind(this));
+    client.on("update", this.handleUpdate.bind(this));
+    GamePlayWindow.bind(client);
+    this.show();
   }
 
   async back() {
@@ -59,22 +59,51 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     return ok;
   }
 
-  // private _handleUpdate(state: TableturfClientState) {
-  //   logger.log("update state:", state);
-  //   const { G, ctx } = state;
-  //   if (ctx.phase == "game") {
-  //     if (!this.props.playing) {
-  //       this.update({ playing: true });
-  //     }
-  //   }
-  //   if (ctx.phase == "prepare") {
-  //     this.update({
-  //       ready: G.ready[Lobby.playerId],
-  //       players: G.players,
-  //       playing: false,
-  //     });
-  //   }
-  // }
+  private async handleData(data: TransportData) {
+    if (data.type == "matchData") {
+      if (
+        this.props.playing &&
+        !data.args[1].every(({ isConnected }) => isConnected)
+      ) {
+        // someone has fall offline
+        InkResetAnimation.play(async () => {
+          GamePlayWindow.send("cancel");
+          TryOutWindow.show();
+        });
+      }
+    }
+  }
+
+  private async handleUpdate(
+    { G, ctx }: TableturfClientState,
+    { G: G0, ctx: ctx0 }: TableturfClientState
+  ) {
+    const enter = (phase: string) =>
+      ctx.phase == phase && ctx0.phase != ctx.phase;
+
+    // init
+    if (enter("init")) {
+      InkResetAnimation.play(async () => {
+        GamePlayWindow.uiReset(G);
+        GamePlayWindow.show();
+      });
+    }
+
+    switch (ctx.phase) {
+      case "game":
+        if (!this.props.playing) {
+          await this.update({ playing: true });
+        }
+        return;
+      case "prepare":
+        await this.update({
+          ready: G.ready[this.props.client.playerId],
+          players: G.players,
+          playing: false,
+        });
+        return;
+    }
+  }
 
   render() {
     const copyInviteLink = () => {
@@ -146,7 +175,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
           <Grid container spacing={4} justifyContent={"flex-end"}>
             {copyInviteLinkBtn}
             <Grid item xs={6}>
-              <BasicButton fullWidth onClick={() => console.log("ready")}>
+              <BasicButton
+                fullWidth
+                selected={this.props.ready}
+                onClick={() => this.props.client.send("toggleReady")}
+              >
                 Ready!
               </BasicButton>
             </Grid>

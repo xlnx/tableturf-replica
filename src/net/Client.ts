@@ -11,6 +11,7 @@ import {
   TableturfGameState,
   TableturfPlayerInfo,
 } from "../Game";
+import { DB } from "../Database";
 
 const logger = getLogger("client");
 logger.setLevel("info");
@@ -31,7 +32,7 @@ type SyncInfo = {
   log: LogEntry[];
 };
 
-type TransportData =
+export type TransportData =
   | {
       type: "update";
       args: [string, State, LogEntry[]];
@@ -133,7 +134,7 @@ export class Client {
   stop() {
     this._detachStateUpdateListener();
     this.client.stop();
-    logger.info(`connection stopped: ${this.matchId}`);
+    logger.info(`connection closed: ${this.matchId}`);
   }
 
   send(method: string, ...args: any[]) {
@@ -145,6 +146,15 @@ export class Client {
     }
   }
 
+  updatePlayerInfo({ name, ...rest }: Partial<TableturfPlayerInfo>) {
+    const state = this.client.getState().G.players[this.playerId];
+    let time: string;
+    if (!state || name != state.name) {
+      time = new Date().toUTCString();
+    }
+    this.send("updatePlayerInfo", { name, ...rest, time });
+  }
+
   on(event: "update", handler: ClientUpdateHandler);
 
   on(event: "data", handler: ClientDataHandler);
@@ -153,10 +163,17 @@ export class Client {
     switch (event) {
       case "update":
         this._updateHandlers.push(handler);
-        break;
+        if (!!this._prevState) {
+          try {
+            handler(this._prevState, this._prevState);
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+        return;
       case "data":
         this._dataHandlers.push(handler);
-        break;
+        return;
       default:
         throw `invalid event type: ${event}`;
     }
@@ -185,14 +202,18 @@ export class Client {
   }
 
   protected handleStateUpdate(state: TableturfClientState) {
+    if (!state.G.players[this.playerId]) {
+      this.updatePlayerInfo(DB.player);
+    }
     logger.log("state update:", state);
-    if (!!this._prevState) {
-      for (const handler of this._updateHandlers) {
-        try {
-          handler(state, this._prevState);
-        } catch (e) {
-          console.warn(e);
-        }
+    if (!this._prevState) {
+      this._prevState = state;
+    }
+    for (const handler of this._updateHandlers) {
+      try {
+        handler(state, this._prevState);
+      } catch (e) {
+        console.warn(e);
       }
     }
     this._prevState = state;

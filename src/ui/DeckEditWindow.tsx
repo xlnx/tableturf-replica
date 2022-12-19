@@ -5,7 +5,7 @@ import { Color } from "../engine/Color";
 import { Window } from "../engine/Window";
 import { getCardById } from "../core/Tableturf";
 import { TryOutWindow } from "./TryOutWindow";
-import { Lobby } from "../Lobby";
+// import { Lobby } from "../Lobby";
 import { MessageBar } from "./components/MessageBar";
 import { DB } from "../Database";
 import { ReactNode } from "react";

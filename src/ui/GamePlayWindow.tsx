@@ -12,7 +12,6 @@ import { EaseFunc } from "../engine/animations/Ease";
 import { SpMeterComponent } from "./SpMeterComponent";
 import { System } from "../engine/System";
 import { getLogger } from "loglevel";
-import { Lobby } from "../Lobby";
 import { enumerateBoardMoves, GameState } from "../core/Tableturf";
 import { TableturfClientState, TableturfGameState } from "../Game";
 import {
@@ -22,13 +21,13 @@ import {
   PlayerMovement,
   CardPlacement,
 } from "../core/Tableturf";
-import { Controller } from "../Controller";
 import { MessageBar } from "./components/MessageBar";
 import { ReactNode } from "react";
 import { ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "./Theme";
 import { Cell } from "../engine/Cell";
 import { ReactComponent } from "../engine/ReactComponent";
+import { Client } from "../net/Client";
 
 const logger = getLogger("game-play");
 logger.setLevel("debug");
@@ -104,6 +103,7 @@ class GamePlayWindow_0 extends Window {
   private readonly spMeter2: SpMeterComponent;
   private readonly panel: GamePlayWindowPanel;
 
+  private client: Client;
   private handId: number = -1;
   public spAttack: Cell<boolean>;
 
@@ -219,8 +219,8 @@ class GamePlayWindow_0 extends Window {
         const { count } = moveBoard(board, [e]);
         this.szMeter.update({
           preview: true,
-          preview1: count.area[Lobby.playerId],
-          preview2: count.area[1 - Lobby.playerId],
+          preview1: count.area[this.client.playerId],
+          preview2: count.area[1 - this.client.playerId],
         });
       }
     });
@@ -250,7 +250,7 @@ class GamePlayWindow_0 extends Window {
       const card =
         handId == -1
           ? null
-          : getCardById(this.game.players[Lobby.playerId].hand[handId]);
+          : getCardById(this.game.players[this.client.playerId].hand[handId]);
       this.handId = handId;
       if (this.spAttack.value) {
         this.spMeter1.update({ spAttack: card ? card.count.special : 0 });
@@ -323,7 +323,7 @@ class GamePlayWindow_0 extends Window {
           return;
         }
         const move: PlayerMovement = {
-          player: Lobby.playerId,
+          player: this.client.playerId,
           action: "discard",
           hand: this.handId,
         };
@@ -336,7 +336,7 @@ class GamePlayWindow_0 extends Window {
 
     this.spAttack = Cell.of(false).onUpdate((ok) => {
       if (ok) {
-        const player = this.game.players[Lobby.playerId];
+        const player = this.game.players[this.client.playerId];
         const mask = player.hand.map(
           (card) => getCardById(card).count.special <= player.count.special
         );
@@ -360,27 +360,30 @@ class GamePlayWindow_0 extends Window {
       });
       this.panel.update({ spAttack: ok });
     });
-
-    Controller.subscribe(this._updateState.bind(this));
   }
 
   protected renderReact(): ReactNode {
     return this.panel.node;
   }
 
+  bind(client: Client) {
+    this.client = client;
+    this.client.on("update", this._handleUpdate.bind(this));
+  }
+
   uiReset(G: TableturfGameState) {
-    const players = [Lobby.playerId, 1 - Lobby.playerId];
+    const players = [this.client.playerId, 1 - this.client.playerId];
 
     this.card1.update({ card: null });
     this.card2.update({ card: null });
 
     // init board
-    this.board.update({ playerId: Lobby.playerId, acceptInput: false });
+    this.board.update({ playerId: this.client.playerId, acceptInput: false });
     this.board.uiReset(G.game.board);
 
     //init hand
     this.hand.update({
-      cards: G.game.players[Lobby.playerId].hand.map(getCardById),
+      cards: G.game.players[this.client.playerId].hand.map(getCardById),
     });
 
     // init counters
@@ -391,10 +394,10 @@ class GamePlayWindow_0 extends Window {
     this.turnMeter.update({ value: G.game.round });
 
     // sync here
-    Lobby.send("sync");
+    this.client.send("sync");
   }
 
-  private _updateState(
+  private _handleUpdate(
     { G, ctx }: TableturfClientState,
     { G: G0, ctx: ctx0 }: TableturfClientState
   ) {
@@ -403,7 +406,7 @@ class GamePlayWindow_0 extends Window {
     const sleep = async (t: number) => this.addAnimation().play(t);
     const enter = (phase: string) =>
       ctx.phase == phase && ctx0.phase != ctx.phase;
-    const players = [Lobby.playerId, 1 - Lobby.playerId];
+    const players = [this.client.playerId, 1 - this.client.playerId];
 
     [this.card1, this.card2].forEach((ui, i) => {
       const player = players[i];
@@ -478,10 +481,10 @@ class GamePlayWindow_0 extends Window {
         ]);
 
         // draw card
-        const { hand } = moves[Lobby.playerId];
+        const { hand } = moves[this.client.playerId];
         await Promise.all([
           this.hand.uiDrawCard(
-            getCardById(G.game.players[Lobby.playerId].hand[hand]),
+            getCardById(G.game.players[this.client.playerId].hand[hand]),
             hand
           ),
           this.card1.uiHideCard(),
@@ -517,18 +520,20 @@ class GamePlayWindow_0 extends Window {
       this._uiTask.then(async () => {
         // will block state update
         const move = await this._queryMovement();
-        Lobby.send("move", move);
+        if (move) {
+          this.client.send("move", move);
+        }
       });
     }
   }
 
   private _updateHandFilter() {
     this.hand.uiUpdateFilter(
-      this.game.players[Lobby.playerId].hand.map(
+      this.game.players[this.client.playerId].hand.map(
         (card) =>
           enumerateBoardMoves(
             this.game,
-            Lobby.playerId,
+            this.client.playerId,
             card,
             !!this.spAttack.value
           ).length > 0
@@ -543,9 +548,11 @@ class GamePlayWindow_0 extends Window {
       input: {
         card:
           this.handId >= 0
-            ? getCardById(this.game.players[Lobby.playerId].hand[this.handId])
+            ? getCardById(
+                this.game.players[this.client.playerId].hand[this.handId]
+              )
             : null,
-        rotation: (2 * Lobby.playerId) as any,
+        rotation: (2 * this.client.playerId) as any,
         pointer: null,
         isSpecialAttack: false,
       },
@@ -560,7 +567,7 @@ class GamePlayWindow_0 extends Window {
           const { isSpecialAttack } = this.board.props.input.value;
           const { rotation, position } = input;
           const move: PlayerMovement = {
-            player: Lobby.playerId,
+            player: this.client.playerId,
             action: isSpecialAttack ? "special" : "trivial",
             hand: this.handId,
             params: {
@@ -570,7 +577,13 @@ class GamePlayWindow_0 extends Window {
           };
           return move;
         }),
+        this.receive("cancel").then(() => null),
       ]);
+      // canceled
+      if (move == null) {
+        logger.warn("input cancelled");
+        break;
+      }
       if (isGameMoveValid(this.game, move)) {
         break;
       }
