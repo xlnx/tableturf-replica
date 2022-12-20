@@ -4,15 +4,16 @@ import {
   TableturfClientState,
   TableturfPlayerInfo,
 } from "../Game";
-import { Bot, BotConnector, BotState } from "./Bot";
+import { Bot, BotConnector, BotSession } from "./Bot";
 import { Client } from "./Client";
 import {
   LocalMaster,
   LocalTransport,
 } from "boardgame.io/src/client/transport/local";
+import { PlayerMovement } from "../core/Tableturf";
 
 const logger = getLogger("bot-client");
-logger.setLevel("info");
+logger.setLevel("debug");
 
 const matchId = "bot";
 const BotConnectTimeoutSec = 15;
@@ -28,7 +29,7 @@ function Local(transportOpts): any {
 }
 
 class BotClientImpl extends Client {
-  private state: BotState;
+  private session: BotSession;
 
   constructor(private readonly bot: Bot) {
     super({
@@ -66,19 +67,26 @@ class BotClientImpl extends Client {
 
     // prepare
     if (enter("prepare")) {
-      this.state = null;
+      this.session = null;
     }
 
     // botInitHook
     if (enter("botInitHook")) {
-      console.assert(this.state == null);
-      this.state = await this.bot.createState({ player: this.playerId });
+      console.assert(this.session == null);
+      const { session, deck } = await this.bot.createSession({
+        player: this.playerId,
+        stage: G.stage,
+        deck: G.players[this.playerId].deck.slice(),
+      });
+      logger.log("create session ->", { session, deck });
+      this.session = session;
+      this.send("updatePlayerInfo", { deck });
       this.send("sync");
     }
 
     // init
     if (enter("init")) {
-      this.state.initialize(G.game);
+      this.session.initialize({ game: G.game });
       this.send("sync");
     }
 
@@ -86,7 +94,10 @@ class BotClientImpl extends Client {
       enter("game") ||
       (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0)
     ) {
-      const move = await this.state.query();
+      const move: PlayerMovement = {
+        ...(await this.session.query()),
+        player: this.playerId,
+      };
       this.send("move", move);
     }
   }
