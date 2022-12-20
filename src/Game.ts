@@ -20,7 +20,7 @@ export interface TableturfPlayerInfo {
 
 export interface TableturfGameState {
   // prepare phase
-  players: ((TableturfPlayerInfo & { time: string }) | null)[];
+  players: (TableturfPlayerInfo | null)[];
   ready: boolean[];
   stage: number;
   // game phase
@@ -36,7 +36,10 @@ export type TableturfClientState = Exclude<
   null
 >;
 
-const barrier: Partial<PhaseConfig<TableturfGameState>> = {
+const barrier = ({
+  moves,
+  ...rest
+}: Partial<PhaseConfig<TableturfGameState>>) => ({
   moves: {
     sync: {
       move: ({ G, playerID }) => {
@@ -45,6 +48,7 @@ const barrier: Partial<PhaseConfig<TableturfGameState>> = {
       },
       ignoreStaleStateID: true,
     },
+    ...moves,
   },
   turn: {
     activePlayers: ActivePlayers.ALL,
@@ -53,7 +57,8 @@ const barrier: Partial<PhaseConfig<TableturfGameState>> = {
   onEnd: ({ G }) => {
     G.sync = Array(2).fill(false);
   },
-};
+  ...rest,
+});
 
 export const StarterDeck = [
   6, 13, 22, 28, 40, 34, 45, 52, 55, 56, 159, 137, 141, 103, 92,
@@ -62,6 +67,29 @@ export const StarterDeck = [
 // [
 //   33, 159, 92, 25, 30, 52, 65, 50, 66, 64, 53, 58, 28, 74, 69,
 // ];
+
+const toggleReady = {
+  move: ({ G, playerID }, ready?: boolean) => {
+    const player = parseInt(playerID);
+    G.ready[player] = ready == null ? !G.ready[player] : ready;
+  },
+  ignoreStaleStateID: true,
+};
+
+const updatePlayerInfo = {
+  move: ({ G, playerID }, info: Partial<TableturfPlayerInfo>) => {
+    const player = parseInt(playerID);
+    G.players[player] = { ...G.players[player], ...info };
+  },
+  ignoreStaleStateID: true,
+};
+
+const resetPlayerInfo = {
+  move: ({ G }, player: PlayerId) => {
+    G.players[player] = null;
+  },
+  ignoreStaleStateID: true,
+};
 
 export const TableturfGame: Game<TableturfGameState> = {
   name: "tableturf",
@@ -73,7 +101,6 @@ export const TableturfGame: Game<TableturfGameState> = {
     // prepare phase
     players: Array(2).fill(null),
     ready: Array(2).fill(false),
-    decks: Array(2).fill(StarterDeck),
     stage: 1,
     // game phase
     game: null,
@@ -96,40 +123,26 @@ export const TableturfGame: Game<TableturfGameState> = {
     prepare: {
       onBegin: () => logger.debug(`prepare.begin`),
       moves: {
-        toggleReady: {
-          move: ({ G, playerID }) => {
-            const player = parseInt(playerID);
-            G.ready[player] = !G.ready[player];
-          },
-          ignoreStaleStateID: true,
-        },
-        updatePlayerInfo: {
-          move: (
-            { G, playerID },
-            info: Partial<TableturfPlayerInfo & { time: string }>
-          ) => {
-            const player = parseInt(playerID);
-            G.players[player] = { ...G.players[player], ...info };
-          },
-          ignoreStaleStateID: true,
-        },
-        resetPlayerInfo: {
-          move: ({ G }, player: PlayerId) => {
-            G.players[player] = null;
-          },
-          ignoreStaleStateID: true,
-        },
+        toggleReady,
+        updatePlayerInfo,
+        resetPlayerInfo,
       },
       turn: {
         activePlayers: ActivePlayers.ALL,
       },
       endIf: ({ G }) => G.ready.every((e) => e),
       onEnd: () => logger.debug(`prepare.end`),
-      next: "init",
+      next: "botInitHook",
     },
 
-    init: {
-      ...barrier,
+    botInitHook: barrier({
+      moves: {
+        updatePlayerInfo,
+      },
+      next: "init",
+    }),
+
+    init: barrier({
       onBegin: ({ G, random }) => {
         // TODO: shuffle cards here
         G.game = initGame(
@@ -140,7 +153,7 @@ export const TableturfGame: Game<TableturfGameState> = {
         // G.game.round = 0;
       },
       next: "game",
-    },
+    }),
 
     game: {
       onBegin: () => logger.debug(`game.begin`),

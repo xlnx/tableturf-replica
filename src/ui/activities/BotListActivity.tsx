@@ -1,8 +1,15 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, List } from "@mui/material";
 import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { BotViaNetworkActivity } from "./BotViaNetworkActivity";
+import { DummyBot } from "../../bots/DummyBot";
+import { BotConnector } from "../../net/Bot";
+import { LoadingDialog } from "../components/LoadingDialog";
+import { MatchActivity } from "./MatchActivity";
+import { BotClient } from "../../net/BotClient";
+
+const bots = [DummyBot.connector];
 
 class BotListActivity_0 extends Activity {
   init() {
@@ -14,9 +21,29 @@ class BotListActivity_0 extends Activity {
   }
 
   render() {
+    const handleConnect = async (connector: BotConnector) => {
+      const client = await LoadingDialog.wait({
+        message: "Connecting...",
+        task: BotClient.connect(connector),
+      });
+      MatchActivity.start(client);
+    };
+
+    const li = bots.map((connector) => (
+      <Box key={connector.id}>
+        <BasicButton fullWidth onClick={() => handleConnect(connector)}>
+          {connector.info.name}
+        </BasicButton>
+      </Box>
+    ));
+
     return (
       <>
-        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}></Grid>
+        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+          <Grid item xs={12}>
+            <List>{li}</List>
+          </Grid>
+        </Grid>
         <Box
           sx={{
             boxSizing: "border-box",

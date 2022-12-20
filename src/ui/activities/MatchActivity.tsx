@@ -21,7 +21,7 @@ interface MatchActivityProps {
   manualExit: boolean;
   // prepare phase
   ready: boolean;
-  players: (TableturfPlayerInfo & { time: string })[];
+  players: TableturfPlayerInfo[];
   // game info
   playing: boolean;
 }
@@ -106,10 +106,16 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       }
     }
 
+    // botInitHook
+    if (enter("botInitHook")) {
+      this.props.client.send("sync");
+    }
+
     // init
     if (enter("init")) {
       InkResetAnimation.play(async () => {
         GamePlayWindow.uiReset(G);
+        this.props.client.send("sync");
         GamePlayWindow.show();
       });
     }

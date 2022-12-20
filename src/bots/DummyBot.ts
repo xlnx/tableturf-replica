@@ -1,12 +1,13 @@
 import { getLogger } from "loglevel";
 import { GameState, PlayerMovement } from "../core/Tableturf";
 import {
-  Bot,
-  BotConnectOptions,
   BotCreateStateOptions,
-  BotMeta,
+  BotInfo,
   BotState,
-} from "./Bot";
+  Bot,
+  BotConnector,
+} from "../net/Bot";
+import { v4 } from "uuid";
 
 const logger = getLogger("dummy-bot");
 logger.setLevel("info");
@@ -40,19 +41,21 @@ class DummyBotState extends BotState {
 }
 
 export class DummyBot extends Bot {
+  static readonly info: BotInfo = {
+    name: "Dummy",
+  };
+
+  static readonly connector: BotConnector = {
+    id: v4(),
+    info: this.info,
+    connect: async () => new DummyBot(),
+  };
+
+  get info(): BotInfo {
+    return DummyBot.info;
+  }
+
   async createState({ player }: BotCreateStateOptions): Promise<BotState> {
     return new DummyBotState(player);
-  }
-
-  close() {}
-
-  getMeta(): BotMeta {
-    return {
-      name: "Dummy",
-    };
-  }
-
-  static async connect(options: BotConnectOptions): Promise<Bot> {
-    return new DummyBot();
   }
 }

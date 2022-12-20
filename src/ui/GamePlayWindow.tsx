@@ -392,9 +392,6 @@ class GamePlayWindow_0 extends Window {
     this.spMeter1.update({ value: count[0].special });
     this.spMeter2.update({ value: count[1].special });
     this.turnMeter.update({ value: G.game.round });
-
-    // sync here
-    this.client.send("sync");
   }
 
   private _handleUpdate(

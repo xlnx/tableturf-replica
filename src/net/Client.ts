@@ -9,7 +9,6 @@ import {
   TableturfClientState,
   TableturfGame,
   TableturfGameState,
-  TableturfPlayerInfo,
 } from "../Game";
 import { DB } from "../Database";
 
@@ -84,7 +83,7 @@ export class Client {
     this.matchId = matchId;
     this.client = ClientImpl({
       ...opts,
-      // debug: false,
+      debug: false,
       numPlayers: 2,
       game: TableturfGame,
       playerID: playerId.toString(),
@@ -127,7 +126,7 @@ export class Client {
     this.client.start();
     return Promise.race([task, timing])
       .then(() => {
-        logger.info(`connection established: ${this.matchId}`);
+        logger.log(`connection established: ${this.matchId}`);
         this._connectHandler = () => {};
         this._rejectHandler = () => {};
         this._isConnected = true;
@@ -150,21 +149,15 @@ export class Client {
   }
 
   send(method: string, ...args: any[]) {
+    // setTimeout(() => {
     console.assert(this.client.getState().isActive);
     try {
+      logger.debug(method, args);
       this.client.moves[method](...args);
     } catch (err) {
       logger.warn(err);
     }
-  }
-
-  updatePlayerInfo({ name, ...rest }: Partial<TableturfPlayerInfo>) {
-    const state = this.client.getState().G.players[this.playerId];
-    let time: string;
-    if (!state || name != state.name) {
-      time = new Date().toUTCString();
-    }
-    this.send("updatePlayerInfo", { name, ...rest, time });
+    // });
   }
 
   on(event: "update", handler: ClientUpdateHandler);
@@ -198,6 +191,10 @@ export class Client {
     return _current;
   }
 
+  protected getDefaultPlayerInfo() {
+    return DB.player;
+  }
+
   protected handleTransportData(data: TransportData) {
     logger.log("receive data:", data);
     if (!this._isConnected) {
@@ -207,31 +204,39 @@ export class Client {
       }
       this._connectHandler();
     }
-    for (const handler of this._dataHandlers) {
-      try {
-        handler(data);
-      } catch (e) {
-        console.warn(e);
+    setTimeout(() => {
+      for (const handler of this._dataHandlers) {
+        try {
+          handler(data);
+        } catch (e) {
+          console.warn(e);
+        }
       }
-    }
+    });
   }
 
   protected handleStateUpdate(state: TableturfClientState) {
-    if (!state.G.players[this.playerId]) {
-      this.updatePlayerInfo(DB.player);
-    }
     logger.log("state update:", state);
-    if (!this._prevState) {
-      this._prevState = state;
+    if (!state.G.players[this.playerId]) {
+      setTimeout(() => {
+        this.send("updatePlayerInfo", this.getDefaultPlayerInfo());
+      });
     }
-    for (const handler of this._updateHandlers) {
-      try {
-        handler(state, this._prevState);
-      } catch (e) {
-        console.warn(e);
-      }
-    }
+    let prevState = this._prevState;
     this._prevState = state;
+    const key = (state) =>
+      JSON.stringify({ G: state.G, phase: state.ctx.phase });
+    if (!prevState || key(state) != key(prevState)) {
+      setTimeout(() => {
+        for (const handler of this._updateHandlers) {
+          try {
+            handler(state, prevState || state);
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      });
+    }
   }
 
   protected handleDisconnect() {
@@ -244,12 +249,14 @@ export class Client {
     // close connection
     this.stop();
     // call every handler
-    for (const handler of this._disconnectHandlers) {
-      try {
-        handler();
-      } catch (e) {
-        console.warn(e);
+    setTimeout(() => {
+      for (const handler of this._disconnectHandlers) {
+        try {
+          handler();
+        } catch (e) {
+          console.warn(e);
+        }
       }
-    }
+    });
   }
 }
