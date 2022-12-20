@@ -1,8 +1,8 @@
-import { Box, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
-import { LocalPlayActivity } from "./LocalPlayActivity";
-import { OnlinePlayActivity } from "./OnlinePlayActivity";
+import { BotListActivity } from "./BotListActivity";
+import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 
 class RootActivity_0 extends Activity {
   init() {
@@ -16,13 +16,13 @@ class RootActivity_0 extends Activity {
     return (
       <Grid container spacing={4} sx={{ p: 2 }}>
         <Grid item xs={12}>
-          <BasicButton fullWidth onClick={() => OnlinePlayActivity.show()}>
-            Online Play
+          <BasicButton fullWidth onClick={() => OnlineLoungeActivity.show()}>
+            VS Player
           </BasicButton>
         </Grid>
         <Grid item xs={12}>
-          <BasicButton fullWidth onClick={() => LocalPlayActivity.show()}>
-            Local Play
+          <BasicButton fullWidth onClick={() => BotListActivity.show()}>
+            VS Bot
           </BasicButton>
         </Grid>
       </Grid>

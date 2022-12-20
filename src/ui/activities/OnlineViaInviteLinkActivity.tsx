@@ -4,17 +4,17 @@ import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { MessageBar } from "../components/MessageBar";
 import { LoadingDialog } from "../components/LoadingDialog";
-import { OnlinePlayActivity } from "./OnlinePlayActivity";
+import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 import { Client } from "../../net/Client";
 import { P2PClient } from "../../net/P2P";
 import { MatchActivity } from "./MatchActivity";
 
-class ViaInviteLinkActivity_0 extends Activity {
+class OnlineViaInviteLinkActivity_0 extends Activity {
   init() {
     return {
       zIndex: 2,
       title: "Via Invite Link",
-      parent: () => OnlinePlayActivity,
+      parent: () => OnlineLoungeActivity,
     };
   }
 
@@ -48,11 +48,11 @@ class ViaInviteLinkActivity_0 extends Activity {
           <Grid item xs={12}>
             <TextField
               required
+              fullWidth
               variant="standard"
               label="Invite Link"
               autoComplete="off"
               onChange={(e) => setState({ ...state, url: e.target.value })}
-              sx={{ width: "100%" }}
             />
           </Grid>
         </Grid>
@@ -79,4 +79,4 @@ class ViaInviteLinkActivity_0 extends Activity {
   }
 }
 
-export const ViaInviteLinkActivity = new ViaInviteLinkActivity_0();
+export const OnlineViaInviteLinkActivity = new OnlineViaInviteLinkActivity_0();

@@ -4,15 +4,15 @@ import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { LoadingDialog } from "../components/LoadingDialog";
-import { ViaInviteLinkActivity } from "./ViaInviteLinkActivity";
+import { OnlineViaInviteLinkActivity } from "./OnlineViaInviteLinkActivity";
 import { P2PHost } from "../../net/P2P";
 import { MatchActivity } from "./MatchActivity";
 
-class OnlinePlayActivity_0 extends Activity {
+class OnlineLoungeActivity_0 extends Activity {
   init() {
     return {
       zIndex: 1,
-      title: "Online Play",
+      title: "Online Lounge",
       parent: () => RootActivity,
     };
   }
@@ -43,7 +43,7 @@ class OnlinePlayActivity_0 extends Activity {
             <Grid item xs={6}>
               <BasicButton
                 fullWidth
-                onClick={() => ViaInviteLinkActivity.show()}
+                onClick={() => OnlineViaInviteLinkActivity.show()}
               >
                 Via Invite Link
               </BasicButton>
@@ -60,4 +60,4 @@ class OnlinePlayActivity_0 extends Activity {
   }
 }
 
-export const OnlinePlayActivity = new OnlinePlayActivity_0();
+export const OnlineLoungeActivity = new OnlineLoungeActivity_0();
