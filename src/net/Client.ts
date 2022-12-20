@@ -217,13 +217,16 @@ export class Client {
 
   protected handleStateUpdate(state: TableturfClientState) {
     logger.log("state update:", state);
-    if (!state.G.players[this.playerId]) {
+
+    let prevState = this._prevState;
+    this._prevState = state;
+
+    if (!prevState) {
       setTimeout(() => {
         this.send("updatePlayerInfo", this.getDefaultPlayerInfo());
       });
     }
-    let prevState = this._prevState;
-    this._prevState = state;
+
     const key = (state) =>
       JSON.stringify({ G: state.G, phase: state.ctx.phase });
     if (!prevState || key(state) != key(prevState)) {

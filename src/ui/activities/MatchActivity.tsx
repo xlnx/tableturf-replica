@@ -77,6 +77,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
   private async uiHandlePlayerLeave() {
     logger.debug("uiHandlePlayerLeave");
+    MessageBar.warning("${player} left the room");
     if (this.props.playing) {
       if (!this.props.manualExit) {
         await AlertDialog.prompt({
@@ -88,8 +89,6 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         GamePlayWindow.send("cancel");
         TryOutWindow.show();
       });
-    } else {
-      MessageBar.warning("${player} left the room");
     }
   }
 
@@ -99,6 +98,8 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   ) {
     const enter = (phase: string) =>
       ctx.phase == phase && ctx0.phase != ctx.phase;
+    const leave = (phase: string) =>
+      ctx0.phase == phase && ctx0.phase != ctx.phase;
 
     for (let i = 0; i < 2; ++i) {
       if (!G.players[i] && !!G0.players[i]) {
@@ -120,19 +121,17 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       });
     }
 
-    switch (ctx.phase) {
-      case "game":
-        if (!this.props.playing) {
-          await this.update({ playing: true });
-        }
-        return;
-      case "prepare":
-        await this.update({
-          ready: G.ready[this.props.client.playerId],
-          players: G.players,
-          playing: false,
-        });
-        return;
+    if (leave("prepare")) {
+      console.assert(!this.props.playing);
+      await this.update({ playing: true });
+    }
+
+    if (ctx.phase == "prepare") {
+      await this.update({
+        ready: G.ready[this.props.client.playerId],
+        players: G.players,
+        playing: false,
+      });
     }
   }
 
@@ -155,7 +154,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     if (this.isHost()) {
       copyInviteLinkBtn = (
         <Grid item xs={6}>
-          <BasicButton fullWidth onClick={copyInviteLink}>
+          <BasicButton
+            fullWidth
+            disabled={this.props.playing}
+            onClick={copyInviteLink}
+          >
             Copy Invite Link
           </BasicButton>
         </Grid>
@@ -163,34 +166,6 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     }
 
     return (
-      // <Grid
-      //   container
-      //   height="100%"
-      //   direction="column"
-      //   spacing={3}
-      //   sx={{ p: 2 }}
-      // >
-      //   <Grid item xs={8}>
-      //     <BasicButton
-      //       disabled={this.props.playing}
-      //       sx={{ width: "100%", height: "100%" }}
-      //     >
-      //       Btn1
-      //     </BasicButton>
-      //   </Grid>
-      //   <Grid item xs={4}>
-      //     <BasicButton
-      //       disabled={this.props.playing}
-      //       fullWidth
-      //       sx={{ fontSize: "1.2rem" }}
-      //       // sx={{ width: "100%", height: "100%" }}
-      //       selected={this.props.ready}
-      //       onChange={() => Lobby.send("toggleReady")}
-      //     >
-      //       Ready!
-      //     </BasicButton>
-      //   </Grid>
-      // </Grid>
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}></Grid>
         <Box
@@ -209,6 +184,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               <BasicButton
                 fullWidth
                 selected={this.props.ready}
+                disabled={this.props.playing}
                 onClick={() => this.props.client.send("toggleReady")}
               >
                 Ready!
