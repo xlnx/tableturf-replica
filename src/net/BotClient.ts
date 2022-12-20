@@ -13,7 +13,7 @@ import {
 import { PlayerMovement } from "../core/Tableturf";
 
 const logger = getLogger("bot-client");
-logger.setLevel("debug");
+logger.setLevel("info");
 
 const matchId = "bot";
 const BotConnectTimeoutSec = 15;

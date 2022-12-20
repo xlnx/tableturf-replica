@@ -16,29 +16,6 @@ import { StarterDeck } from "../Game";
 const logger = getLogger("dummy-bot");
 logger.setLevel("info");
 
-class DummyBotSession extends BotSession {
-  async initialize({ game }: BotSessionInitRequest): Promise<void> {
-    logger.log("initialize", game);
-  }
-
-  async query(): Promise<BotSessionQueryResponse> {
-    logger.log("query");
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return {
-      action: "discard",
-      hand: 0,
-    };
-  }
-
-  async update({ game, moves }: BotSessionUpdateRequest): Promise<void> {
-    logger.log("update", game, moves);
-  }
-
-  async finalize(): Promise<void> {
-    logger.log("finalize");
-  }
-}
-
 export class DummyBot extends Bot {
   static readonly info: BotInfo = {
     name: "Dummy",
@@ -65,5 +42,28 @@ export class DummyBot extends Bot {
       session: new DummyBotSession(),
       deck: deck || StarterDeck.slice(),
     };
+  }
+}
+
+class DummyBotSession extends BotSession {
+  async initialize({ game }: BotSessionInitRequest): Promise<void> {
+    logger.log("initialize", game);
+  }
+
+  async query(): Promise<BotSessionQueryResponse> {
+    logger.log("query");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      action: "discard",
+      hand: 0,
+    };
+  }
+
+  async update({ game, moves }: BotSessionUpdateRequest): Promise<void> {
+    logger.log("update", game, moves);
+  }
+
+  async finalize(): Promise<void> {
+    logger.log("finalize");
   }
 }
