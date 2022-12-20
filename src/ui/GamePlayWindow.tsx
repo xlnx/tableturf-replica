@@ -581,7 +581,7 @@ class GamePlayWindow_0 extends Window {
       ]);
       // canceled
       if (move == null) {
-        logger.warn("input cancelled");
+        logger.warn("input canceled");
         break;
       }
       if (isGameMoveValid(this.game, move)) {

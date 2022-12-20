@@ -29,7 +29,7 @@ class AlertDialog_0 extends ReactComponent<AlertDialogProps> {
     };
   }
 
-  async prompt({ msg, okMsg = "Okay", cancelMsg = "Not now" }: PromptOptions) {
+  async prompt({ msg, okMsg = "OK", cancelMsg = "Not now" }: PromptOptions) {
     let resolve;
     const promise = new Promise<boolean>((_) => (resolve = _));
     await this.update({
@@ -55,17 +55,21 @@ class AlertDialog_0 extends ReactComponent<AlertDialogProps> {
       <Dialog open={this.props.open}>
         <CardHeader title={<>{this.props.msg}</>}></CardHeader>
         <Divider sx={{ pt: 2 }} />
-        <Grid container spacing={2} justifyContent="flex-start" sx={{ pt: 4 }}>
-          <Grid item xs={6}>
-            <BasicButton fullWidth onClick={() => handleInput(true)}>
-              {this.props.okMsg}
-            </BasicButton>
-          </Grid>
-          <Grid item xs={6}>
-            <BasicButton fullWidth onClick={() => handleInput(false)}>
-              {this.props.cancelMsg}
-            </BasicButton>
-          </Grid>
+        <Grid container spacing={2} justifyContent="flex-end" sx={{ pt: 4 }}>
+          {!this.props.okMsg ? null : (
+            <Grid item xs={6}>
+              <BasicButton fullWidth onClick={() => handleInput(true)}>
+                {this.props.okMsg}
+              </BasicButton>
+            </Grid>
+          )}
+          {!this.props.cancelMsg ? null : (
+            <Grid item xs={6}>
+              <BasicButton fullWidth onClick={() => handleInput(false)}>
+                {this.props.cancelMsg}
+              </BasicButton>
+            </Grid>
+          )}
         </Grid>
       </Dialog>
     );

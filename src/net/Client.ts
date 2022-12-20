@@ -53,6 +53,8 @@ type ClientUpdateHandler = (
 
 type ClientDataHandler = (data: TransportData) => void;
 
+type ClientDisconnectHandler = () => void;
+
 interface ClientOptions {
   playerId: PlayerId;
   matchId: string;
@@ -69,17 +71,20 @@ export class Client {
 
   private readonly _detachStateUpdateListener: () => void;
   private _connectHandler: () => void = () => {};
+  private _rejectHandler: (err: string) => void = () => {};
   private _isConnected: boolean = false;
+  private _isStopped: boolean = false;
   private _prevState: TableturfClientState = null;
   private _updateHandlers: ClientUpdateHandler[] = [];
   private _dataHandlers: ClientDataHandler[] = [];
+  private _disconnectHandlers: ClientDisconnectHandler[] = [];
 
   constructor({ multiplayer, playerId, matchId, ...opts }: ClientOptions) {
     this.playerId = playerId;
     this.matchId = matchId;
     this.client = ClientImpl({
       ...opts,
-      debug: false,
+      // debug: false,
       numPlayers: 2,
       game: TableturfGame,
       playerID: playerId.toString(),
@@ -109,32 +114,39 @@ export class Client {
    * @returns Promise
    */
   async start(timeout: number): Promise<this> {
-    const task = new Promise<void>((resolve) => {
-      this._connectHandler = resolve;
+    console.assert(!this._isStopped);
+    const task = new Promise<void>((_1, _2) => {
+      this._connectHandler = _1;
+      this._rejectHandler = _2;
     });
     const timing = new Promise<void>((_, reject) =>
-      setTimeout(reject, 1000 * timeout)
+      setTimeout(() => {
+        reject(`connection timeout after ${timeout} seconds: ${this.matchId}`);
+      }, 1000 * timeout)
     );
     this.client.start();
     return Promise.race([task, timing])
       .then(() => {
         logger.info(`connection established: ${this.matchId}`);
         this._connectHandler = () => {};
+        this._rejectHandler = () => {};
         this._isConnected = true;
         return this;
       })
-      .catch(() => {
-        const msg = `connection timeout after ${timeout} seconds: ${this.matchId}`;
-        logger.warn(msg);
+      .catch((err) => {
+        logger.warn(err);
         this.stop();
-        throw msg;
+        throw err;
       });
   }
 
   stop() {
-    this._detachStateUpdateListener();
-    this.client.stop();
-    logger.info(`connection closed: ${this.matchId}`);
+    if (!this._isStopped) {
+      this._isStopped = true;
+      this._detachStateUpdateListener();
+      this.client.stop();
+      logger.info(`connection closed: ${this.matchId}`);
+    }
   }
 
   send(method: string, ...args: any[]) {
@@ -159,6 +171,8 @@ export class Client {
 
   on(event: "data", handler: ClientDataHandler);
 
+  on(event: "disconnect", handler: ClientDisconnectHandler);
+
   on(event, handler) {
     switch (event) {
       case "update":
@@ -174,8 +188,9 @@ export class Client {
       case "data":
         this._dataHandlers.push(handler);
         return;
-      default:
-        throw `invalid event type: ${event}`;
+      case "disconnect":
+        this._disconnectHandlers.push(handler);
+        return;
     }
   }
 
@@ -217,5 +232,24 @@ export class Client {
       }
     }
     this._prevState = state;
+  }
+
+  protected handleDisconnect() {
+    logger.warn("disconnected:", this.matchId);
+    // rejected by remote
+    if (!this._isConnected) {
+      this._rejectHandler(`connection rejected by remote machine`);
+      return;
+    }
+    // close connection
+    this.stop();
+    // call every handler
+    for (const handler of this._disconnectHandlers) {
+      try {
+        handler();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
   }
 }

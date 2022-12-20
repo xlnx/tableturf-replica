@@ -4,7 +4,7 @@ import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { getLogger } from "loglevel";
 import { TableturfClientState, TableturfPlayerInfo } from "../../Game";
-import { Client, TransportData } from "../../net/Client";
+import { Client } from "../../net/Client";
 import { AlertDialog } from "../components/AlertDialog";
 import { P2PHost } from "../../net/P2P";
 import { MessageBar } from "../components/MessageBar";
@@ -14,10 +14,11 @@ import { InkResetAnimation } from "../InkResetAnimation";
 import { TryOutWindow } from "../TryOutWindow";
 
 const logger = getLogger("main-dialog");
-logger.setLevel("debug");
+logger.setLevel("info");
 
 interface MatchActivityProps {
   client: Client;
+  manualExit: boolean;
   // prepare phase
   ready: boolean;
   players: (TableturfPlayerInfo & { time: string })[];
@@ -33,6 +34,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       parent: () => RootActivity,
       //
       client: null,
+      manualExit: false,
       ready: false,
       players: Array(2).fill(null),
       playing: false,
@@ -40,9 +42,13 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   }
 
   async start(client: Client) {
-    await this.update({ client });
-    client.on("data", this.handleData.bind(this));
+    await this.update({ client, manualExit: false });
+    // client.on("data", this.handleData.bind(this));
     client.on("update", this.handleUpdate.bind(this));
+    client.on("disconnect", async () => {
+      await this.handleDisconnect();
+      this.props.parent().show();
+    });
     GamePlayWindow.bind(client);
     this.show();
   }
@@ -53,24 +59,37 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       msg: "Leave the room now ?",
     });
     if (ok) {
+      await this.update({ manualExit: true });
       this.props.client.stop();
-      await this.update({ client: null });
+      await this.handleDisconnect();
     }
     return ok;
   }
 
-  private async handleData(data: TransportData) {
-    if (data.type == "matchData") {
-      if (
-        this.props.playing &&
-        !data.args[1].every(({ isConnected }) => isConnected)
-      ) {
-        // someone has fall offline
-        InkResetAnimation.play(async () => {
-          GamePlayWindow.send("cancel");
-          TryOutWindow.show();
+  private isHost() {
+    return this.props.client && this.props.client instanceof P2PHost;
+  }
+
+  private async handleDisconnect() {
+    await this.update({ client: null });
+    await this.uiHandlePlayerLeave();
+  }
+
+  private async uiHandlePlayerLeave() {
+    logger.debug("uiHandlePlayerLeave");
+    if (this.props.playing) {
+      if (!this.props.manualExit) {
+        await AlertDialog.prompt({
+          msg: "A communication error has occurred",
+          cancelMsg: null,
         });
       }
+      InkResetAnimation.play(async () => {
+        GamePlayWindow.send("cancel");
+        TryOutWindow.show();
+      });
+    } else {
+      MessageBar.warning("${player} left the room");
     }
   }
 
@@ -80,6 +99,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   ) {
     const enter = (phase: string) =>
       ctx.phase == phase && ctx0.phase != ctx.phase;
+
+    for (let i = 0; i < 2; ++i) {
+      if (!G.players[i] && !!G0.players[i]) {
+        this.uiHandlePlayerLeave();
+      }
+    }
 
     // init
     if (enter("init")) {
@@ -121,7 +146,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     };
 
     let copyInviteLinkBtn = null;
-    if (this.props.client instanceof P2PHost) {
+    if (this.isHost()) {
       copyInviteLinkBtn = (
         <Grid item xs={6}>
           <BasicButton fullWidth onClick={copyInviteLink}>

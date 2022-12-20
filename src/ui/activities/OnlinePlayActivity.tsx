@@ -1,10 +1,8 @@
 import React from "react";
-import { Grid, TextField, Box } from "@mui/material";
+import { Grid, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
-import { Lobby } from "../../Lobby";
-import { MessageBar } from "../components/MessageBar";
 import { LoadingDialog } from "../components/LoadingDialog";
 import { ViaInviteLinkActivity } from "./ViaInviteLinkActivity";
 import { P2PHost } from "../../net/P2P";

@@ -254,7 +254,7 @@
 
 "@boardgame.io/p2p@https://github.com/xlnx/p2p#dist":
   version "0.4.1"
-  resolved "https://github.com/xlnx/p2p#dd8c4a63e4d342179d5dd5c399ae7f74beb7def0"
+  resolved "https://github.com/xlnx/p2p#9c4b548a0d7a517f82608cac9f995f4b96b50661"
   dependencies:
     peerjs "^1.3.2"
     tweetnacl "^1.0.3"
