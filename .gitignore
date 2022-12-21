@@ -24,3 +24,14 @@ dist-ssr
 *.sw?
 
 /coverage
+
+testyard/
+
+__pycache__
+
+build/
+dist/
+.pytest_cache/
+
+*.egg-info/
+*.egg

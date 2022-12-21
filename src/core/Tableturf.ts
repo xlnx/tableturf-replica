@@ -1,4 +1,4 @@
-import { MatrixUtil } from "./Utils";
+import { MatrixUtil, assert } from "./Utils";
 import MiniGameBoardInfo from "./data/MiniGameStageInfo";
 import MiniGameCardInfo from "./data/MiniGameCardInfo.json";
 
@@ -106,7 +106,7 @@ export function getValue(rect: Rect, pos: Coordinate): number {
     values,
   } = rect;
   const { x, y } = pos;
-  console.assert(contains(rect, pos));
+  assert(contains(rect, pos));
   return values[x + y * w];
 }
 
@@ -116,7 +116,7 @@ export function setValue(rect: Rect, pos: Coordinate, value: number) {
     values,
   } = rect;
   const { x, y } = pos;
-  console.assert(contains(rect, pos));
+  assert(contains(rect, pos));
   values[x + y * w] = value;
 }
 
@@ -191,9 +191,9 @@ export function isBoardPosCharged(board: Rect, pos: Coordinate): boolean {
 }
 
 export function moveBoard(board: Rect, moves: CardPlacement[]): BoardState {
-  console.assert(moves.length <= 2);
+  assert(moves.length <= 2);
   if (moves.length == 2) {
-    console.assert(moves[0].player != moves[1].player);
+    assert(moves[0].player != moves[1].player);
   }
 
   const li = new Set();
@@ -327,7 +327,7 @@ export function rotateCard(card: Card, rotation: Rotation): Rect {
 
 export function getCardById(card: number) {
   const e = CARD_ID_LOOKUP[card];
-  console.assert(!!e);
+  assert(!!e);
   return e!;
 }
 
@@ -349,13 +349,13 @@ for (const info of MiniGameBoardInfo) {
 
 export function getStageById(stage: number) {
   const e = STAGE_ID_LOOKUP[stage];
-  console.assert(!!e);
+  assert(!!e);
   return e!;
 }
 
 /* game apis */
 export function initGame(stage: number, decks: number[][]): GameState {
-  console.assert(decks.length == 2);
+  assert(decks.length == 2);
   const { board } = getStageById(stage);
   return {
     round: 12,
@@ -410,9 +410,9 @@ export function isGameMoveValid(
 }
 
 export function moveGame(game: GameState, moves: PlayerMovement[]): GameState {
-  console.assert(moves.length == 2);
-  console.assert(moves.every((e, i) => e.player == i));
-  console.assert(moves.every((e) => isGameMoveValid(game, e)));
+  assert(moves.length == 2);
+  assert(moves.every((e, i) => e.player == i));
+  assert(moves.every((e) => isGameMoveValid(game, e)));
 
   const cards = moves.map(({ player, hand }) =>
     getCardById(game.players[player].hand[hand])

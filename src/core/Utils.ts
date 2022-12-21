@@ -1,5 +1,11 @@
 import { Rect, Spaces } from "./Tableturf";
 
+export function assert(ok: boolean, msg?: string) {
+  if (!ok) {
+    throw Error(`assertion error: ${msg}`);
+  }
+}
+
 export class MatrixUtil {
   static parse(str: string): Rect {
     let len = 0;
@@ -37,7 +43,7 @@ export class MatrixUtil {
             if (width < 0) {
               width = dx;
             } else {
-              console.assert(width == dx, width + "=" + dx);
+              assert(width == dx, width + "=" + dx);
             }
           }
           break;

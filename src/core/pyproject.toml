@@ -1,0 +1,3 @@
+[build-system]
+requires = ["js2py", "setuptools"]
+build-backend = "setuptools.build_meta"
