@@ -26,7 +26,8 @@ class BuildPyCommand(build_py):
       js = 'var exports={};\n' + f.read()
     py = js2py.translate_js(js) + dedent('''\
       \n
-      api = var['exports']['api'].to_python()
+      from tableturf_replica.api_wrapper import ApiWrapper
+      api = ApiWrapper(var['exports']['api'].to_python())
       __all__ = ['api']
     ''')
     with open(os.path.join(target_dir, 'api.py'), 'w') as f:
