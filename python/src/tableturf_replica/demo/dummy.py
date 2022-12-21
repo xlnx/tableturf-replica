@@ -1,4 +1,4 @@
-from bot import bot
+from tableturf_replica.bot import bot
 
 
 @bot
@@ -23,5 +23,5 @@ class DummyBot:
     return params['deck']
 
 
-if __name__ == "__main__":
+def main():
   DummyBot().serve(5140)

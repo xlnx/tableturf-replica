@@ -7,8 +7,8 @@ from uuid import uuid4
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Dict, Any, Optional
 from typeguard import typechecked
-from .endpoint import Endpoint
-from .logger import get_logger
+from tableturf_replica.endpoint import Endpoint
+from tableturf_replica.logger import get_logger
 
 
 logger = get_logger('Bot')

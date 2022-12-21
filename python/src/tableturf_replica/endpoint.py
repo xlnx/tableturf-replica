@@ -4,7 +4,7 @@ __all__ = ['Endpoint']
 import json
 import logging
 import traceback
-from .logger import get_logger
+from tableturf_replica.logger import get_logger
 
 
 logger = get_logger('Endpoint')
