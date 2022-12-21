@@ -94,6 +94,14 @@ export function player2Turn(player: PlayerId): Turn {
 }
 
 /* rect apis */
+export function parseRect(str: string) {
+  return MatrixUtil.parse(str);
+}
+
+export function printRect(rect: Rect) {
+  return MatrixUtil.print(rect);
+}
+
 export function contains(rect: Rect, pos: Coordinate): boolean {
   const [w, h] = rect.size;
   const { x, y } = pos;
