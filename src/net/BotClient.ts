@@ -65,11 +65,6 @@ class BotClientImpl extends Client {
       this.send("toggleReady", true);
     }
 
-    // prepare
-    if (enter("prepare")) {
-      this.session = null;
-    }
-
     // botInitHook
     if (enter("botInitHook")) {
       console.assert(this.session == null);
@@ -86,19 +81,30 @@ class BotClientImpl extends Client {
 
     // init
     if (enter("init")) {
-      this.session.initialize({ game: G.game });
+      this.session.initialize({ player: this.playerId, game: G.game });
       this.send("sync");
     }
 
-    if (
-      enter("game") ||
-      (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0)
-    ) {
+    const newMove = G.moveHistory.length == G0.moveHistory.length + 1;
+    if (newMove) {
+      await this.session.update({
+        game: G.game,
+        moves: G.moveHistory[G.moveHistory.length - 1],
+      });
+    }
+
+    if (enter("game") || (newMove && G.game.round > 0)) {
+      const response = await this.session.query();
       const move: PlayerMovement = {
-        ...(await this.session.query()),
+        ...response,
         player: this.playerId,
       };
       this.send("move", move);
+    }
+
+    // prepare
+    if (enter("prepare")) {
+      this.session = null;
     }
   }
 }

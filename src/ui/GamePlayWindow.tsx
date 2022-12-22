@@ -463,11 +463,6 @@ class GamePlayWindow_0 extends Window {
           this.board.uiUpdateFire();
         }
 
-        // game may terminate here
-        if (ctx.phase != "game") {
-          return;
-        }
-
         // update counters
         const count = players.map((player) => G.game.players[player].count);
         await sleep(dt);
@@ -476,6 +471,11 @@ class GamePlayWindow_0 extends Window {
           this.spMeter1.uiUpdate(count[0].special),
           this.spMeter2.uiUpdate(count[1].special),
         ]);
+
+        // game may terminate here
+        if (ctx.phase != "game") {
+          return;
+        }
 
         // draw card
         const { hand } = moves[this.client.playerId];

@@ -31,6 +31,7 @@ export interface CreateSessionResponse {
 }
 
 export interface BotSessionInitRequest {
+  player: PlayerId;
   game: GameState;
 }
 
