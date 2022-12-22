@@ -40,7 +40,7 @@ class BotSession:
   def query(self, params) -> Dict[str, Any]:
     raise NotImplementedError()
 
-  def update_state(self, params) -> None:
+  def update(self, params) -> None:
     pass
 
   def finalize(self, params) -> None:
@@ -74,6 +74,9 @@ class BotEndpoint(Endpoint):
 
   def session_query(self, params):
     return self._sessions[params['session']].query(params['params'])
+
+  def session_update(self, params):
+    return self._sessions[params['session']].update(params['params'])
 
   def session_finalize(self, params):
     return self._sessions[params['session']].finalize(params['params'])
