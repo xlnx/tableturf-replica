@@ -1,9 +1,9 @@
 import os
-import shutil
 import js2py
 import subprocess
 from textwrap import dedent
 from setuptools import setup
+from distutils.dir_util import copy_tree
 from setuptools.command.build_py import build_py
 
 
@@ -17,7 +17,7 @@ class BuildPyCommand(build_py):
     self.mkpath(target_dir)
 
     python_path = os.path.join(cur_path, 'python/tableturf_replica')
-    shutil.copytree(python_path, target_dir, dirs_exist_ok=True)
+    copy_tree(python_path, target_dir)
 
     api_path = os.path.join(cur_path, 'src/core')
     subprocess.check_call('yarn install --frozen-lockfile', cwd=api_path, shell=True)
