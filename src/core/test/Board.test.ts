@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { moveBoard, isBoardMoveValid, CardPlacement } from "../Tableturf";
+import { moveBoard, isBoardMoveValid } from "../Tableturf";
 import { TestUtil } from "./TestUtil";
 
 test("simple", () => {
@@ -332,7 +332,7 @@ test("validate_move_0", () => {
   expect(board.count.special[0]).toEqual(1);
   expect(board.count.special[1]).toEqual(0);
 
-  let move: CardPlacement = {
+  let move: ICardPlacement = {
     player: 0,
     card: TestUtil.card.Nautilus.id,
     rotation: 0,
@@ -372,7 +372,7 @@ test("validate_move_1", () => {
   expect(board.count.special[0]).toEqual(1);
   expect(board.count.special[1]).toEqual(2);
 
-  let move: CardPlacement = {
+  let move: ICardPlacement = {
     player: 0,
     card: TestUtil.card.Nautilus.id,
     rotation: 0,

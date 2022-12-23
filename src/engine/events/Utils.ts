@@ -29,9 +29,9 @@ function getGlobalBBox(obj: Component | Sprite): number[] {
 }
 
 export function getLocalPos(
-  pos: Coordinate,
+  pos: ICoordinate,
   obj: Component | Sprite
-): Coordinate {
+): ICoordinate {
   const v = getGlobalBBox(obj);
   let { x, y } = pos;
   [x, y] = [x - v[0], y - v[1]];
@@ -45,9 +45,9 @@ export function getLocalPos(
 }
 
 export function getWorldPos(
-  pos: Coordinate,
+  pos: ICoordinate,
   obj: Component | Sprite
-): Coordinate {
+): ICoordinate {
   const v = getGlobalBBox(obj);
   let { x, y } = pos;
   const [x1, y1] = [v[2] - v[0], v[3] - v[1]];
@@ -68,7 +68,7 @@ function isAttached(obj: DisplayObject) {
   return false;
 }
 
-export function hitTest(pos: Coordinate, obj: Component) {
+export function hitTest(pos: ICoordinate, obj: Component) {
   if (!obj.visible) {
     return false;
   }

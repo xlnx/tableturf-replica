@@ -104,7 +104,7 @@ export class ItemListComponent<
     this.handle(
       class extends WheelHandler {
         stops: EventType[] = ["wheel"];
-        wheel(pos: Coordinate, dy: number) {
+        wheel(pos: ICoordinate, dy: number) {
           const v = -1;
           const dt = 0.5;
           const y1 = self.height - self.layout.height;
@@ -118,13 +118,13 @@ export class ItemListComponent<
         stops: EventType[] = ["wheel", "drag"];
         y0: number;
         li: [number, number][];
-        drag(pos: Coordinate): void {
+        drag(pos: ICoordinate): void {
           this.li = [];
           const y = scroll.value;
           this.y0 = y + this.getLocalY(pos);
           this.scrollTo(y);
         }
-        move(pos: Coordinate): void {
+        move(pos: ICoordinate): void {
           const y = this.y0 - this.getLocalY(pos);
           const t = performance.now();
           this.li.push([t, y]);
@@ -133,7 +133,7 @@ export class ItemListComponent<
           }
           this.scrollTo(y);
         }
-        drop(pos: Coordinate): void {
+        drop(pos: ICoordinate): void {
           const t = performance.now();
           const li = this.li.filter(([t0, _]) => t - t0 < 100);
           let v = 0;
@@ -155,7 +155,7 @@ export class ItemListComponent<
           y = Math.max(0, Math.min(y1, y));
           scroll.update(y, dt);
         }
-        private getLocalY(pos: Coordinate) {
+        private getLocalY(pos: ICoordinate) {
           const { height } = self.layout;
           return getLocalPos(pos, this.sender).y * height;
         }

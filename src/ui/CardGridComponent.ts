@@ -1,10 +1,10 @@
 import { Component } from "../engine/Component";
 import { GridComponent } from "./GridComponent";
-import { Card, getCardById, Spaces } from "../core/Tableturf";
+import { getCardById, Spaces } from "../core/Tableturf";
 
 interface ICardGridComponentProps {
-  card: Card;
-  turn: Turn;
+  card: ICard;
+  turn: ITurn;
   flat: boolean;
 }
 

@@ -1,0 +1,524 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "IBoardState": {
+            "properties": {
+                "count": {
+                    "properties": {
+                        "area": {
+                            "items": {
+                                "type": "number"
+                            },
+                            "type": "array"
+                        },
+                        "special": {
+                            "items": {
+                                "type": "number"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "area",
+                        "special"
+                    ],
+                    "type": "object"
+                },
+                "size": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                },
+                "values": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "count",
+                "size",
+                "values"
+            ],
+            "type": "object"
+        },
+        "IBotCreateSessionRequest": {
+            "description": "Bot.createSession()",
+            "properties": {
+                "deck": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                },
+                "player": {
+                    "$ref": "#/definitions/IPlayerId"
+                },
+                "stage": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "player",
+                "stage"
+            ],
+            "type": "object"
+        },
+        "IBotInfo": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "support": {
+                    "properties": {
+                        "anyDeck": {
+                            "type": "boolean"
+                        },
+                        "stages": {
+                            "items": {
+                                "type": "number"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "anyDeck",
+                        "stages"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "name",
+                "support"
+            ],
+            "type": "object"
+        },
+        "IBotInfoBrief": {
+            "description": "Metadata",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "type": "object"
+        },
+        "IBotSessionInitRequest": {
+            "description": "BotSession.init()",
+            "properties": {
+                "game": {
+                    "$ref": "#/definitions/IGameState"
+                },
+                "player": {
+                    "$ref": "#/definitions/IPlayerId"
+                }
+            },
+            "required": [
+                "game",
+                "player"
+            ],
+            "type": "object"
+        },
+        "IBotSessionQueryResponse": {
+            "description": "BotSession.query()",
+            "properties": {
+                "action": {
+                    "enum": [
+                        "discard",
+                        "special",
+                        "trivial"
+                    ],
+                    "type": "string"
+                },
+                "hand": {
+                    "type": "number"
+                },
+                "params": {
+                    "properties": {
+                        "position": {
+                            "properties": {
+                                "x": {
+                                    "type": "number"
+                                },
+                                "y": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "x",
+                                "y"
+                            ],
+                            "type": "object"
+                        },
+                        "rotation": {
+                            "$ref": "#/definitions/IRotation"
+                        }
+                    },
+                    "required": [
+                        "position",
+                        "rotation"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "action",
+                "hand"
+            ],
+            "type": "object"
+        },
+        "IBotSessionUpdateRequest": {
+            "description": "BotSession.update()",
+            "properties": {
+                "game": {
+                    "$ref": "#/definitions/IGameState"
+                },
+                "moves": {
+                    "items": {
+                        "$ref": "#/definitions/IPlayerMovement"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "game",
+                "moves"
+            ],
+            "type": "object"
+        },
+        "ICard": {
+            "properties": {
+                "count": {
+                    "properties": {
+                        "area": {
+                            "type": "number"
+                        },
+                        "special": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "area",
+                        "special"
+                    ],
+                    "type": "object"
+                },
+                "id": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rarity": {
+                    "enum": [
+                        "Common",
+                        "Fresh",
+                        "Rare"
+                    ],
+                    "type": "string"
+                },
+                "render": {
+                    "properties": {
+                        "bg": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "bg"
+                    ],
+                    "type": "object"
+                },
+                "size": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                },
+                "values": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "count",
+                "id",
+                "name",
+                "rarity",
+                "render",
+                "size",
+                "values"
+            ],
+            "type": "object"
+        },
+        "ICardPlacement": {
+            "properties": {
+                "card": {
+                    "type": "number"
+                },
+                "player": {
+                    "$ref": "#/definitions/IPlayerId"
+                },
+                "position": {
+                    "properties": {
+                        "x": {
+                            "type": "number"
+                        },
+                        "y": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "x",
+                        "y"
+                    ],
+                    "type": "object"
+                },
+                "rotation": {
+                    "$ref": "#/definitions/IRotation"
+                }
+            },
+            "required": [
+                "card",
+                "player",
+                "position",
+                "rotation"
+            ],
+            "type": "object"
+        },
+        "ICoordinate": {
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "x",
+                "y"
+            ],
+            "type": "object"
+        },
+        "IGameState": {
+            "properties": {
+                "board": {
+                    "$ref": "#/definitions/IBoardState"
+                },
+                "players": {
+                    "items": {
+                        "$ref": "#/definitions/IPlayerState"
+                    },
+                    "type": "array"
+                },
+                "prevMoves": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/definitions/ICardPlacement"
+                        },
+                        "type": "array"
+                    },
+                    "type": "array"
+                },
+                "round": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "board",
+                "players",
+                "prevMoves",
+                "round"
+            ],
+            "type": "object"
+        },
+        "IPlayerId": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        },
+        "IPlayerMovement": {
+            "properties": {
+                "action": {
+                    "enum": [
+                        "discard",
+                        "special",
+                        "trivial"
+                    ],
+                    "type": "string"
+                },
+                "hand": {
+                    "type": "number"
+                },
+                "params": {
+                    "properties": {
+                        "position": {
+                            "properties": {
+                                "x": {
+                                    "type": "number"
+                                },
+                                "y": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "x",
+                                "y"
+                            ],
+                            "type": "object"
+                        },
+                        "rotation": {
+                            "$ref": "#/definitions/IRotation"
+                        }
+                    },
+                    "required": [
+                        "position",
+                        "rotation"
+                    ],
+                    "type": "object"
+                },
+                "player": {
+                    "$ref": "#/definitions/IPlayerId"
+                }
+            },
+            "required": [
+                "action",
+                "hand",
+                "player"
+            ],
+            "type": "object"
+        },
+        "IPlayerState": {
+            "properties": {
+                "count": {
+                    "properties": {
+                        "area": {
+                            "type": "number"
+                        },
+                        "special": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "area",
+                        "special"
+                    ],
+                    "type": "object"
+                },
+                "deck": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                },
+                "hand": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "count",
+                "deck",
+                "hand"
+            ],
+            "type": "object"
+        },
+        "IRect": {
+            "properties": {
+                "size": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                },
+                "values": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "size",
+                "values"
+            ],
+            "type": "object"
+        },
+        "IRemoteBotCreateSessionResponse": {
+            "properties": {
+                "deck": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                },
+                "session": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "session"
+            ],
+            "type": "object"
+        },
+        "IRotation": {
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "type": "number"
+        },
+        "IStage": {
+            "properties": {
+                "board": {
+                    "$ref": "#/definitions/IRect"
+                },
+                "count": {
+                    "properties": {
+                        "area": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "area"
+                    ],
+                    "type": "object"
+                },
+                "id": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "board",
+                "count",
+                "id",
+                "name"
+            ],
+            "type": "object"
+        },
+        "ITurn": {
+            "enum": [
+                -1,
+                1
+            ],
+            "type": "number"
+        }
+    }
+}
+

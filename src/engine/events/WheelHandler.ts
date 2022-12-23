@@ -6,7 +6,7 @@ export class WheelHandler extends EventHandler {
     super("wheel", sender);
   }
 
-  wheel(pos: Coordinate, dy: number) {}
+  wheel(pos: ICoordinate, dy: number) {}
 
   _wheel(evt: WheelEvent): EventHandler {
     this.wheel(evt, evt.deltaY);

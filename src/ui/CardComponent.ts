@@ -3,12 +3,12 @@ import { GridComponent } from "./GridComponent";
 import { CardInteractions } from "./CardInteractions";
 import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";
-import { Card, getCardById } from "../core/Tableturf";
+import { getCardById } from "../core/Tableturf";
 import { System } from "../engine/System";
 
 interface ICardComponentProps {
-  card: Card;
-  turn: Turn;
+  card: ICard;
+  turn: ITurn;
 }
 
 export class CardComponent extends Component<ICardComponentProps> {

@@ -12,22 +12,16 @@ import { EaseFunc } from "../engine/animations/Ease";
 import { SpMeterComponent } from "./SpMeterComponent";
 import { System } from "../engine/System";
 import { getLogger } from "loglevel";
-import { enumerateBoardMoves, GameState } from "../core/Tableturf";
+import { enumerateBoardMoves } from "../core/Tableturf";
 import { TableturfClientState, TableturfGameState } from "../Game";
-import {
-  getCardById,
-  moveBoard,
-  isGameMoveValid,
-  PlayerMovement,
-  CardPlacement,
-} from "../core/Tableturf";
+import { getCardById, moveBoard, isGameMoveValid } from "../core/Tableturf";
 import { MessageBar } from "./components/MessageBar";
 import { ReactNode } from "react";
 import { ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "./Theme";
 import { Cell } from "../engine/Cell";
 import { ReactComponent } from "../engine/ReactComponent";
-import { Client } from "../net/Client";
+import { Client } from "../client/Client";
 
 const logger = getLogger("game-play");
 logger.setLevel("debug");
@@ -107,7 +101,7 @@ class GamePlayWindow_0 extends Window {
   private handId: number = -1;
   public spAttack: Cell<boolean>;
 
-  private game: GameState;
+  private game: IGameState;
   private _uiTask = new Promise<void>((resolve) => resolve());
 
   layout = {
@@ -322,7 +316,7 @@ class GamePlayWindow_0 extends Window {
         if (this.handId < 0) {
           return;
         }
-        const move: PlayerMovement = {
+        const move: IPlayerMovement = {
           player: this.client.playerId,
           action: "discard",
           hand: this.handId,
@@ -538,7 +532,7 @@ class GamePlayWindow_0 extends Window {
     );
   }
 
-  private async _queryMovement(): Promise<PlayerMovement> {
+  private async _queryMovement(): Promise<IPlayerMovement> {
     this.panel.update({ enable: true });
     this._updateHandFilter();
     this.board.update({
@@ -556,14 +550,14 @@ class GamePlayWindow_0 extends Window {
       acceptInput: true,
     });
 
-    let move: PlayerMovement;
+    let move: IPlayerMovement;
     do {
       move = await Promise.race([
         this.receive("player.pass"),
-        this.board.receive("player.input").then((input: CardPlacement) => {
+        this.board.receive("player.input").then((input: ICardPlacement) => {
           const { isSpecialAttack } = this.board.props.input.value;
           const { rotation, position } = input;
-          const move: PlayerMovement = {
+          const move: IPlayerMovement = {
             player: this.client.playerId,
             action: isSpecialAttack ? "special" : "trivial",
             hand: this.handId,

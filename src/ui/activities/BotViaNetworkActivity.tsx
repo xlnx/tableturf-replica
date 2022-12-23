@@ -3,9 +3,9 @@ import { Box, Grid, TextField } from "@mui/material";
 import { Activity } from "../Activity";
 import { BotListActivity } from "./BotListActivity";
 import { BasicButton } from "../Theme";
-import { BotClient } from "../../net/BotClient";
+import { BotClient } from "../../client/bot/Client";
 import { LoadingDialog } from "../components/LoadingDialog";
-import { RemoteBot } from "../../net/RemoteBot";
+import { RemoteBot } from "../../client/bot/Remote";
 import { MessageBar } from "../components/MessageBar";
 import { MatchActivity } from "./MatchActivity";
 

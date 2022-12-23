@@ -6,7 +6,7 @@ import { Component } from "../engine/Component";
 import { SpFireTexture } from "./SpFireTexture";
 
 interface ISpMeterComponentProps {
-  turn: Turn;
+  turn: ITurn;
   value: number;
   name: string;
   spAttack: number;

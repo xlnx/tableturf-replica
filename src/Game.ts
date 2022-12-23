@@ -2,13 +2,7 @@ import { Game, PhaseConfig } from "boardgame.io";
 import { ActivePlayers, INVALID_MOVE } from "boardgame.io/core";
 import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { getLogger } from "loglevel";
-import {
-  GameState,
-  initGame,
-  isGameMoveValid,
-  moveGame,
-  PlayerMovement,
-} from "./core/Tableturf";
+import { initGame, isGameMoveValid, moveGame } from "./core/Tableturf";
 
 const logger = getLogger("tableturf-game");
 logger.setLevel("info");
@@ -24,9 +18,9 @@ export interface TableturfGameState {
   ready: boolean[];
   stage: number;
   // game phase
-  game: GameState | null;
-  moveHistory: (PlayerMovement & { card: number })[][];
-  moves: (PlayerMovement & { card: number })[];
+  game: IGameState | null;
+  moveHistory: (IPlayerMovement & { card: number })[][];
+  moves: (IPlayerMovement & { card: number })[];
   // notifications
   sync: boolean[];
 }
@@ -85,7 +79,7 @@ const updatePlayerInfo = {
 };
 
 const resetPlayerInfo = {
-  move: ({ G }, player: PlayerId) => {
+  move: ({ G }, player: IPlayerId) => {
     G.players[player] = null;
   },
   ignoreStaleStateID: true,
@@ -159,9 +153,9 @@ export const TableturfGame: Game<TableturfGameState> = {
       onBegin: () => logger.debug(`game.begin`),
       moves: {
         move: {
-          move: ({ G, playerID }, _move: Omit<PlayerMovement, "player">) => {
-            const player = <PlayerId>parseInt(playerID);
-            const move: PlayerMovement = {
+          move: ({ G, playerID }, _move: Omit<IPlayerMovement, "player">) => {
+            const player = <IPlayerId>parseInt(playerID);
+            const move: IPlayerMovement = {
               ..._move,
               player,
             };

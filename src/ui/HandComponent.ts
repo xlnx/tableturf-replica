@@ -2,10 +2,10 @@ import { Color } from "../engine/Color";
 import { SmallCardComponent } from "./SmallCardComponent";
 import { Component } from "../engine/Component";
 import { EaseFunc } from "../engine/animations/Ease";
-import { Card, getCardById } from "../core/Tableturf";
+import { getCardById } from "../core/Tableturf";
 
 interface IHandComponentProps {
-  cards: Card[];
+  cards: ICard[];
 }
 
 export class HandComponent extends Component<IHandComponentProps> {
@@ -70,7 +70,7 @@ export class HandComponent extends Component<IHandComponentProps> {
     });
   }
 
-  async uiDrawCard(v: Card, i: number) {
+  async uiDrawCard(v: ICard, i: number) {
     console.assert(0 <= i && i < 4);
 
     const li = this.props.cards.value.slice();

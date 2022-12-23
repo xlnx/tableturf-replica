@@ -5,8 +5,8 @@ import { BasicButton } from "../Theme";
 import { MessageBar } from "../components/MessageBar";
 import { LoadingDialog } from "../components/LoadingDialog";
 import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
-import { Client } from "../../net/Client";
-import { P2PClient } from "../../net/P2P";
+import { Client } from "../../client/Client";
+import { P2PClient } from "../../client/P2P";
 import { MatchActivity } from "./MatchActivity";
 
 class OnlineViaInviteLinkActivity_0 extends Activity {

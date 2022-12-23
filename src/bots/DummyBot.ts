@@ -1,15 +1,10 @@
 import { getLogger } from "loglevel";
 import {
-  CreateSessionRequest,
-  BotInfo,
   BotSession,
   Bot,
   BotConnector,
-  CreateSessionResponse,
-  BotSessionQueryResponse,
-  BotSessionInitRequest,
-  BotSessionUpdateRequest,
-} from "../net/Bot";
+  IBotCreateSessionResponse,
+} from "../client/bot/Bot";
 import { v4 } from "uuid";
 import { StarterDeck } from "../Game";
 
@@ -17,7 +12,7 @@ const logger = getLogger("dummy-bot");
 logger.setLevel("info");
 
 export class DummyBot extends Bot {
-  static readonly info: BotInfo = {
+  static readonly info: IBotInfo = {
     name: "Dummy",
     support: {
       stages: [],
@@ -31,13 +26,13 @@ export class DummyBot extends Bot {
     connect: async () => new DummyBot(),
   };
 
-  get info(): BotInfo {
+  get info(): IBotInfo {
     return DummyBot.info;
   }
 
   async createSession({
     deck,
-  }: CreateSessionRequest): Promise<CreateSessionResponse> {
+  }: IBotCreateSessionRequest): Promise<IBotCreateSessionResponse> {
     return {
       session: new DummyBotSession(),
       deck: deck || StarterDeck.slice(),
@@ -46,11 +41,11 @@ export class DummyBot extends Bot {
 }
 
 class DummyBotSession extends BotSession {
-  async initialize({ game }: BotSessionInitRequest): Promise<void> {
+  async initialize({ game }: IBotSessionInitRequest): Promise<void> {
     logger.log("initialize", game);
   }
 
-  async query(): Promise<BotSessionQueryResponse> {
+  async query(): Promise<IBotSessionQueryResponse> {
     logger.log("query");
     await new Promise((resolve) => setTimeout(resolve, 500));
     return {
@@ -59,7 +54,7 @@ class DummyBotSession extends BotSession {
     };
   }
 
-  async update({ game, moves }: BotSessionUpdateRequest): Promise<void> {
+  async update({ game, moves }: IBotSessionUpdateRequest): Promise<void> {
     logger.log("update", game, moves);
   }
 

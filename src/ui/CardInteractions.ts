@@ -153,27 +153,27 @@ export class CardInteractions {
       class extends PointerHandler {
         stops: EventType[] = ["pointer"];
 
-        enter(pos: Coordinate): void {
+        enter(pos: ICoordinate): void {
           hover = true;
           if (!self.disabled.value) {
             state.update("hover");
           }
         }
 
-        move(pos: Coordinate): void {
+        move(pos: ICoordinate): void {
           if (!self.disabled.value) {
             state.update("hover");
           }
         }
 
-        leave(pos: Coordinate): void {
+        leave(pos: ICoordinate): void {
           hover = false;
           if (!self.selected.value && !self.disabled.value) {
             state.update("normal");
           }
         }
 
-        tap(pos: Coordinate): void {
+        tap(pos: ICoordinate): void {
           if (!self.disabled.value) {
             cardClickAnim.send();
             self.onTapFn();

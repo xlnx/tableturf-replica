@@ -2,7 +2,6 @@ import { Component } from "../engine/Component";
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Texture } from "pixi.js";
 import { System } from "../engine/System";
-import { Rect } from "../core/Tableturf";
 
 type TextureSpec = Texture | string;
 type TileSpec =
@@ -14,13 +13,13 @@ type TileSpec =
 
 interface IGridComponentProps {
   tileset: Map<number, TileSpec>;
-  matrix: Rect;
+  matrix: IRect;
   transform: {
     dx?: number;
     dy?: number;
     rotate?: number;
-    anchor?: number | Coordinate;
-    scale?: number | Coordinate;
+    anchor?: number | ICoordinate;
+    scale?: number | ICoordinate;
     alpha?: number;
   };
 }

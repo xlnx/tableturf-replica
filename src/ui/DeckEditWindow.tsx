@@ -131,7 +131,7 @@ class DeckEditWindow_0 extends Window {
           }}
           onClick={() => {
             TryOutWindow.panel.reset({ deck: getDeck() });
-            Lobby.togglePixiWindow(TryOutWindow);
+            // Lobby.togglePixiWindow(TryOutWindow);
           }}
         >
           Test Deck
@@ -150,7 +150,7 @@ class DeckEditWindow_0 extends Window {
               MessageBar.error(`deck not full: [${deck.length} < 15]`);
               return;
             }
-            Lobby.updatePlayerInfo({ deck });
+            // Lobby.updatePlayerInfo({ deck });
             MessageBar.success(`your deck has been updated.`);
           }}
         >

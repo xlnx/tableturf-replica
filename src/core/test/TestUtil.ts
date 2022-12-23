@@ -1,7 +1,7 @@
 import { expect } from "vitest";
-import { getCardById, getStageById, getBoardState, Rect } from "../Tableturf";
-import { MatrixUtil } from "../Utils";
+import { getCardById, getStageById, getBoardState } from "../Tableturf";
 import stripIndent from "strip-indent";
+import { rectFromString, rectToString } from "../Utils";
 
 export const TestUtil = {
   stage: {
@@ -36,13 +36,11 @@ export const TestUtil = {
   },
 
   parseBoard: (str: string) => {
-    const rect = MatrixUtil.parse(str);
+    const rect = rectFromString(str);
     return getBoardState(rect);
   },
 
-  expectRectEqual(actual: Rect, expected: string) {
-    expect(MatrixUtil.print(actual).trim()).toEqual(
-      stripIndent(expected).trim()
-    );
+  expectRectEqual(actual: IRect, expected: string) {
+    expect(rectToString(actual).trim()).toEqual(stripIndent(expected).trim());
   },
 };

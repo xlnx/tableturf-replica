@@ -5,10 +5,10 @@ import { GridComponent } from "./GridComponent";
 import { System } from "../engine/System";
 import { CardInteractions } from "./CardInteractions";
 import { SpFireTexture } from "./SpFireTexture";
-import { Card, getCardById } from "../core/Tableturf";
+import { getCardById } from "../core/Tableturf";
 
 interface ISmallCardComponentProps {
-  card: Card;
+  card: ICard;
   spFire: boolean;
 }
 

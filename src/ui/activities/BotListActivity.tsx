@@ -4,10 +4,10 @@ import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { BotViaNetworkActivity } from "./BotViaNetworkActivity";
 import { DummyBot } from "../../bots/DummyBot";
-import { BotConnector } from "../../net/Bot";
 import { LoadingDialog } from "../components/LoadingDialog";
 import { MatchActivity } from "./MatchActivity";
-import { BotClient } from "../../net/BotClient";
+import { BotClient } from "../../client/bot/Client";
+import { BotConnector } from "../../client/bot/Bot";
 
 const bots = [DummyBot.connector];
 

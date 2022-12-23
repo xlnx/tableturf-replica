@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "tableturf-replica-test"
+version = "0.1.0"
+description = ""
+authors = ["koishi <qwq@koishi.top>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+tableturf-replica = {path = "../.."}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib", "--ignore=third_party"]
+python_files = ["test_*.py"]

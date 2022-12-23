@@ -1,8 +1,8 @@
-import { MatrixUtil, assert } from "./Utils";
+import { assert, rectFromString, rectToString } from "./Utils";
 import MiniGameBoardInfo from "./data/MiniGameStageInfo";
 import MiniGameCardInfo from "./data/MiniGameCardInfo.json";
 
-const EIGHT_NEIGHBOURS = [
+const EightNeighbours = [
   [-1, -1],
   [0, -1],
   [1, -1],
@@ -21,94 +21,27 @@ export const Spaces = {
   INVALID: 99,
 };
 
-export interface Rect {
-  size: number[];
-  values: number[];
-}
-
-export interface BoardState extends Rect {
-  count: {
-    area: number[];
-    special: number[];
-  };
-}
-
-export interface Stage {
-  id: number;
-  name: string;
-  board: Rect;
-  count: {
-    area: number;
-  };
-}
-
-export interface Card extends Rect {
-  id: number;
-  name: string;
-  rarity: "Common" | "Rare" | "Fresh";
-  count: {
-    area: number;
-    special: number;
-  };
-  render: {
-    bg: string;
-  };
-}
-
-export interface PlayerState {
-  deck: number[];
-  hand: number[];
-  count: {
-    area: number;
-    special: number;
-  };
-}
-
-export interface GameState {
-  round: number;
-  board: BoardState;
-  players: PlayerState[];
-  prevMoves: CardPlacement[][];
-}
-
-export interface CardPlacement {
-  player: PlayerId;
-  card: number;
-  rotation: Rotation;
-  position: Coordinate;
-}
-
-export interface PlayerMovement {
-  player: PlayerId;
-  action: "discard" | "trivial" | "special";
-  hand: number;
-  params?: {
-    rotation: Rotation;
-    position: Coordinate;
-  };
-}
-
 /* turn apis */
-export function player2Turn(player: PlayerId): Turn {
+export function player2Turn(player: IPlayerId): ITurn {
   return player == 0 ? 1 : -1;
 }
 
 /* rect apis */
 export function parseRect(str: string) {
-  return MatrixUtil.parse(str);
+  return rectFromString(str);
 }
 
-export function printRect(rect: Rect) {
-  return MatrixUtil.print(rect);
+export function printRect(rect: IRect) {
+  return rectToString(rect);
 }
 
-export function contains(rect: Rect, pos: Coordinate): boolean {
+export function contains(rect: IRect, pos: ICoordinate): boolean {
   const [w, h] = rect.size;
   const { x, y } = pos;
   return 0 <= x && x < w && 0 <= y && y < h;
 }
 
-export function getValue(rect: Rect, pos: Coordinate): number {
+export function getValue(rect: IRect, pos: ICoordinate): number {
   const {
     size: [w],
     values,
@@ -118,7 +51,7 @@ export function getValue(rect: Rect, pos: Coordinate): number {
   return values[x + y * w];
 }
 
-export function setValue(rect: Rect, pos: Coordinate, value: number) {
+export function setValue(rect: IRect, pos: ICoordinate, value: number) {
   const {
     size: [w],
     values,
@@ -128,7 +61,10 @@ export function setValue(rect: Rect, pos: Coordinate, value: number) {
   values[x + y * w] = value;
 }
 
-function forEach(rect: Rect, callback: (pos: Coordinate, val: number) => void) {
+function forEach(
+  rect: IRect,
+  callback: (pos: ICoordinate, val: number) => void
+) {
   const {
     size: [w, h],
     values,
@@ -141,8 +77,8 @@ function forEach(rect: Rect, callback: (pos: Coordinate, val: number) => void) {
 }
 
 export function forEachNonEmpty(
-  rect: Rect,
-  callback: (pos: Coordinate, val: number) => void
+  rect: IRect,
+  callback: (pos: ICoordinate, val: number) => void
 ) {
   forEach(rect, (pos, v) => {
     if (v != Spaces.EMPTY && v != Spaces.INVALID) {
@@ -152,11 +88,11 @@ export function forEachNonEmpty(
 }
 
 /* board apis */
-export function isInBoard(board: Rect, pos: Coordinate): boolean {
+export function isInBoard(board: IRect, pos: ICoordinate): boolean {
   return contains(board, pos) && getValue(board, pos) != Spaces.INVALID;
 }
 
-export function getBoardState(rect: Rect): BoardState {
+export function getBoardState(rect: IRect): IBoardState {
   const [w, h] = rect.size;
   const special = [0, 0];
   const area = [0, 0];
@@ -181,12 +117,12 @@ export function getBoardState(rect: Rect): BoardState {
   };
 }
 
-export function isBoardPosCharged(board: Rect, pos: Coordinate): boolean {
+export function isBoardPosCharged(board: IRect, pos: ICoordinate): boolean {
   const v = getValue(board, pos);
   if (Math.abs(v) != Spaces.SPECIAL) {
     return false;
   }
-  for (let [dx, dy] of EIGHT_NEIGHBOURS) {
+  for (let [dx, dy] of EightNeighbours) {
     const p1 = { x: pos.x + dx, y: pos.y + dy };
     if (isInBoard(board, p1)) {
       const v1 = getValue(board, p1);
@@ -198,7 +134,7 @@ export function isBoardPosCharged(board: Rect, pos: Coordinate): boolean {
   return true;
 }
 
-export function moveBoard(board: Rect, moves: CardPlacement[]): BoardState {
+export function moveBoard(board: IRect, moves: ICardPlacement[]): IBoardState {
   assert(moves.length <= 2);
   if (moves.length == 2) {
     assert(moves[0].player != moves[1].player);
@@ -233,8 +169,8 @@ export function moveBoard(board: Rect, moves: CardPlacement[]): BoardState {
 }
 
 export function isBoardMoveValid(
-  board: Rect,
-  move: CardPlacement,
+  board: IRect,
+  move: ICardPlacement,
   special: boolean
 ): boolean {
   let ok = true;
@@ -256,7 +192,7 @@ export function isBoardMoveValid(
       ok = Math.abs(getValue(board, pos)) <= Spaces.TRIVIAL;
     }
     if (ok && !neighbour) {
-      for (let [dx, dy] of EIGHT_NEIGHBOURS) {
+      for (let [dx, dy] of EightNeighbours) {
         const pos1 = { x: pos.x + dx, y: pos.y + dy };
         if (isInBoard(board, pos1)) {
           const v = getValue(board, pos1) * player2Turn(move.player);
@@ -273,7 +209,7 @@ export function isBoardMoveValid(
 }
 
 /* card apis */
-const CARD_ID_LOOKUP: Card[] = [];
+const CARD_ID_LOOKUP: ICard[] = [];
 
 for (let info of MiniGameCardInfo) {
   const id = info["Number"];
@@ -291,11 +227,11 @@ for (let info of MiniGameCardInfo) {
       values.push(v);
     }
   }
-  const rect: Rect = {
+  const rect: IRect = {
     size: [8, 8],
     values,
   };
-  const card: Card = {
+  const card: ICard = {
     ...rect,
     id,
     name,
@@ -318,7 +254,7 @@ const ROTATION_MATRICES = [
   [0, -1, 7, 1, 0, 0],
 ];
 
-export function rotateCard(card: Card, rotation: Rotation): Rect {
+export function rotateCard(card: ICard, rotation: IRotation): IRect {
   const [a, b, c, d, e, f] = ROTATION_MATRICES[rotation];
   const values = [];
   for (let y = 0; y < 8; ++y) {
@@ -340,13 +276,13 @@ export function getCardById(card: number) {
 }
 
 /* stage apis */
-const STAGE_ID_LOOKUP: Stage[] = [];
+const STAGE_ID_LOOKUP: IStage[] = [];
 
 for (const info of MiniGameBoardInfo) {
   const { id, name, spaces: str } = info;
-  const rect = MatrixUtil.parse(str);
+  const rect = rectFromString(str);
   const area = rect.values.filter((v) => v != Spaces.INVALID).length;
-  const stage: Stage = {
+  const stage: IStage = {
     id,
     name,
     board: rect,
@@ -362,7 +298,7 @@ export function getStageById(stage: number) {
 }
 
 /* game apis */
-export function initGame(stage: number, decks: number[][]): GameState {
+export function initGame(stage: number, decks: number[][]): IGameState {
   assert(decks.length == 2);
   const { board } = getStageById(stage);
   return {
@@ -387,8 +323,8 @@ export function initGame(stage: number, decks: number[][]): GameState {
 }
 
 export function isGameMoveValid(
-  game: GameState,
-  move: PlayerMovement
+  game: IGameState,
+  move: IPlayerMovement
 ): boolean {
   const { player, action, hand, params } = move;
   if (hand < 0 || hand >= 4) {
@@ -417,7 +353,10 @@ export function isGameMoveValid(
   );
 }
 
-export function moveGame(game: GameState, moves: PlayerMovement[]): GameState {
+export function moveGame(
+  game: IGameState,
+  moves: IPlayerMovement[]
+): IGameState {
   assert(moves.length == 2);
   assert(moves.every((e, i) => e.player == i));
   assert(moves.every((e) => isGameMoveValid(game, e)));
@@ -441,7 +380,7 @@ export function moveGame(game: GameState, moves: PlayerMovement[]): GameState {
     };
   });
 
-  let boardMoves: CardPlacement[][] = [];
+  let boardMoves: ICardPlacement[][] = [];
   if (p1 && p2) {
     let overlap = false;
     const li = new Set();
@@ -500,9 +439,9 @@ export function moveGame(game: GameState, moves: PlayerMovement[]): GameState {
 
 /* bot apis */
 export function enumerateGameMoves(
-  game: GameState,
-  player: PlayerId
-): PlayerMovement[] {
+  game: IGameState,
+  player: IPlayerId
+): IPlayerMovement[] {
   const li = [];
   game.players[player].hand.forEach((card, hand) => {
     for (const special of [true, false]) {
@@ -532,21 +471,21 @@ export function enumerateGameMoves(
 }
 
 export function enumerateBoardMoves(
-  game: GameState,
-  player: PlayerId,
+  game: IGameState,
+  player: IPlayerId,
   card: number,
   special: boolean
-): CardPlacement[] {
+): ICardPlacement[] {
   const n = 8;
   const li = [];
   const [w, h] = game.board.size;
   for (let y = -n; y < h; ++y) {
     for (let x = -n; x < w; ++x) {
       for (let r = 0; r < 4; ++r) {
-        const move: CardPlacement = {
+        const move: ICardPlacement = {
           player,
           card,
-          rotation: <Rotation>r,
+          rotation: <IRotation>r,
           position: { x, y },
         };
         if (isBoardMoveValid(game.board, move, special)) {

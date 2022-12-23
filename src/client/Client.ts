@@ -55,7 +55,7 @@ type ClientDataHandler = (data: TransportData) => void;
 type ClientDisconnectHandler = () => void;
 
 interface ClientOptions {
-  playerId: PlayerId;
+  playerId: IPlayerId;
   matchId: string;
   credentials?: string;
   multiplayer: (_: TransportOpts) => Transport;
@@ -65,7 +65,7 @@ let _current: Client = null;
 
 export class Client {
   public readonly client: _ClientImpl<TableturfGameState>;
-  public readonly playerId: PlayerId;
+  public readonly playerId: IPlayerId;
   public readonly matchId: string;
 
   private readonly _detachStateUpdateListener: () => void;

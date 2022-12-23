@@ -68,6 +68,10 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
 
   prompt(level: MessageLevel, text: string) {
     const id = v4();
+    const maxMsglen = 64;
+    if (text.length > maxMsglen) {
+      text = text.substring(0, maxMsglen - 3) + "...";
+    }
     this.update({
       messages: [{ text, level, id }, ...this.props.messages],
     });
@@ -87,6 +91,7 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
       error = error.toString();
     }
     console.assert(typeof error == "string");
+    console.error(error);
     this.prompt("error", error);
   }
 
@@ -95,6 +100,7 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
       error = error.toString();
     }
     console.assert(typeof error == "string");
+    console.warn(error);
     this.prompt("warning", error);
   }
 

@@ -12,25 +12,25 @@ export class DragHandler extends EventHandler {
     super("drag", sender);
   }
 
-  drag(pos: Coordinate) {}
+  drag(pos: ICoordinate) {}
 
-  move(pos: Coordinate) {}
+  move(pos: ICoordinate) {}
 
-  drop(pos: Coordinate) {}
+  drop(pos: ICoordinate) {}
 
   _bootstrap(): EventHandler {
     const self = this;
     logger.debug("bootstrap", this);
     return Object.setPrototypeOf(
       {
-        _pointerdown({ x, y }: Coordinate): EventHandler {
+        _pointerdown({ x, y }: ICoordinate): EventHandler {
           if (this._pos != null) {
             return null;
           }
           this._pos = { x, y };
           return this;
         },
-        _pointermove(pos: Coordinate): EventHandler {
+        _pointermove(pos: ICoordinate): EventHandler {
           const d = Math.sqrt(
             (pos.x - this._pos.x) ** 2 + (pos.y - this._pos.y) ** 2
           );
@@ -41,7 +41,7 @@ export class DragHandler extends EventHandler {
           }
           return this;
         },
-        _pointerup(pos: Coordinate): EventHandler {
+        _pointerup(pos: ICoordinate): EventHandler {
           return null;
         },
       },
@@ -49,17 +49,17 @@ export class DragHandler extends EventHandler {
     );
   }
 
-  _pointerdown(pos: Coordinate): EventHandler {
+  _pointerdown(pos: ICoordinate): EventHandler {
     this.drop(pos);
     return null;
   }
 
-  _pointermove(pos: Coordinate): EventHandler {
+  _pointermove(pos: ICoordinate): EventHandler {
     this.move(pos);
     return this;
   }
 
-  _pointerup(pos: Coordinate): EventHandler {
+  _pointerup(pos: ICoordinate): EventHandler {
     this.drop(pos);
     return null;
   }

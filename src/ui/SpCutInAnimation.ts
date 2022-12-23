@@ -2,14 +2,13 @@ import { Component } from "../engine/Component";
 import { EaseFunc } from "../engine/animations/Ease";
 import { ColorPalette } from "./ColorPalette";
 import { Color } from "../engine/Color";
-import { Card } from "../core/Tableturf";
 import { System } from "../engine/System";
 import BgMotionGlsl from "./shaders/BgMotion.glsl?raw";
 import SpCutInImgGlsl from "./shaders/SpCutInImg.glsl?raw";
 
 interface ISpCutInAnimationProps {
-  card1: Card | null;
-  card2: Card | null;
+  card1: ICard | null;
+  card2: ICard | null;
 }
 
 export class SpCutInAnimation extends Component<ISpCutInAnimationProps> {
@@ -251,7 +250,7 @@ export class SpCutInAnimation extends Component<ISpCutInAnimationProps> {
     }
   }
 
-  uiPlay(card1?: Card, card2?: Card): Promise<any> {
+  uiPlay(card1?: ICard, card2?: ICard): Promise<any> {
     this.update({ card1, card2 });
     return Promise.all(this.anims.map((f) => f()));
   }

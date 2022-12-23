@@ -2,8 +2,6 @@ import { Window } from "../engine/Window";
 import { BoardComponent } from "./BoardComponent";
 import { ColorPalette } from "./ColorPalette";
 import {
-  BoardState,
-  CardPlacement,
   getCardById,
   initGame,
   isBoardMoveValid,
@@ -33,21 +31,21 @@ import { CardSmall } from "./components/CardSmall";
 import { ReactComponent } from "../engine/ReactComponent";
 import { StarterDeck } from "../Game";
 import { getLogger } from "loglevel";
-import { MatrixUtil } from "../core/Utils";
+import { rectToString } from "../core/Utils";
 
 import "./TryOutWindow.less";
 
 const logger = getLogger("try-out-window");
 logger.setLevel("debug");
 
-function initBoard(stage: number): BoardState {
+function initBoard(stage: number): IBoardState {
   return initGame(stage, [StarterDeck, StarterDeck]).board;
 }
 
 interface HistoryRecord {
   card: number;
   isInDeck: boolean;
-  prevState: BoardState;
+  prevState: IBoardState;
 }
 
 interface PublicProps {
@@ -58,7 +56,7 @@ interface PublicProps {
 interface Props extends PublicProps {
   selectedCard: number;
   history: HistoryRecord[];
-  state: BoardState;
+  state: IBoardState;
 }
 
 class Panel extends ReactComponent<Props> {
@@ -79,11 +77,11 @@ class Panel extends ReactComponent<Props> {
     };
   }
 
-  async processMove(move: CardPlacement) {
+  async processMove(move: ICardPlacement) {
     let { state, history } = this.props;
     const ok = isBoardMoveValid(state, move, false);
     if (!ok) {
-      logger.debug("invalid move:", MatrixUtil.print(state), move);
+      logger.debug("invalid move:", rectToString(state), move);
       MessageBar.error("you can't put it there.");
       return;
     }
@@ -254,7 +252,7 @@ class Panel extends ReactComponent<Props> {
             left: 1650,
             top: y0 + h * 0,
           }}
-          onClick={() => Lobby.togglePixiWindow(DeckEditWindow)}
+          // onClick={() => Lobby.togglePixiWindow(DeckEditWindow)}
         >
           Edit Deck
         </MyBtn>

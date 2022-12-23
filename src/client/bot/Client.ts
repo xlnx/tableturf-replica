@@ -3,14 +3,14 @@ import {
   StarterDeck,
   TableturfClientState,
   TableturfPlayerInfo,
-} from "../Game";
+} from "../../Game";
 import { Bot, BotConnector, BotSession } from "./Bot";
-import { Client } from "./Client";
+import { Client } from "../Client";
 import {
   LocalMaster,
   LocalTransport,
 } from "boardgame.io/src/client/transport/local";
-import { PlayerMovement } from "../core/Tableturf";
+import { MessageBar } from "../../ui/components/MessageBar";
 
 const logger = getLogger("bot-client");
 logger.setLevel("info");
@@ -38,6 +38,7 @@ class BotClientImpl extends Client {
       multiplayer: Local,
     });
     this.on("update", this._handleUpdate.bind(this));
+    bot.onError(this._handleError.bind(this));
   }
 
   stop() {
@@ -50,6 +51,11 @@ class BotClientImpl extends Client {
       name: this.bot.info.name,
       deck: StarterDeck.slice(),
     };
+  }
+
+  private _handleError(err) {
+    MessageBar.error(err);
+    this.stop();
   }
 
   private async _handleUpdate(
@@ -74,6 +80,7 @@ class BotClientImpl extends Client {
         deck: G.players[this.playerId].deck.slice(),
       });
       logger.log("create session ->", { session, deck });
+      session.onError(this._handleError.bind(this));
       this.session = session;
       this.send("updatePlayerInfo", { deck });
       this.send("sync");
@@ -95,7 +102,7 @@ class BotClientImpl extends Client {
 
     if (enter("game") || (newMove && G.game.round > 0)) {
       const response = await this.session.query();
-      const move: PlayerMovement = {
+      const move: IPlayerMovement = {
         ...response,
         player: this.playerId,
       };

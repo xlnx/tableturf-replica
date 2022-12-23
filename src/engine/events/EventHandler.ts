@@ -16,15 +16,15 @@ export class EventHandler {
     return Object.setPrototypeOf({}, this);
   }
 
-  _pointermove(pos: Coordinate): EventHandler {
+  _pointermove(pos: ICoordinate): EventHandler {
     return null;
   }
 
-  _pointerdown(pos: Coordinate): EventHandler {
+  _pointerdown(pos: ICoordinate): EventHandler {
     return null;
   }
 
-  _pointerup(pos: Coordinate): EventHandler {
+  _pointerup(pos: ICoordinate): EventHandler {
     return null;
   }
 

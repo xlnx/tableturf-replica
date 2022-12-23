@@ -1,11 +1,11 @@
 import { test } from "vitest";
 import { rotateCard } from "../Tableturf";
-import { MatrixUtil } from "../Utils";
 import { TestUtil } from "./TestUtil";
+import { rectToString } from "../Utils";
 
 test("rotate_0", () => {
   const actual = rotateCard(TestUtil.card.Nautilus, 0);
-  TestUtil.expectRectEqual(actual, MatrixUtil.print(TestUtil.card.Nautilus));
+  TestUtil.expectRectEqual(actual, rectToString(TestUtil.card.Nautilus));
 });
 
 test("rotate_1", () => {

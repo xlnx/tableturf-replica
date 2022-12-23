@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  test:
+  node_test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -29,9 +29,29 @@ jobs:
     - run: yarn test
 
 
+  poetry_test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+        node-version: [16.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: abatilo/actions-poetry@v2
+    - working-directory: python/tests
+      run: poetry install
+    - working-directory: python/tests
+      run: poetry run pytest
+
+
   deploy:
     runs-on: ubuntu-latest
-    needs: [test]
+    needs: [node_test]
     environment: production
 
     steps:

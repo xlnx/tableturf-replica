@@ -7,28 +7,28 @@ export class PointerHandler extends EventHandler {
   readonly doubleTapThresholdMs: number = 500;
 
   private _first: boolean = true;
-  private _pos: Coordinate = null;
+  private _pos: ICoordinate = null;
   private _lastTapTime: number = null;
 
   constructor(sender: Component) {
     super("pointer", sender);
   }
 
-  enter(pos: Coordinate) {}
+  enter(pos: ICoordinate) {}
 
-  move(pos: Coordinate) {}
+  move(pos: ICoordinate) {}
 
-  down(pos: Coordinate) {}
+  down(pos: ICoordinate) {}
 
-  up(pos: Coordinate) {}
+  up(pos: ICoordinate) {}
 
-  tap(pos: Coordinate) {}
+  tap(pos: ICoordinate) {}
 
-  doubleTap(pos: Coordinate) {}
+  doubleTap(pos: ICoordinate) {}
 
-  leave(pos: Coordinate) {}
+  leave(pos: ICoordinate) {}
 
-  _pointermove(pos: Coordinate): EventHandler {
+  _pointermove(pos: ICoordinate): EventHandler {
     if (!hitTest(pos, this.sender)) {
       return this._pointerout(pos);
     }
@@ -41,12 +41,12 @@ export class PointerHandler extends EventHandler {
     return this;
   }
 
-  _pointerout(pos: Coordinate): EventHandler {
+  _pointerout(pos: ICoordinate): EventHandler {
     this.leave(pos);
     return null;
   }
 
-  _pointerdown(pos: Coordinate): EventHandler {
+  _pointerdown(pos: ICoordinate): EventHandler {
     if (!hitTest(pos, this.sender)) {
       return this._pointerout(pos);
     }
@@ -57,7 +57,7 @@ export class PointerHandler extends EventHandler {
     return this;
   }
 
-  _pointerup(pos: Coordinate): EventHandler {
+  _pointerup(pos: ICoordinate): EventHandler {
     if (!hitTest(pos, this.sender)) {
       return this._pointerout(pos);
     }

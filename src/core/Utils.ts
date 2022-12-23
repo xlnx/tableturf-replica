@@ -1,4 +1,4 @@
-import { Rect, Spaces } from "./Tableturf";
+import { Spaces } from "./Tableturf";
 
 export function assert(ok: boolean, msg?: string) {
   if (!ok) {
@@ -6,91 +6,89 @@ export function assert(ok: boolean, msg?: string) {
   }
 }
 
-export class MatrixUtil {
-  static parse(str: string): Rect {
-    let len = 0;
-    let width = -1;
-    let height = 0;
-    const values = [];
-    for (let i = 0; i < str.length; ++i) {
-      switch (str.charAt(i)) {
-        case "@":
-          values.push(Spaces.INVALID);
-          break;
-        case ".":
-          values.push(Spaces.EMPTY);
-          break;
-        case "#":
-          values.push(Spaces.NEUTRAL);
-          break;
-        case "a":
-          values.push(Spaces.TRIVIAL * 1);
-          break;
-        case "A":
-          values.push(Spaces.SPECIAL * 1);
-          break;
-        case "b":
-          values.push(Spaces.TRIVIAL * -1);
-          break;
-        case "B":
-          values.push(Spaces.SPECIAL * -1);
-          break;
-        case "\n":
-          const dx = values.length - len;
-          len = values.length;
-          if (dx > 0) {
-            height += 1;
-            if (width < 0) {
-              width = dx;
-            } else {
-              assert(width == dx, width + "=" + dx);
-            }
+export function rectFromString(str: string): IRect {
+  let len = 0;
+  let width = -1;
+  let height = 0;
+  const values = [];
+  for (let i = 0; i < str.length; ++i) {
+    switch (str.charAt(i)) {
+      case "@":
+        values.push(Spaces.INVALID);
+        break;
+      case ".":
+        values.push(Spaces.EMPTY);
+        break;
+      case "#":
+        values.push(Spaces.NEUTRAL);
+        break;
+      case "a":
+        values.push(Spaces.TRIVIAL * 1);
+        break;
+      case "A":
+        values.push(Spaces.SPECIAL * 1);
+        break;
+      case "b":
+        values.push(Spaces.TRIVIAL * -1);
+        break;
+      case "B":
+        values.push(Spaces.SPECIAL * -1);
+        break;
+      case "\n":
+        const dx = values.length - len;
+        len = values.length;
+        if (dx > 0) {
+          height += 1;
+          if (width < 0) {
+            width = dx;
+          } else {
+            assert(width == dx, width + "=" + dx);
           }
+        }
+        break;
+    }
+  }
+  return {
+    size: [width, height],
+    values,
+  };
+}
+
+export function rectToString(m: IRect): string {
+  const {
+    size: [width, height],
+    values,
+  } = m;
+  let str = "";
+  for (let y = 0; y < height; ++y) {
+    for (let x = 0; x < width; ++x) {
+      switch (values[x + y * width]) {
+        case Spaces.EMPTY:
+          str += ".";
+          break;
+        case Spaces.INVALID:
+          str += "@";
+          break;
+        case Spaces.NEUTRAL:
+          str += "#";
+          break;
+        case Spaces.TRIVIAL * 1:
+          str += "a";
+          break;
+        case Spaces.SPECIAL * 1:
+          str += "A";
+          break;
+        case Spaces.TRIVIAL * -1:
+          str += "b";
+          break;
+        case Spaces.SPECIAL * -1:
+          str += "B";
           break;
       }
     }
-    return {
-      size: [width, height],
-      values,
-    };
+    str += "\n";
   }
-
-  static print(m: Rect): string {
-    const {
-      size: [width, height],
-      values,
-    } = m;
-    let str = "";
-    for (let y = 0; y < height; ++y) {
-      for (let x = 0; x < width; ++x) {
-        switch (values[x + y * width]) {
-          case Spaces.EMPTY:
-            str += ".";
-            break;
-          case Spaces.INVALID:
-            str += "@";
-            break;
-          case Spaces.NEUTRAL:
-            str += "#";
-            break;
-          case Spaces.TRIVIAL * 1:
-            str += "a";
-            break;
-          case Spaces.SPECIAL * 1:
-            str += "A";
-            break;
-          case Spaces.TRIVIAL * -1:
-            str += "b";
-            break;
-          case Spaces.SPECIAL * -1:
-            str += "B";
-            break;
-        }
-      }
-      str += "\n";
-    }
-    return str;
-  }
+  return str;
 }
 
 export function shuffle<T>(li: T[]) {

@@ -1,7 +1,7 @@
-import { getValue, Rect, Spaces } from "../../core/Tableturf";
+import { getValue, Spaces } from "../../core/Tableturf";
 
 interface CardGridProps {
-  rect: Rect;
+  rect: IRect;
   width: number;
 }
 

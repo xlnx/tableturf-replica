@@ -5,7 +5,7 @@ import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { LoadingDialog } from "../components/LoadingDialog";
 import { OnlineViaInviteLinkActivity } from "./OnlineViaInviteLinkActivity";
-import { P2PHost } from "../../net/P2P";
+import { P2PHost } from "../../client/P2P";
 import { MatchActivity } from "./MatchActivity";
 
 class OnlineLoungeActivity_0 extends Activity {

@@ -5,11 +5,10 @@ import { Component } from "../engine/Component";
 import { EaseFunc } from "../engine/animations/Ease";
 import { Camera3d, Container3d } from "pixi-projection";
 import { Container } from "pixi.js";
-import { Card } from "../core/Tableturf";
 
 interface ICardAnimationProps {
-  card: Card | null;
-  turn: Turn;
+  card: ICard | null;
+  turn: ITurn;
 }
 
 export class GamePlayCardComponent extends Component<ICardAnimationProps> {
@@ -131,7 +130,7 @@ export class GamePlayCardComponent extends Component<ICardAnimationProps> {
     window.requestAnimationFrame(fn1);
   }
 
-  async uiSelectCard(card: Card) {
+  async uiSelectCard(card: ICard) {
     this.toggleSleeve(true);
     this.update({ card });
     const a = this.addAnimation((t) => {
@@ -143,7 +142,7 @@ export class GamePlayCardComponent extends Component<ICardAnimationProps> {
     await a.play(0.4);
   }
 
-  async uiShowCard(card: Card, discard: boolean) {
+  async uiShowCard(card: ICard, discard: boolean) {
     this.update({ card });
 
     const a1 = this.addAnimation((t) => {

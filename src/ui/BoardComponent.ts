@@ -11,9 +11,6 @@ import { getLocalPos, getWorldPos } from "../engine/events/Utils";
 import { System } from "../engine/System";
 import { DragHandler } from "../engine/events/DragHandler";
 import {
-  BoardState,
-  Card,
-  CardPlacement,
   forEachNonEmpty,
   getCardById,
   getValue,
@@ -27,20 +24,20 @@ import {
 import { WheelHandler } from "../engine/events/WheelHandler";
 
 interface IPlayerInput {
-  card: Card;
-  rotation: Rotation;
-  pointer: Coordinate;
+  card: ICard;
+  rotation: IRotation;
+  pointer: ICoordinate;
   isSpecialAttack: boolean;
 }
 
 interface IBoardComponentProps {
-  playerId: PlayerId;
+  playerId: IPlayerId;
   input: IPlayerInput;
   acceptInput: boolean;
 }
 
-type OnUpdateInputFn = (e: CardPlacement, ok: boolean) => void;
-type OnInputFn = (e: CardPlacement) => void;
+type OnUpdateInputFn = (e: ICardPlacement, ok: boolean) => void;
+type OnInputFn = (e: ICardPlacement) => void;
 
 export class BoardComponent extends Component<IBoardComponentProps> {
   private readonly root: Container;
@@ -56,7 +53,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
 
   private readonly flashAnimation: Animation;
 
-  private board: BoardState;
+  private board: IBoardState;
   private lk: boolean = false;
   private selection: number[];
 
@@ -211,7 +208,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       },
     });
 
-    const getGridPos = (pos: Coordinate) => {
+    const getGridPos = (pos: ICoordinate) => {
       const { x, y } = getLocalPos(pos, self.hitbox);
       const [w, h] = self.board.size;
       return {
@@ -220,7 +217,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       };
     };
 
-    const sendPlayerInput = async (move: CardPlacement) => {
+    const sendPlayerInput = async (move: ICardPlacement) => {
       if (move == null) {
         return;
       }
@@ -240,7 +237,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     if (!System.isMobile) {
       this.handle(
         class extends PointerHandler {
-          move(pos: Coordinate): void {
+          move(pos: ICoordinate): void {
             if (self.lk || !self.board) {
               return;
             }
@@ -253,7 +250,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
             });
           }
 
-          async tap(pos: Coordinate) {
+          async tap(pos: ICoordinate) {
             if (!self.props.acceptInput.value) {
               return;
             }
@@ -271,7 +268,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       );
       this.handle(
         class extends WheelHandler {
-          wheel(pos: Coordinate, dy: number): void {
+          wheel(pos: ICoordinate, dy: number): void {
             self.uiRotateInput(dy / 100);
           }
         }
@@ -280,8 +277,8 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       this.handle(
         class extends DragHandler {
           triggerThresholdPx = 8;
-          dp: Coordinate;
-          drag(pos: Coordinate): void {
+          dp: ICoordinate;
+          drag(pos: ICoordinate): void {
             if (!self.props.acceptInput.value) {
               return;
             }
@@ -300,7 +297,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
               input: { ...self.props.input.value, pointer: { x, y } },
             });
           }
-          move(pos: Coordinate): void {
+          move(pos: ICoordinate): void {
             if (!self.props.acceptInput.value) {
               return;
             }
@@ -312,7 +309,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
               input: { ...self.props.input.value, pointer: { x, y } },
             });
           }
-          drop(pos: Coordinate): void {
+          drop(pos: ICoordinate): void {
             if (!self.props.acceptInput.value) {
               return;
             }
@@ -339,7 +336,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
         class extends PointerHandler {
           triggerThresholdPx = 5;
           doubleTapThresholdMs = 200;
-          async doubleTap(pos: Coordinate) {
+          async doubleTap(pos: ICoordinate) {
             if (!self.props.acceptInput.value) {
               return;
             }
@@ -384,7 +381,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     });
   }
 
-  uiReset(board: BoardState) {
+  uiReset(board: IBoardState) {
     this.board = board;
     const [w, h] = this.board.size;
     const x = (this.layout.width - w) / 2;
@@ -423,13 +420,13 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     if (input == null || input.rotation == null) {
       return;
     }
-    const rotation = ((((input.rotation + dt) % 4) + 4) % 4) as Rotation;
+    const rotation = ((((input.rotation + dt) % 4) + 4) % 4) as IRotation;
     this.update({
       input: { ...input, rotation },
     });
   }
 
-  async uiPlaceCards(ms: CardPlacement[]) {
+  async uiPlaceCards(ms: ICardPlacement[]) {
     this.board = moveBoard(this.board, ms);
     this.spaces.update({ matrix: this.board });
     this.bg.update({ matrix: this.board });
@@ -458,7 +455,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     this.onInputFn = fn;
   }
 
-  private uiUpdateInput(input?: IPlayerInput): CardPlacement {
+  private uiUpdateInput(input?: IPlayerInput): ICardPlacement {
     this.selection = [];
     if (this.board == null) {
       return null;
@@ -483,7 +480,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     }
 
     const position = this.getAdjustedCardPosition(card, rotation, pointer);
-    const move: CardPlacement = {
+    const move: ICardPlacement = {
       player: this.props.playerId.value,
       card: card.id,
       rotation,
@@ -509,10 +506,10 @@ export class BoardComponent extends Component<IBoardComponentProps> {
   }
 
   private getAdjustedCardPosition(
-    card: Card,
-    rotation: Rotation,
-    pointer: Coordinate
-  ): Coordinate {
+    card: ICard,
+    rotation: IRotation,
+    pointer: ICoordinate
+  ): ICoordinate {
     let x = pointer.x - 3;
     let y = pointer.y - 3;
 

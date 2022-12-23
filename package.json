@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "update_schema": "typescript-json-schema tsconfig.json * --include src/client/bot/Typing.d.ts src/core/Typing.d.ts --out src/Schema.json --required",
+    "build": "yarn run update_schema && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage"
@@ -22,6 +23,7 @@
     "buffer": "^6.0.3",
     "gsap": "^3.11.3",
     "js-cookie": "^3.0.1",
+    "jsonschema": "^1.4.1",
     "loglevel": "^1.8.1",
     "mobile-detect": "^1.4.5",
     "pixi-projection": "^0.4.4",
@@ -47,6 +49,7 @@
     "strip-indent": "^4.0.0",
     "ts-loader": "^9.4.2",
     "typescript": "^4.6.4",
+    "typescript-json-schema": "^0.55.0",
     "vite": "^3.2.3",
     "vitest": "^0.25.2",
     "webpack": "^5.75.0",
