@@ -51,7 +51,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [node_test]
+    needs: [node_test, poetry_test]
     environment: production
 
     steps:
