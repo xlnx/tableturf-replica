@@ -1,0 +1,34 @@
+import { v4 } from "uuid";
+import { Component } from "../Component";
+
+export class EventHandler {
+  readonly id = v4();
+  readonly stops: EventType[] = [];
+  allowFire: boolean = true;
+
+  constructor(readonly type: EventType, readonly sender: Component) {}
+
+  get name() {
+    return `${this.type}(${this.id})`;
+  }
+
+  _bootstrap(): EventHandler {
+    return Object.setPrototypeOf({}, this);
+  }
+
+  _pointermove(pos: Coordinate): EventHandler {
+    return null;
+  }
+
+  _pointerdown(pos: Coordinate): EventHandler {
+    return null;
+  }
+
+  _pointerup(pos: Coordinate): EventHandler {
+    return null;
+  }
+
+  _wheel(evt: WheelEvent): EventHandler {
+    return null;
+  }
+}

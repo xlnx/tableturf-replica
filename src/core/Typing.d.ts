@@ -7,9 +7,3 @@ declare type Coordinate = {
   x: number;
   y: number;
 };
-
-declare interface Matrix<T> {
-  width: number;
-  height: number;
-  spaces: T[];
-}

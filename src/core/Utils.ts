@@ -1,37 +1,37 @@
-import { Spaces } from "./Tableturf";
+import { Rect, Spaces } from "./Tableturf";
 
 export class MatrixUtil {
-  static parse(str: string): Matrix<number> {
+  static parse(str: string): Rect {
     let len = 0;
     let width = -1;
     let height = 0;
-    const spaces = [];
+    const values = [];
     for (let i = 0; i < str.length; ++i) {
       switch (str.charAt(i)) {
         case "@":
-          spaces.push(Spaces.INVALID);
+          values.push(Spaces.INVALID);
           break;
         case ".":
-          spaces.push(Spaces.EMPTY);
+          values.push(Spaces.EMPTY);
           break;
         case "#":
-          spaces.push(Spaces.NEUTRAL);
+          values.push(Spaces.NEUTRAL);
           break;
         case "a":
-          spaces.push(Spaces.TRIVIAL * 1);
+          values.push(Spaces.TRIVIAL * 1);
           break;
         case "A":
-          spaces.push(Spaces.SPECIAL * 1);
+          values.push(Spaces.SPECIAL * 1);
           break;
         case "b":
-          spaces.push(Spaces.TRIVIAL * -1);
+          values.push(Spaces.TRIVIAL * -1);
           break;
         case "B":
-          spaces.push(Spaces.SPECIAL * -1);
+          values.push(Spaces.SPECIAL * -1);
           break;
         case "\n":
-          const dx = spaces.length - len;
-          len = spaces.length;
+          const dx = values.length - len;
+          len = values.length;
           if (dx > 0) {
             height += 1;
             if (width < 0) {
@@ -44,18 +44,20 @@ export class MatrixUtil {
       }
     }
     return {
-      width,
-      height,
-      spaces,
+      size: [width, height],
+      values,
     };
   }
 
-  static print(m: Matrix<number>): string {
-    const { width, height, spaces } = m;
+  static print(m: Rect): string {
+    const {
+      size: [width, height],
+      values,
+    } = m;
     let str = "";
     for (let y = 0; y < height; ++y) {
       for (let x = 0; x < width; ++x) {
-        switch (spaces[x + y * width]) {
+        switch (values[x + y * width]) {
           case Spaces.EMPTY:
             str += ".";
             break;

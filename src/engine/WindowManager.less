@@ -1,0 +1,47 @@
+.box {
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.viewport {
+  .box;
+  position: relative;
+  pointer-events: none;
+}
+
+.box-full {
+  .box;
+  width: 100%;
+  height: 100%;
+}
+
+.window {
+  .box-full;
+  position: absolute;
+}
+
+.layer {
+  .window;
+}
+
+.layer-h5-root {
+  position: absolute;
+}
+
+.canvas {
+  .window;
+  pointer-events: all;
+}
+
+.overlay {
+  pointer-events: none;
+}
+
+html, body {
+  .box-full;
+}

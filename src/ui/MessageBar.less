@@ -1,0 +1,25 @@
+@dt: 0.25s;
+
+.msg-bar-enter-active, .msg-bar-exit-active {
+  transition: all @dt ease-out;
+}
+
+.msg-bar-enter {
+  transform: translateX(150%);
+  max-height: 0px;
+}
+
+.msg-bar-enter-active {
+  transform: translateX(0);
+  max-height: 80px;
+}
+
+.msg-bar-exit {
+  transform: translateX(0);
+  // max-height: 80px;
+}
+
+.msg-bar-exit-active {
+  transform: translateX(150%);
+  // max-height: 0;
+}

@@ -1,5 +1,6 @@
-import { Game } from "boardgame.io";
+import { Game, PhaseConfig } from "boardgame.io";
 import { ActivePlayers, INVALID_MOVE } from "boardgame.io/core";
+import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { getLogger } from "loglevel";
 import {
   GameState,
@@ -10,93 +11,173 @@ import {
 } from "./core/Tableturf";
 
 const logger = getLogger("tableturf-game");
-logger.setLevel("debug");
+logger.setLevel("info");
 
-const STD_DECK = [33, 159, 92, 25, 30, 52, 65, 50, 66, 64, 53, 58, 28, 74, 69];
-
-interface State {
-  ready: boolean[];
-  decks: number[][];
-  stage: number;
-  game: GameState | null;
-  moves: PlayerMovement[];
+export interface TableturfPlayerInfo {
+  name: string;
+  deck: number[];
 }
 
-export const TableturfGame: Game<State> = {
-  setup: ({ ctx }) => ({
+export interface TableturfGameState {
+  // prepare phase
+  players: (TableturfPlayerInfo | null)[];
+  ready: boolean[];
+  stage: number;
+  // game phase
+  game: GameState | null;
+  moveHistory: (PlayerMovement & { card: number })[][];
+  moves: (PlayerMovement & { card: number })[];
+  // notifications
+  sync: boolean[];
+}
+
+export type TableturfClientState = Exclude<
+  ClientState<TableturfGameState>,
+  null
+>;
+
+const barrier: Partial<PhaseConfig<TableturfGameState>> = {
+  moves: {
+    sync: {
+      move: ({ G, playerID }) => {
+        const player = parseInt(playerID);
+        G.sync[player] = true;
+      },
+      ignoreStaleStateID: true,
+    },
+  },
+  turn: {
+    activePlayers: ActivePlayers.ALL,
+  },
+  endIf: ({ G }) => G.sync.every((e) => e),
+  onEnd: ({ G }) => {
+    G.sync = Array(2).fill(false);
+  },
+};
+
+export const StarterDeck = [
+  6, 13, 22, 28, 40, 34, 45, 52, 55, 56, 159, 137, 141, 103, 92,
+];
+// don't use my deck
+// [
+//   33, 159, 92, 25, 30, 52, 65, 50, 66, 64, 53, 58, 28, 74, 69,
+// ];
+
+export const TableturfGame: Game<TableturfGameState> = {
+  name: "tableturf",
+
+  minPlayers: 1,
+  maxPlayers: 2,
+
+  setup: () => ({
+    // prepare phase
+    players: Array(2).fill(null),
     ready: Array(2).fill(false),
-    decks: Array(2).fill(STD_DECK),
+    decks: Array(2).fill(StarterDeck),
     stage: 1,
+    // game phase
     game: null,
-    moves: [],
+    moveHistory: [],
+    moves: [null, null],
+    // notifications
+    sync: [false, false],
   }),
 
   phases: {
-    prepare: {
+    reset: {
       start: true,
-      next: "main",
-      onBegin: ({ G, ctx }) => {
-        logger.log(`prepare.begin`);
+      endIf: () => true,
+      onEnd: ({ G }) => {
         G.ready = Array(2).fill(false);
       },
+      next: "prepare",
+    },
+
+    prepare: {
+      onBegin: () => logger.debug(`prepare.begin`),
       moves: {
-        toggleReady: ({ G, playerID }) => {
-          const player = parseInt(playerID);
-          G.ready[player] = !G.ready[player];
+        toggleReady: {
+          move: ({ G, playerID }) => {
+            const player = parseInt(playerID);
+            G.ready[player] = !G.ready[player];
+          },
+          ignoreStaleStateID: true,
+        },
+        updatePlayerInfo: {
+          move: ({ G, playerID }, info: TableturfPlayerInfo) => {
+            const player = parseInt(playerID);
+            G.players[player] = info;
+          },
+          ignoreStaleStateID: true,
+        },
+        resetPlayerInfo: {
+          move: ({ G }, player: PlayerId) => {
+            G.players[player] = null;
+          },
+          ignoreStaleStateID: true,
         },
       },
       turn: {
         activePlayers: ActivePlayers.ALL,
       },
-      endIf: ({ G }) => {
-        return G.ready.every((e) => e);
-      },
-      onEnd: () => {
-        logger.log(`prepare.end`);
-      },
+      endIf: ({ G }) => G.ready.every((e) => e),
+      onEnd: () => logger.debug(`prepare.end`),
+      next: "init",
     },
 
-    main: {
-      onBegin: ({ G, ctx }) => {
-        logger.log(`main.begin`);
-        G.game = initGame(G.stage, G.decks);
+    init: {
+      ...barrier,
+      onBegin: ({ G, random }) => {
+        // TODO: shuffle cards here
+        G.game = initGame(
+          G.stage,
+          G.players.map((e) => random.Shuffle(e.deck))
+        );
+        G.moves = Array(2).fill(null);
+        // G.game.round = 0;
       },
+      next: "game",
+    },
+
+    game: {
+      onBegin: () => logger.debug(`game.begin`),
       moves: {
-        move: ({ G, playerID }, move: PlayerMovement) => {
-          const player = parseInt(playerID);
-          if (move.player != player) {
-            return INVALID_MOVE;
-          }
-          if (G.moves[player] != null) {
-            return INVALID_MOVE;
-          }
-          if (!isGameMoveValid(G.game!, move)) {
-            return INVALID_MOVE;
-          }
-          G.moves[player] = move;
+        move: {
+          move: ({ G, playerID }, _move: Omit<PlayerMovement, "player">) => {
+            const player = <PlayerId>parseInt(playerID);
+            const move: PlayerMovement = {
+              ..._move,
+              player,
+            };
+            if (G.moves[player] != null) {
+              return INVALID_MOVE;
+            }
+            if (!isGameMoveValid(G.game!, move)) {
+              return INVALID_MOVE;
+            }
+            G.moves[player] = {
+              ...move,
+              card: G.game.players[player].hand[move.hand],
+            };
+          },
+          ignoreStaleStateID: true,
         },
       },
       turn: {
         activePlayers: ActivePlayers.ALL,
         maxMoves: 2,
-        onBegin: ({ G, ctx }) => {
-          logger.log(`main.turn.begin`);
-          G.moves = [];
-        },
-        onMove: ({ playerID }) => {
-          logger.log(`main.turn.move: ${playerID}`);
-        },
-        endIf: ({ G, ctx }) => {
-          return !!G.moves[0] && !!G.moves[1];
-        },
-        onEnd: ({ G, ctx }) => {
-          logger.log(`main.turn.end`);
-          G.game = moveGame(G.game!, G.moves);
+        endIf: ({ G }) => G.moves.every((e) => e),
+        onEnd: ({ G }) => {
+          if (G.moves.every((e) => e)) {
+            G.moveHistory.push(G.moves);
+            G.game = moveGame(G.game, G.moves);
+            G.moves = Array(2).fill(null);
+          }
         },
       },
-      onEnd: () => {
-        logger.log(`main.end`);
-      },
+      endIf: ({ G }) => G.game.round == 0,
+      onEnd: () => logger.debug(`game.end`),
+      next: "reset",
     },
   },
 };

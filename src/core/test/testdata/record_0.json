@@ -1,0 +1,315 @@
+{
+  "stage": 6,
+  "decks": [
+    [
+      33,
+      159,
+      92,
+      25,
+      30,
+      52,
+      65,
+      50,
+      66,
+      64,
+      53,
+      58,
+      28,
+      74,
+      69
+    ],
+    [
+      86,
+      110,
+      105,
+      161,
+      53,
+      118,
+      125,
+      69,
+      109,
+      20,
+      143,
+      44,
+      12,
+      113,
+      75
+    ]
+  ],
+  "moves": [
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 2,
+          "position": {
+            "x": 1,
+            "y": 12
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 1,
+          "position": {
+            "x": 6,
+            "y": 3
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": 2,
+            "y": 6
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 1,
+          "position": {
+            "x": 5,
+            "y": 7
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 1,
+        "params": {
+          "rotation": 1,
+          "position": {
+            "x": 5,
+            "y": 9
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": 8,
+            "y": 8
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": 1,
+            "y": 13
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 2,
+          "position": {
+            "x": 9,
+            "y": -2
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": -2,
+            "y": 11
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 0,
+          "position": {
+            "x": 11,
+            "y": 10
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": -1,
+            "y": 5
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 2,
+          "position": {
+            "x": 6,
+            "y": 0
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 2,
+          "position": {
+            "x": -2,
+            "y": 7
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": 10,
+            "y": 1
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "discard",
+        "hand": 2
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 1,
+          "position": {
+            "x": 4,
+            "y": 5
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 0,
+          "position": {
+            "x": 4,
+            "y": 4
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": 11,
+            "y": 4
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "special",
+        "hand": 3,
+        "params": {
+          "rotation": 0,
+          "position": {
+            "x": 6,
+            "y": 3
+          }
+        }
+      },
+      {
+        "action": "discard",
+        "hand": 0
+      }
+    ],
+    [
+      {
+        "action": "trivial",
+        "hand": 2,
+        "params": {
+          "rotation": 0,
+          "position": {
+            "x": 0,
+            "y": 17
+          }
+        }
+      },
+      {
+        "action": "trivial",
+        "hand": 0,
+        "params": {
+          "rotation": 1,
+          "position": {
+            "x": 8,
+            "y": 4
+          }
+        }
+      }
+    ],
+    [
+      {
+        "action": "special",
+        "hand": 3,
+        "params": {
+          "rotation": 3,
+          "position": {
+            "x": 6,
+            "y": 4
+          }
+        }
+      },
+      {
+        "action": "special",
+        "hand": 0,
+        "params": {
+          "rotation": 0,
+          "position": {
+            "x": 0,
+            "y": 6
+          }
+        }
+      }
+    ]
+  ]
+}
