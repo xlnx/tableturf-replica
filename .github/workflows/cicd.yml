@@ -5,9 +5,12 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
+      - "dev/**"
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
 
@@ -50,6 +53,8 @@ jobs:
 
 
   deploy:
+    if: github.repository == 'xlnx/tableturf-replica' && github.ref_name == 'master'
+
     runs-on: ubuntu-latest
     needs: [node_test, poetry_test]
     environment: production
