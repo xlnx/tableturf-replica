@@ -56,7 +56,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   async back() {
     console.assert(this.props.client);
     const ok = await AlertDialog.prompt({
-      msg: "Leave the room now ?",
+      msg: "Leave the room now?",
     });
     if (ok) {
       await this.update({ manualExit: true });

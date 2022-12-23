@@ -23,8 +23,12 @@ class Endpoint:
 
   async def run(self):
     while True:
-      msg = await self._ws.recv()
-      await self._on_msg(msg)
+      try:
+        msg = await self._ws.recv()
+        await self._on_msg(msg)
+      except Exception as e:
+        logger.error(str(e))
+        break
 
   async def _on_msg(self, msg: str):
     logger.debug("recv %s", msg);

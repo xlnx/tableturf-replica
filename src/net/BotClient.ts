@@ -119,6 +119,10 @@ export class BotClient extends Client {
       multiplayer: Local,
     });
     this.impl = new BotClientImpl(bot);
+    bot.onDisconnect(() => {
+      bot.stop();
+      this.handleDisconnect();
+    });
   }
 
   async start(timeout: number): Promise<this> {

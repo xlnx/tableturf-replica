@@ -43,6 +43,8 @@ export interface BotSessionUpdateRequest {
 }
 
 export abstract class Bot {
+  protected _disconnectHandlers = [];
+
   async start(): Promise<this> {
     return this;
   }
@@ -54,6 +56,10 @@ export abstract class Bot {
   abstract createSession(
     request: CreateSessionRequest
   ): Promise<CreateSessionResponse>;
+
+  onDisconnect(handler: () => void) {
+    this._disconnectHandlers.push(handler);
+  }
 }
 
 export abstract class BotSession {

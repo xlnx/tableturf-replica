@@ -17,10 +17,6 @@ interface RemoteBotOptions {
 }
 
 class WsRpcClient extends WsRpcClientImpl {
-  constructor(...args) {
-    super(...args);
-  }
-
   call(
     method: string,
     params?: IWSRequestParams,
@@ -52,7 +48,10 @@ export class RemoteBot extends Bot {
     });
     // FIXME: timeout is not handled
     const { url } = this.opts;
-    const rpc = new WsRpcClient(url, { autoconnect: false });
+    const rpc = new WsRpcClient(url, {
+      autoconnect: false,
+      reconnect: false,
+    });
     rpc.on("open", resolve);
     rpc.on("close", () => reject(`connection closed: ${url}`));
     rpc.on("error", () => reject(`connection error: ${url}`));
@@ -63,6 +62,9 @@ export class RemoteBot extends Bot {
       const info: any = await rpc.call("get_bot_info");
       this._info = info;
       this._rpc = rpc;
+      const fn = () => this._disconnectHandlers.forEach((f) => f());
+      rpc.on("error", fn);
+      rpc.on("close", fn);
       return this;
     } catch (e) {
       rpc.close();
@@ -71,7 +73,9 @@ export class RemoteBot extends Bot {
   }
 
   stop() {
-    this._rpc.close();
+    try {
+      this._rpc && this._rpc.close();
+    } catch (err) {}
   }
 
   async createSession(
