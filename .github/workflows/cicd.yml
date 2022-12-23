@@ -37,7 +37,7 @@ jobs:
   poetry_test:
     if: startsWith(github.ref_name, 'dev/python/')
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
