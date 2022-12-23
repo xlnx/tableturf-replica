@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "update_schema": "typescript-json-schema tsconfig.json * --include src/client/bot/Typing.d.ts src/core/Typing.d.ts --out src/Schema.json --required",
-    "build": "yarn run update_schema && tsc && vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage"
