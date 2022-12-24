@@ -268,8 +268,10 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       );
       this.handle(
         class extends WheelHandler {
-          wheel(pos: ICoordinate, dy: number): void {
-            self.uiRotateInput(dy / 100);
+          wheel(_: ICoordinate, dy: number): void {
+            if (dy != 0) {
+              self.uiRotateInput(dy > 0 ? 1 : -1);
+            }
           }
         }
       );
