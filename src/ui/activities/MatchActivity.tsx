@@ -115,9 +115,9 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     // init
     if (enter("init")) {
       InkResetAnimation.play(async () => {
-        GamePlayWindow.uiReset(G);
+        await GamePlayWindow.uiReset(G);
         this.props.client.send("sync");
-        GamePlayWindow.show();
+        await GamePlayWindow.show();
       });
     }
 

@@ -489,7 +489,7 @@ class GamePlayWindow_0 extends Window {
     this.client.on("update", this._handleUpdate.bind(this));
   }
 
-  uiReset(G: TableturfGameState) {
+  async uiReset(G: TableturfGameState) {
     const players = [this.client.playerId, 1 - this.client.playerId];
 
     this.card1.update({ card: null });
@@ -500,7 +500,7 @@ class GamePlayWindow_0 extends Window {
     this.board.uiReset(G.game.board);
 
     //init hand
-    this.panel.resetGameSate(this.client.playerId, G.game);
+    await this.panel.resetGameSate(this.client.playerId, G.game);
 
     // init counters
     const count = players.map((player) => G.game.players[player].count);
