@@ -53,14 +53,15 @@ export class RemoteBot extends Bot {
     });
     // FIXME: timeout is not handled
     const { url } = this.opts;
-    const rpc = new WsRpcClient(url, {
-      autoconnect: false,
-      reconnect: false,
-    });
-    rpc.on("open", resolve);
-    rpc.on("close", () => reject(`connection closed: ${url}`));
-    rpc.on("error", () => reject(`connection error: ${url}`));
+    let rpc: WsRpcClient;
     try {
+      rpc = new WsRpcClient(url, {
+        autoconnect: false,
+        reconnect: false,
+      });
+      rpc.on("open", resolve);
+      rpc.on("close", () => reject(`connection closed: ${url}`));
+      rpc.on("error", () => reject(`connection error: ${url}`));
       rpc.connect();
       await promise;
       const info = await rpc.rpc<IBotInfo>({
@@ -73,7 +74,7 @@ export class RemoteBot extends Bot {
       rpc.on("close", this.handleDisconnect.bind(this));
       return this;
     } catch (e) {
-      rpc.close();
+      rpc && rpc.close();
       throw e;
     }
   }
