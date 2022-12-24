@@ -10,8 +10,8 @@ Visit [main page](https://tableturf.koishi.top)
 
 ## Preview
 
-![](docs/page1.png)
-![](docs/page2.png)
+![](docs/page1.webp)
+![](docs/page2.webp)
 
 ## Custom Bot
 
