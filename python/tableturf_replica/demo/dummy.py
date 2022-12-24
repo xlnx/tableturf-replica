@@ -1,4 +1,4 @@
-from tableturf_replica.bot import bot
+from tableturf_replica import bot
 
 
 @bot

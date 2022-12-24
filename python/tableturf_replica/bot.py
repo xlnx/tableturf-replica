@@ -16,12 +16,12 @@ logger = get_logger('Bot')
 
 @typechecked
 class Bot(ABC):
-  def serve(self, port: int):
+  def serve(self, port: int, **kwargs):
     logger.info('serving on ws://0.0.0.0:{}'.format(port))
-    asyncio.run(self._serve(port))
+    asyncio.run(self._serve(port, **kwargs))
 
-  async def _serve(self, port):
-    async with websockets.serve(self._handle, '0.0.0.0', port):
+  async def _serve(self, port, **kwargs):
+    async with websockets.serve(self._handle, '0.0.0.0', port, **kwargs):
       await asyncio.Future()
 
   async def _handle(self, ws):
