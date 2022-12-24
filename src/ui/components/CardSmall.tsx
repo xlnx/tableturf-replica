@@ -20,6 +20,7 @@ export function CardSmall({
   selected = false,
   onClick = () => {},
 }: CardSmallProps) {
+  selected = active && selected;
   const [state, setState] = React.useState({
     bodyScale: 1,
     clickAnim: new PulseAnimation({
@@ -97,7 +98,9 @@ export function CardSmall({
             overflow: "hidden",
             transform: `scale(${width / w})`,
             transformOrigin: "top left",
-            boxShadow: "4px 4px rgba(0, 0, 0, 0.5)",
+            boxShadow: selected
+              ? "4px 4px rgba(0, 0, 0, 0.5)"
+              : "2px 2px rgba(0, 0, 0, 0.2)",
           }}
         >
           <div

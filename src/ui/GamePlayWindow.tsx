@@ -1,6 +1,5 @@
 import { Sprite, Texture } from "pixi.js";
 import { BoardComponent } from "./BoardComponent";
-import { HandComponent } from "./HandComponent";
 import { SpCutInAnimation } from "./SpCutInAnimation";
 import { Window } from "../engine/Window";
 import { ColorPalette } from "./ColorPalette";
@@ -16,52 +15,225 @@ import { enumerateBoardMoves } from "../core/Tableturf";
 import { TableturfClientState, TableturfGameState } from "../Game";
 import { getCardById, moveBoard, isGameMoveValid } from "../core/Tableturf";
 import { MessageBar } from "./components/MessageBar";
-import { ReactNode } from "react";
-import { ThemeProvider } from "@mui/material";
+import { ReactNode, useEffect, useRef } from "react";
+import { Box, Grid, List, Paper, ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "./Theme";
-import { Cell } from "../engine/Cell";
 import { ReactComponent } from "../engine/ReactComponent";
 import { Client } from "../client/Client";
+import { CardSmall } from "./components/CardSmall";
+import gsap from "gsap";
 
 const logger = getLogger("game-play");
-logger.setLevel("debug");
+logger.setLevel("info");
+
+type PartialMove = Omit<Omit<IPlayerMovement, "player">, "params">;
+
+interface GamePlayState {
+  player: IPlayerId;
+  handMask: boolean[];
+  handSpMask: boolean[];
+}
 
 interface GamePlayWindowUIProps {
   enable: boolean;
-  spAttack: boolean;
-  onPass: () => void;
-  onToggleSpAttack: () => void;
+  cards: number[];
+  mask: boolean[];
+  selected: number;
+  action: "discard" | "trivial" | "special";
+  state: GamePlayState;
+  onUpdateMove: (move: PartialMove) => void;
+  onClick: (hand: number) => void;
 }
 
 class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
+  private cardsRef;
+
   init(): GamePlayWindowUIProps {
     return {
       enable: true,
-      spAttack: false,
-      onPass: () => {},
-      onToggleSpAttack: () => {},
+      cards: [],
+      mask: Array(4).fill(true),
+      selected: -1,
+      action: "trivial",
+      state: null,
+      onUpdateMove: () => {},
+      onClick: () => {},
     };
   }
 
+  async resetGameSate(player: IPlayerId, game: IGameState) {
+    const playerState = game.players[player];
+    const cards = playerState.hand;
+    const handMask = cards.map(
+      (card) =>
+        card && enumerateBoardMoves(game, player, card, false).length > 0
+    );
+    const handSpMask = cards.map(
+      (card) =>
+        card &&
+        getCardById(card).count.special <= playerState.count.special &&
+        enumerateBoardMoves(game, player, card, true).length > 0
+    );
+    const action = "trivial";
+    const selected = -1;
+    await this.update({
+      cards,
+      mask: handMask,
+      selected,
+      action,
+      state: {
+        player,
+        handMask,
+        handSpMask,
+      },
+    });
+    this.props.onUpdateMove({
+      action,
+      hand: selected,
+    });
+  }
+
+  async uiUpdateGameState(G: TableturfGameState) {
+    const { hand } =
+      G.moveHistory[G.moveHistory.length - 1][this.props.state.player];
+    const cards = this.props.cards.slice();
+    console.assert(0 <= hand && hand < 4);
+    cards[hand] = G.game.players[this.props.state.player].hand[hand];
+
+    await gsap.to(this.cardsRef.current[hand], {
+      duration: 0.3,
+      scale: 0.9,
+      opacity: 0,
+    });
+
+    await this.resetGameSate(this.props.state.player, G.game);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    await gsap.to(this.cardsRef.current[hand], {
+      duration: 0.3,
+      scale: 1,
+      opacity: 1,
+    });
+  }
+
   render(): ReactNode {
+    this.cardsRef = useRef([]);
+
+    const handleHandClick = async (selected: number) => {
+      if (selected >= 0) {
+        this.props.onClick(selected);
+      }
+      if (selected != this.props.selected) {
+        await this.update({ selected });
+        this.props.onUpdateMove({
+          action: this.props.action,
+          hand: selected,
+        });
+      }
+    };
+
+    const handlePass = async () => {
+      const discard = this.props.action != "discard";
+      const action = discard ? "discard" : "trivial";
+      const selected = discard ? -1 : this.props.selected;
+      await this.update({
+        action,
+        selected,
+        mask: discard ? Array(4).fill(true) : this.props.state.handMask,
+      });
+      this.props.onUpdateMove({
+        action,
+        hand: selected,
+      });
+    };
+
+    const handleSpAttack = async () => {
+      const special = this.props.action != "special";
+      const action = special ? "special" : "trivial";
+      let selected = this.props.selected;
+      if (special) {
+        if (!this.props.state.handSpMask[selected]) {
+          selected = -1;
+        }
+      }
+      await this.update({
+        action,
+        selected,
+        mask: special ? this.props.state.handSpMask : this.props.state.handMask,
+      });
+      this.props.onUpdateMove({
+        action,
+        hand: selected,
+      });
+    };
+
+    const li = [];
+    for (let i = 0; i < 4; ++i) {
+      const card = this.props.cards[i];
+      li.push(
+        <Grid item xs={6} key={i}>
+          <Box ref={(el) => (this.cardsRef.current[i] = el)}>
+            <CardSmall
+              card={card || 1}
+              width={235}
+              active={this.props.mask[i] && this.props.enable}
+              selected={this.props.selected == i}
+              onClick={() => handleHandClick(i)}
+            ></CardSmall>
+          </Box>
+        </Grid>
+      );
+    }
+
     return (
       <ThemeProvider theme={Theme}>
+        <Paper
+          sx={{
+            position: "absolute",
+            left: 0,
+            top: 135,
+            width: 550,
+            height: 675,
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          <Grid
+            container
+            sx={{
+              position: "absolute",
+              left: 28,
+              top: 25,
+              width: 510,
+              height: 640,
+            }}
+          >
+            {li}
+          </Grid>
+        </Paper>
         <DarkButton
           disabled={!this.props.enable}
+          selected={this.props.enable && this.props.action == "discard"}
           sx={{
             position: "absolute",
             left: 42,
             top: 838,
             width: 220,
             height: 90,
+            "&.Mui-selected": {
+              backgroundColor: "#d2e332dd",
+            },
+            "&.Mui-selected:hover": {
+              backgroundColor: "#d2e332ff",
+            },
           }}
-          onClick={this.props.onPass}
+          onClick={handlePass}
         >
           Pass
         </DarkButton>
         <DarkButton
           disabled={!this.props.enable}
-          selected={this.props.enable && this.props.spAttack}
+          selected={this.props.enable && this.props.action == "special"}
           sx={{
             position: "absolute",
             left: 292,
@@ -75,7 +247,7 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
               backgroundColor: "#d2e332ff",
             },
           }}
-          onClick={this.props.onToggleSpAttack}
+          onClick={handleSpAttack}
         >
           Special Attack!
         </DarkButton>
@@ -86,7 +258,7 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
 
 class GamePlayWindow_0 extends Window {
   public readonly board: BoardComponent;
-  private readonly hand: HandComponent;
+  // private readonly hand: HandComponent;
   private readonly szMeter: SzMeterComponent;
   private readonly turnMeter: TurnMeterComponent;
   private readonly overlay: Sprite;
@@ -98,11 +270,11 @@ class GamePlayWindow_0 extends Window {
   private readonly panel: GamePlayWindowPanel;
 
   private client: Client;
-  private handId: number = -1;
-  public spAttack: Cell<boolean>;
 
   private game: IGameState;
-  private _uiTask = new Promise<void>((resolve) => resolve());
+  private uiTask = new Promise<void>((resolve) => resolve());
+
+  private move: PartialMove;
 
   layout = {
     width: 1920,
@@ -142,12 +314,6 @@ class GamePlayWindow_0 extends Window {
       x: -300,
       y: -350,
     },
-    hand: {
-      x: -683,
-      y: -52,
-      width: 600,
-      height: 660,
-    },
     card: {
       x: 772,
       y: -27,
@@ -181,15 +347,7 @@ class GamePlayWindow_0 extends Window {
       bgTint: ColorPalette.Main.bg.primary,
     });
 
-    // const bgShader = this.addShader(BlendGlsl, {
-    //   uColorPrimary: ColorPalette.GamePlay.bg.primary.rgb01,
-    //   uColorSecondary: ColorPalette.GamePlay.bg.secondary.rgb01,
-    // });
-
-    // this.bg.texture = Texture.from("IngameBG.webp");
-    // this.bg.filters = [bgShader];
-
-    // const { state } = this.game;
+    // TODO: fix motion bg
     const root = this.addContainer({
       x: this.layout.width / 2,
       y: this.layout.height / 2,
@@ -223,43 +381,6 @@ class GamePlayWindow_0 extends Window {
       parent: root,
       x: this.layout.szMeter.x,
       y: this.layout.szMeter.y,
-    });
-
-    this.hand = this.addComponent(new HandComponent(), {
-      parent: root,
-      anchor: 0.5,
-      x: this.layout.hand.x,
-      y: this.layout.hand.y,
-      scale: {
-        width: this.layout.hand.width,
-        height: this.layout.hand.height,
-      },
-    });
-    this.hand.onSelectCard((handId) => {
-      if (handId != -1 && this.handId == handId) {
-        this.board.uiRotateInput(1);
-        return;
-      }
-      // may be null
-      const card =
-        handId == -1
-          ? null
-          : getCardById(this.game.players[this.client.playerId].hand[handId]);
-      this.handId = handId;
-      if (this.spAttack.value) {
-        this.spMeter1.update({ spAttack: card ? card.count.special : 0 });
-      }
-      const input: any = { handId, card };
-      if (System.isMobile) {
-        if (this.board.props.input.value.pointer == null) {
-          const [w, h] = this.game.board.size;
-          input.pointer = { x: Math.floor(w / 2), y: Math.floor(h / 2) };
-        }
-      }
-      this.board.update({
-        input: { ...this.board.props.input.value, ...input },
-      });
-      this.card1.update({ card });
     });
 
     const cardRoot = this.addContainer({
@@ -311,48 +432,51 @@ class GamePlayWindow_0 extends Window {
 
     this.panel = new GamePlayWindowPanel();
     this.panel.update({
-      enable: false,
-      onPass: () => {
-        if (this.handId < 0) {
-          return;
+      onUpdateMove: (move) => {
+        logger.log(move);
+        this.move = move;
+        const { hand, action } = move;
+        if (action == "discard" && hand >= 0) {
+          const move: IPlayerMovement = {
+            player: this.client.playerId,
+            action: "discard",
+            hand: hand,
+          };
+          this.send("player.pass", move);
         }
-        const move: IPlayerMovement = {
-          player: this.client.playerId,
-          action: "discard",
-          hand: this.handId,
-        };
-        this.send("player.pass", move);
-      },
-      onToggleSpAttack: () => {
-        this.spAttack.update(!this.spAttack.value);
-      },
-    });
-
-    this.spAttack = Cell.of(false).onUpdate((ok) => {
-      if (ok) {
-        const player = this.game.players[this.client.playerId];
-        const mask = player.hand.map(
-          (card) => getCardById(card).count.special <= player.count.special
-        );
-        this.hand.uiUpdateFilter(mask);
-        this.hand.uiUpdateSpFire(mask);
-        if (this.handId >= 0) {
-          this.spMeter1.update({
-            spAttack: getCardById(player.hand[this.handId]).count.special,
-          });
+        const card =
+          hand < 0 || action == "discard"
+            ? null
+            : getCardById(this.game.players[this.client.playerId].hand[hand]);
+        let pointer = this.board.props.input.value.pointer;
+        if (card != this.board.props.input.value.card) {
+          if (System.isMobile) {
+            if (pointer == null) {
+              const [w, h] = this.game.board.size;
+              pointer = { x: Math.floor(w / 2), y: Math.floor(h / 2) };
+            }
+          }
+          this.card1.update({ card });
         }
-      } else {
-        this.hand.uiUpdateFilter();
-        this.hand.uiUpdateSpFire();
-        this.spMeter1.update({ spAttack: 0 });
-      }
-      this.board.update({
-        input: {
-          ...this.board.props.input.value,
-          isSpecialAttack: ok,
-        },
-      });
-      this.panel.update({ spAttack: ok });
+        if (move.action == "special" && card) {
+          this.spMeter1.update({ spAttack: card.count.special });
+        } else {
+          this.spMeter1.update({ spAttack: 0 });
+        }
+        this.board.update({
+          input: {
+            ...this.board.props.input.value,
+            card,
+            pointer,
+            isSpecialAttack: action == "special",
+          },
+        });
+      },
+      onClick: (hand) => {
+        if (hand == this.panel.props.selected) {
+          this.board.uiRotateInput(1);
+        }
+      },
     });
   }
 
@@ -376,9 +500,7 @@ class GamePlayWindow_0 extends Window {
     this.board.uiReset(G.game.board);
 
     //init hand
-    this.hand.update({
-      cards: G.game.players[this.client.playerId].hand.map(getCardById),
-    });
+    this.panel.resetGameSate(this.client.playerId, G.game);
 
     // init counters
     const count = players.map((player) => G.game.players[player].count);
@@ -472,12 +594,8 @@ class GamePlayWindow_0 extends Window {
         }
 
         // draw card
-        const { hand } = moves[this.client.playerId];
         await Promise.all([
-          this.hand.uiDrawCard(
-            getCardById(G.game.players[this.client.playerId].hand[hand]),
-            hand
-          ),
+          this.panel.uiUpdateGameState(G),
           this.card1.uiHideCard(),
           this.card2.uiHideCard(),
         ]);
@@ -508,7 +626,7 @@ class GamePlayWindow_0 extends Window {
       enter("game") ||
       (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0)
     ) {
-      this._uiTask.then(async () => {
+      this.uiTask.then(async () => {
         // will block state update
         const move = await this._queryMovement();
         if (move) {
@@ -518,34 +636,16 @@ class GamePlayWindow_0 extends Window {
     }
   }
 
-  private _updateHandFilter() {
-    this.hand.uiUpdateFilter(
-      this.game.players[this.client.playerId].hand.map(
-        (card) =>
-          enumerateBoardMoves(
-            this.game,
-            this.client.playerId,
-            card,
-            !!this.spAttack.value
-          ).length > 0
-      )
-    );
-  }
-
   private async _queryMovement(): Promise<IPlayerMovement> {
-    this.panel.update({ enable: true });
-    this._updateHandFilter();
+    await this.panel.update({
+      enable: true,
+    });
+
     this.board.update({
       input: {
-        card:
-          this.handId >= 0
-            ? getCardById(
-                this.game.players[this.client.playerId].hand[this.handId]
-              )
-            : null,
+        ...this.board.props.input.value,
         rotation: (2 * this.client.playerId) as any,
         pointer: null,
-        isSpecialAttack: false,
       },
       acceptInput: true,
     });
@@ -555,12 +655,10 @@ class GamePlayWindow_0 extends Window {
       move = await Promise.race([
         this.receive("player.pass"),
         this.board.receive("player.input").then((input: ICardPlacement) => {
-          const { isSpecialAttack } = this.board.props.input.value;
           const { rotation, position } = input;
           const move: IPlayerMovement = {
+            ...this.move,
             player: this.client.playerId,
-            action: isSpecialAttack ? "special" : "trivial",
-            hand: this.handId,
             params: {
               rotation,
               position,
@@ -579,19 +677,23 @@ class GamePlayWindow_0 extends Window {
         break;
       }
       MessageBar.error("you can't put it here.");
-      console.log("invalid movement:", move);
+      logger.warn("invalid movement:", move);
     } while (1);
 
     this.board.update({ acceptInput: false });
-    this.hand.uiUpdateFilter(Array(4).fill(false));
+    this.spMeter1.update({ spAttack: 0 });
     this.szMeter.update({ preview: false });
-    this.panel.update({ enable: false });
+    this.panel.update({
+      enable: false,
+      mask: Array(4).fill(true),
+      selected: -1,
+    });
 
     return move;
   }
 
   private _uiThreadAppend(task: () => Promise<void>) {
-    this._uiTask = this._uiTask.then(task);
+    this.uiTask = this.uiTask.then(task);
   }
 }
 
