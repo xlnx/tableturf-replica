@@ -50,7 +50,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       this.props.parent().show();
     });
     GamePlayWindow.bind(client);
-    this.show();
+    await this.show();
   }
 
   async back() {
@@ -138,7 +138,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   render() {
     const copyInviteLink = () => {
       const url = new URL(
-        `?peer=${this.props.client.matchId}`,
+        `?connect=player&match=${this.props.client.matchId}`,
         System.url.origin
       ).href;
       if (navigator.clipboard) {

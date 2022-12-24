@@ -18,30 +18,32 @@ class OnlineViaInviteLinkActivity_0 extends Activity {
     };
   }
 
+  async connect(url: string) {
+    const matchId = new URL(url).searchParams.get("match");
+    if (!matchId) {
+      throw `invalid invite link: ${url}`;
+    }
+    await this.connectMatch(matchId);
+  }
+
+  async connectMatch(matchId: string) {
+    const client = await LoadingDialog.wait({
+      task: P2PClient.connect(matchId),
+      message: "Connecting...",
+    });
+    MessageBar.success(`connected to ${matchId}`);
+    await MatchActivity.start(client);
+  }
+
   render() {
     const [state, setState] = React.useState({ url: "" });
-
     const handleConnect = async () => {
-      const { url } = state;
       try {
-        const matchId = new URL(url).searchParams.get("peer");
-        if (!matchId) {
-          throw `invalid invite link: ${url}`;
-        }
-        if (Client.current && Client.current.matchId == matchId) {
-          throw `cannot connect to yourself`;
-        }
-        const client = await LoadingDialog.wait({
-          task: P2PClient.connect(matchId),
-          message: "Connecting...",
-        });
-        MessageBar.success(`connected to ${url}`);
-        MatchActivity.start(client);
+        await this.connect(state.url);
       } catch (err) {
         MessageBar.error(err);
       }
     };
-
     return (
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>

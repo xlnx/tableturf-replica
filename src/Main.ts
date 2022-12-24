@@ -9,6 +9,10 @@ import { GamePlayWindow } from "./ui/GamePlayWindow";
 import { DeckEditWindow } from "./ui/DeckEditWindow";
 import { InkResetAnimation } from "./ui/InkResetAnimation";
 import { RootActivity } from "./ui/activities/RootActivity";
+import { MessageBar } from "./ui/components/MessageBar";
+import { OnlineViaInviteLinkActivity } from "./ui/activities/OnlineViaInviteLinkActivity";
+import { BotViaNetworkActivity } from "./ui/activities/BotViaNetworkActivity";
+import { ActivityPanel } from "./ui/Activity";
 
 const logger = getLogger("main");
 logger.setLevel("debug");
@@ -35,12 +39,34 @@ RootActivity.show();
 TryOutWindow.show();
 ControlPanel.show();
 
-// const peer = System.args.get("peer");
-// if (peer) {
-//   logger.log(`connecting peer: ${peer}`);
-//   try {
-//     await Lobby.connectP2P(peer, 30);
-//   } catch (err) {
-//     logger.log(err);
-//   }
-// }
+async function main() {
+  const connect = System.args.get("connect");
+  const url = System.args.get("url");
+  const match = System.args.get("match");
+
+  switch (connect) {
+    case "bot":
+      if (url) {
+        await BotViaNetworkActivity.connect(url);
+        await ActivityPanel.update({ open: true });
+        return;
+      }
+      MessageBar.error("not enough parameters: [connect=bot]");
+      return;
+    case "player":
+      if (url) {
+        await OnlineViaInviteLinkActivity.connect(url);
+        await ActivityPanel.update({ open: true });
+        return;
+      }
+      if (match) {
+        await OnlineViaInviteLinkActivity.connectMatch(match);
+        await ActivityPanel.update({ open: true });
+        return;
+      }
+      MessageBar.error("not enough parameters: [connect=player]");
+      return;
+  }
+}
+
+main().catch((err) => MessageBar.error(err));

@@ -1,9 +1,13 @@
 import "./Activity.less";
 
 import React from "react";
-import { Box, Button, Card, Paper, CardHeader, Divider } from "@mui/material";
+import { Box, Card, Paper, CardHeader, Divider } from "@mui/material";
 import { ReactComponent } from "../engine/ReactComponent";
 import { v4 } from "uuid";
+import { getLogger } from "loglevel";
+
+const logger = getLogger("activity");
+logger.setLevel("info");
 
 interface ActivityProps {
   zIndex: number;
@@ -20,8 +24,8 @@ export abstract class Activity<Props extends {} = {}> extends ReactComponent<
     return true;
   }
 
-  show() {
-    ActivityPanel.toggle(this);
+  async show() {
+    await ActivityPanel.toggle(this);
   }
 }
 
@@ -85,6 +89,7 @@ function ActivityBody({ activity }: ActivityBodyProps) {
 }
 
 interface ActivityPanelProps {
+  open: boolean;
   activities: Set<Activity>;
   current: Activity;
   previous: Activity;
@@ -93,6 +98,7 @@ interface ActivityPanelProps {
 class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
   init() {
     return {
+      open: false,
       activities: new Set<Activity>(),
       current: null,
       previous: null,
@@ -103,28 +109,30 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
     if (activity == this.props.current) {
       return;
     }
-    this.props.activities.add(activity);
+    const activities = new Set(this.props.activities);
+    activities.add(activity);
+    logger.log("toggle", activity.props.title, activities);
     await this.update({
       current: activity,
       previous: this.props.current,
-      activities: this.props.activities,
+      activities,
     });
   }
 
   render(): React.ReactNode {
-    const [state, setState] = React.useState({
-      open: false,
-    });
     const w = 128;
     const wi = 32;
     const dt = 300;
     const activities = [];
+    logger.log(this.props.current.props.title);
+    logger.log(this.props.activities);
     this.props.activities.forEach((activity) => {
       let extra: any = {
         visibility: "hidden",
       };
       const isDst = this.props.current == activity;
       const isSrc = this.props.previous == activity;
+      logger.log(isSrc, isDst, activity.props.title);
       if (!this.props.previous) {
         if (isDst) {
           extra = { visibility: "visible" };
@@ -172,7 +180,7 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
       <Box
         sx={{
           position: "absolute",
-          left: state.open ? 0 : -600,
+          left: this.props.open ? 0 : -600,
           width: 600,
           height: 1080,
           transition: `left ${200}ms cubic-bezier(0.65, 0, 0.35, 1)`,
@@ -204,12 +212,11 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
                 height: "100%",
                 cursor: "pointer",
               }}
-              onClick={() => setState({ ...state, open: !state.open })}
+              onClick={() => this.update({ open: !this.props.open })}
             ></div>
           </Box>
         </Paper>
         {activities}
-        {/* {this.props.view} */}
       </Box>
     );
   }

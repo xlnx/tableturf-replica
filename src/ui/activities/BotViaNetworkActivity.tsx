@@ -18,30 +18,28 @@ class BotViaNetworkActivity_0 extends Activity {
     };
   }
 
-  render() {
-    const [state, setState] = React.useState({
-      url: "",
+  async connect(url: string) {
+    const client = await LoadingDialog.wait({
+      message: `Connecting ${url} ...`,
+      task: BotClient.connect({
+        id: "",
+        info: { name: "" },
+        connect: async (timeout) => await RemoteBot.connect({ url, timeout }),
+      }),
     });
+    MessageBar.success(`connected to ${url}`);
+    await MatchActivity.start(client);
+  }
 
+  render() {
+    const [state, setState] = React.useState({ url: "" });
     const handleConnect = async () => {
-      const { url } = state;
       try {
-        const client = await LoadingDialog.wait({
-          message: `Connecting ${url} ...`,
-          task: BotClient.connect({
-            id: "",
-            info: { name: "" },
-            connect: async (timeout) =>
-              await RemoteBot.connect({ url, timeout }),
-          }),
-        });
-        MessageBar.success(`connected to ${url}`);
-        MatchActivity.start(client);
+        this.connect(state.url);
       } catch (err) {
         MessageBar.error(err);
       }
     };
-
     return (
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
