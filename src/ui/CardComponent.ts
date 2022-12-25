@@ -229,7 +229,10 @@ export class CardComponent extends Component<ICardComponentProps> {
 
       const { name, rarity, count, render } = card;
 
-      cardName1.text = cardName.text = I18n.get(name);
+      cardName1.text = cardName.text = I18n.localize(
+        "CommonMsg/MiniGame/MiniGameCardName",
+        name
+      );
 
       img.texture = System.texture(render.bg);
 

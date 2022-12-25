@@ -1,10 +1,10 @@
 import EnUs from "./i18n/EnUs";
 
 class I18n_0 {
-  get(key: string): string {
+  localize(section: keyof typeof EnUs, key: string): string {
     const lang = EnUs;
-    if (key in lang) {
-      return lang[key];
+    if (section in lang && key in lang[section]) {
+      return lang[section][key];
     }
     return `$${key}`;
   }

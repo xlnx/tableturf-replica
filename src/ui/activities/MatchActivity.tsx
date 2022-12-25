@@ -13,6 +13,7 @@ import { GamePlayWindow } from "../GamePlayWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
 import { TryOutWindow } from "../TryOutWindow";
 import { getStages } from "../../core/Tableturf";
+import { I18n } from "../../i18n/I18n";
 
 const logger = getLogger("main-dialog");
 logger.setLevel("info");
@@ -162,7 +163,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     const stageMenuItems = getStages().map((stage, i) => (
       <MenuItem value={i} key={i}>
-        {stage.name}
+        {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
       </MenuItem>
     ));
 

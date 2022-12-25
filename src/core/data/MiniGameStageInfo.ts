@@ -1,7 +1,7 @@
 export default [
   {
     id: 0,
-    name: "BoxSeats",
+    name: "SmallSquare",
     spaces: `
     ..........
     ..........
@@ -17,7 +17,7 @@ export default [
   },
   {
     id: 1,
-    name: "DoubleGemini",
+    name: "WDiamond",
     spaces: `
     @@@@@@@@.@@@@@@@@
     @@@@@@@...@@@@@@@
@@ -48,7 +48,7 @@ export default [
   },
   {
     id: 2,
-    name: "LakefrontProperty",
+    name: "CenterHole",
     spaces: `
     ................
     ................
@@ -70,7 +70,7 @@ export default [
   },
   {
     id: 3,
-    name: "MainStreet",
+    name: "Rectangle",
     spaces: `
     .........
     .........
@@ -102,7 +102,7 @@ export default [
   },
   {
     id: 4,
-    name: "RiverDrift",
+    name: "SShape",
     spaces: `
     @@@@@............
     @@@@@............
@@ -133,7 +133,7 @@ export default [
   },
   {
     id: 5,
-    name: "SquareSquared",
+    name: "Square",
     spaces: `
     ...............
     ...............
@@ -154,7 +154,7 @@ export default [
   },
   {
     id: 6,
-    name: "ThunderPoint",
+    name: "Zigzag",
     spaces: `
     @@@@@@@@........
     @@@@@@@@........
@@ -182,7 +182,7 @@ export default [
   },
   {
     id: 7,
-    name: "XMarksTheGarden",
+    name: "Cross",
     spaces: `
     @@@@@@.......@@@@@@
     @@@@@@.......@@@@@@
