@@ -47,7 +47,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     client.on("update", this.handleUpdate.bind(this));
     client.on("disconnect", async () => {
       await this.handleDisconnect();
-      this.props.parent().show();
+      await this.props.parent().show();
     });
     GamePlayWindow.bind(client);
     await this.show();
@@ -85,7 +85,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
           cancelMsg: null,
         });
       }
-      InkResetAnimation.play(async () => {
+      await InkResetAnimation.play(async () => {
         GamePlayWindow.send("cancel");
         TryOutWindow.show();
       });
@@ -103,7 +103,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     for (let i = 0; i < 2; ++i) {
       if (!G.players[i] && !!G0.players[i]) {
-        this.uiHandlePlayerLeave();
+        await this.uiHandlePlayerLeave();
       }
     }
 
@@ -114,10 +114,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     // init
     if (enter("init")) {
-      InkResetAnimation.play(async () => {
+      await InkResetAnimation.play(async () => {
         await GamePlayWindow.uiReset(G);
         this.props.client.send("sync");
-        await GamePlayWindow.show();
+        GamePlayWindow.show();
       });
     }
 
@@ -136,13 +136,13 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   }
 
   render() {
-    const copyInviteLink = () => {
+    const copyInviteLink = async () => {
       const url = new URL(
         `?connect=player&match=${this.props.client.matchId}`,
         System.url.origin
       ).href;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(url);
         MessageBar.success(`successfully copied invite link to clipboard`);
       } else {
         console.log(url);

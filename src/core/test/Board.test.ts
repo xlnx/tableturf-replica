@@ -45,7 +45,7 @@ test("simple", () => {
 });
 
 test("move_0", () => {
-  let actual = moveBoard(TestUtil.board.BoxSeats, [
+  const actual = moveBoard(TestUtil.board.BoxSeats, [
     {
       player: 0,
       card: TestUtil.card.Nautilus.id,
@@ -73,7 +73,7 @@ test("move_0", () => {
 });
 
 test("move_1", () => {
-  let actual = moveBoard(TestUtil.board.BoxSeats, [
+  const actual = moveBoard(TestUtil.board.BoxSeats, [
     {
       player: 0,
       card: TestUtil.card.Nautilus.id,
@@ -101,7 +101,7 @@ test("move_1", () => {
 });
 
 test("move_2", () => {
-  let actual = moveBoard(TestUtil.board.BoxSeats, [
+  const actual = moveBoard(TestUtil.board.BoxSeats, [
     {
       player: 0,
       card: TestUtil.card.Nautilus.id,
@@ -209,7 +209,7 @@ test("move_3", () => {
 });
 
 test("move_4", () => {
-  let actual = moveBoard(TestUtil.board.ThunderPoint, [
+  const actual = moveBoard(TestUtil.board.ThunderPoint, [
     {
       player: 0,
       card: TestUtil.card.Nautilus.id,
@@ -249,7 +249,7 @@ test("move_4", () => {
 });
 
 test("move_simultaneously_0", () => {
-  let actual = moveBoard(TestUtil.board.BoxSeats, [
+  const actual = moveBoard(TestUtil.board.BoxSeats, [
     {
       player: 0,
       card: TestUtil.card.Nautilus.id,
@@ -283,7 +283,7 @@ test("move_simultaneously_0", () => {
 });
 
 test("move_simultaneously_1", () => {
-  let actual = moveBoard(TestUtil.board.BoxSeats, [
+  const actual = moveBoard(TestUtil.board.BoxSeats, [
     {
       player: 0,
       card: TestUtil.card.Nautilus.id,
@@ -317,7 +317,7 @@ test("move_simultaneously_1", () => {
 });
 
 test("validate_move_0", () => {
-  let board = TestUtil.parseBoard(`
+  const board = TestUtil.parseBoard(`
     @@.....aaa
     a@.....aaa
     b......aaa
@@ -332,7 +332,7 @@ test("validate_move_0", () => {
   expect(board.count.special[0]).toEqual(1);
   expect(board.count.special[1]).toEqual(0);
 
-  let move: ICardPlacement = {
+  const move: ICardPlacement = {
     player: 0,
     card: TestUtil.card.Nautilus.id,
     rotation: 0,
@@ -357,7 +357,7 @@ test("validate_move_0", () => {
 });
 
 test("validate_move_1", () => {
-  let board = TestUtil.parseBoard(`
+  const board = TestUtil.parseBoard(`
     @@....abaB
     A@....abab
     b.....abBb
@@ -372,7 +372,7 @@ test("validate_move_1", () => {
   expect(board.count.special[0]).toEqual(1);
   expect(board.count.special[1]).toEqual(2);
 
-  let move: ICardPlacement = {
+  const move: ICardPlacement = {
     player: 0,
     card: TestUtil.card.Nautilus.id,
     rotation: 0,

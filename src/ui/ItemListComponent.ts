@@ -36,7 +36,7 @@ export class ItemListComponent<
   T extends Component = Component
 > extends Component<IItemListComponentProps<T>> {
   private items: T[] = [];
-  private height: number = 0;
+  private height = 0;
 
   constructor(options: IItemListComponentOptions) {
     super({
@@ -109,6 +109,7 @@ export class ItemListComponent<
           const dt = 0.5;
           const y1 = self.height - self.layout.height;
           const y = Math.max(0, Math.min(y1, scroll.targetValue - dy * v));
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           scroll.update(y, dt);
         }
       }
@@ -153,6 +154,7 @@ export class ItemListComponent<
         private scrollTo(y: number, dt?: number) {
           const y1 = self.height - self.layout.height;
           y = Math.max(0, Math.min(y1, y));
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           scroll.update(y, dt);
         }
         private getLocalY(pos: ICoordinate) {

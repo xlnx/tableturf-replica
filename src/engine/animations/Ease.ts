@@ -67,7 +67,7 @@ export class EaseFunc {
     1.6
   );
 
-  static viscousFluid(scale: number = 8) {
+  static viscousFluid(scale = 8) {
     const invE = Math.exp(-1);
     const fn = (x: number) => {
       x *= scale;

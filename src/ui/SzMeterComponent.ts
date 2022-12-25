@@ -1,4 +1,3 @@
-import { Texture } from "pixi.js";
 import { ColorPalette } from "./ColorPalette";
 import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";

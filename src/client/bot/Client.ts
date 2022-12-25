@@ -88,6 +88,8 @@ class BotClientImpl extends Client {
 
     // init
     if (enter("init")) {
+      // FIXME: await or not
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.initialize({ player: this.playerId, game: G.game });
       this.send("sync");
     }

@@ -162,7 +162,7 @@ export const TableturfGame: Game<TableturfGameState> = {
             if (G.moves[player] != null) {
               return INVALID_MOVE;
             }
-            if (!isGameMoveValid(G.game!, move)) {
+            if (!isGameMoveValid(G.game, move)) {
               return INVALID_MOVE;
             }
             G.moves[player] = {

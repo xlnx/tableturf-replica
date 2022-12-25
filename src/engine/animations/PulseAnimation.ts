@@ -48,7 +48,7 @@ export class PulseAnimation {
     const dt1 = (Math.abs(v1 - v0) / Math.abs(v2 - v1)) * dt2;
     const dt = dt1 + dt2;
 
-    let t0 = window.performance.now();
+    const t0 = window.performance.now();
     const fn = (t: number) => {
       if (mEaseState.cancel) {
         resolve();

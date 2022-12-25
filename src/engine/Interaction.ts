@@ -26,7 +26,7 @@ export class Interaction {
   ) {
     hitbox.interactive = true;
 
-    let pos = new Point(0, 0);
+    const pos = new Point(0, 0);
     const pointermove = () => {
       this.fireEvents(pos, ["pointer"]);
       this.updateEvents({

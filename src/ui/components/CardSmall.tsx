@@ -59,6 +59,7 @@ export function CardSmall({
     if (!active) {
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     state.clickAnim.send();
     onClick();
   };

@@ -1,4 +1,4 @@
-import { getValue, Spaces } from "../../core/Tableturf";
+import { getValue } from "../../core/Tableturf";
 
 interface CardGridProps {
   rect: IRect;

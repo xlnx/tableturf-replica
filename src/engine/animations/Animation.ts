@@ -32,7 +32,7 @@ export class Animation {
 
     let t0: number = null;
     const { state } = this;
-    let { time, keyframe } = this.opts;
+    let { time, keyframe } = this.opts; // eslint-disable-line prefer-const
     if (dt != null) {
       time = dt;
     }

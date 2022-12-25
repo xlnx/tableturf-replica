@@ -61,8 +61,6 @@ interface ClientOptions {
   multiplayer: (_: TransportOpts) => Transport;
 }
 
-let _current: Client = null;
-
 export class Client {
   public readonly client: _ClientImpl<TableturfGameState>;
   public readonly playerId: IPlayerId;
@@ -71,8 +69,8 @@ export class Client {
   private readonly _detachStateUpdateListener: () => void;
   private _connectHandler: () => void = () => {};
   private _rejectHandler: (err: string) => void = () => {};
-  private _isConnected: boolean = false;
-  private _isStopped: boolean = false;
+  private _isConnected = false;
+  private _isStopped = false;
   private _prevState: TableturfClientState = null;
   private _updateHandlers: ClientUpdateHandler[] = [];
   private _dataHandlers: ClientDataHandler[] = [];
@@ -102,7 +100,7 @@ export class Client {
         }),
     });
     this._detachStateUpdateListener = this.client.subscribe((s) => {
-      if (!!s) {
+      if (s) {
         this.handleStateUpdate(s);
       }
     });
@@ -170,7 +168,7 @@ export class Client {
     switch (event) {
       case "update":
         this._updateHandlers.push(handler);
-        if (!!this._prevState) {
+        if (this._prevState) {
           try {
             handler(this._prevState, this._prevState);
           } catch (e) {
@@ -185,10 +183,6 @@ export class Client {
         this._disconnectHandlers.push(handler);
         return;
     }
-  }
-
-  static get current() {
-    return _current;
   }
 
   protected getDefaultPlayerInfo() {
@@ -218,7 +212,7 @@ export class Client {
   protected handleStateUpdate(state: TableturfClientState) {
     logger.log("state update:", state);
 
-    let prevState = this._prevState;
+    const prevState = this._prevState;
     this._prevState = state;
 
     if (!prevState) {

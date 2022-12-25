@@ -15,8 +15,8 @@ import { enumerateBoardMoves } from "../core/Tableturf";
 import { TableturfClientState, TableturfGameState } from "../Game";
 import { getCardById, moveBoard, isGameMoveValid } from "../core/Tableturf";
 import { MessageBar } from "./components/MessageBar";
-import { ReactNode, useEffect, useRef } from "react";
-import { Box, Grid, List, Paper, ThemeProvider } from "@mui/material";
+import { ReactNode, useRef } from "react";
+import { Box, Grid, Paper, ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "./Theme";
 import { ReactComponent } from "../engine/ReactComponent";
 import { Client } from "../client/Client";
@@ -431,6 +431,7 @@ class GamePlayWindow_0 extends Window {
     this.addChild(this.spCutInAnim);
 
     this.panel = new GamePlayWindowPanel();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.panel.update({
       onUpdateMove: (move) => {
         logger.log(move);
@@ -547,6 +548,7 @@ class GamePlayWindow_0 extends Window {
           );
           [this.spMeter1, this.spMeter2].forEach((ui, i) => {
             const player = players[i];
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             ui.uiUpdate(G.game.players[player].count.special);
           });
         }
@@ -626,6 +628,7 @@ class GamePlayWindow_0 extends Window {
       enter("game") ||
       (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0)
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.uiTask.then(async () => {
         // will block state update
         const move = await this._queryMovement();
@@ -683,7 +686,7 @@ class GamePlayWindow_0 extends Window {
     this.board.update({ acceptInput: false });
     this.spMeter1.update({ spAttack: 0 });
     this.szMeter.update({ preview: false });
-    this.panel.update({
+    await this.panel.update({
       enable: false,
       mask: Array(4).fill(true),
       selected: -1,

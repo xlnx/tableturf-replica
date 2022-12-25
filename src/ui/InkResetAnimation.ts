@@ -52,6 +52,7 @@ class InkResetAnimation_0 extends Window {
       this.shader.uniforms.uTime = t;
       if (t * this.velocity > 1.1 + 2 * this.amplitude) {
         window.requestAnimationFrame((t) => {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           payload().then((val1) => {
             done = true;
             val = val1;

@@ -70,16 +70,10 @@ export class GridComponent extends Component<IGridComponentProps> {
         size: [w, h],
         values: li,
       } = matrix;
-      let {
-        dx = width,
-        dy = height,
-        rotate = 0,
-        anchor = 0,
-        scale = 1,
-        alpha = 1,
-      } = transform;
+      let { dx = width, dy = height } = transform;
+      const { rotate = 0, anchor = 0, scale = 1, alpha = 1 } = transform;
 
-      let [sx, sy] =
+      const [sx, sy] =
         typeof scale == "number" ? [scale, scale] : [scale.x, scale.y];
       root.scale.set(sx, sy);
 

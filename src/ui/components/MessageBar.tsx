@@ -72,6 +72,7 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
     if (text.length > maxMsglen) {
       text = text.substring(0, maxMsglen - 3) + "...";
     }
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.update({
       messages: [{ text, level, id }, ...this.props.messages],
     });
@@ -82,6 +83,7 @@ class MessageBar_0 extends ReactComponent<MessageBarProps> {
         return;
       }
       messages.splice(idx, 1);
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.update({ messages });
     }, 6000);
   }
