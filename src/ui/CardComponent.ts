@@ -5,6 +5,7 @@ import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";
 import { getCardById } from "../core/Tableturf";
 import { System } from "../engine/System";
+import { I18n } from "../i18n/I18n";
 
 interface ICardComponentProps {
   card: ICard;
@@ -228,7 +229,7 @@ export class CardComponent extends Component<ICardComponentProps> {
 
       const { name, rarity, count, render } = card;
 
-      cardName1.text = cardName.text = name;
+      cardName1.text = cardName.text = I18n.get(name);
 
       img.texture = System.texture(render.bg);
 

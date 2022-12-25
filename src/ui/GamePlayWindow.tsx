@@ -638,7 +638,8 @@ class GamePlayWindow_0 extends Window {
       enter("game") ||
       (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0)
     ) {
-      this._uiThreadAppend(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.uiTask.then(async () => {
         // will block state update
         const move = await this._queryMovement();
         if (move) {

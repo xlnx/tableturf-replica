@@ -155,10 +155,10 @@ class Panel extends ReactComponent<Props> {
       <Paper
         sx={{
           position: "absolute",
-          width: 520,
-          height: 1000,
+          width: 480,
+          height: 940,
           left: 30,
-          top: 40,
+          top: 100,
           p: 3,
           boxSizing: "border-box",
           boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
@@ -173,7 +173,7 @@ class Panel extends ReactComponent<Props> {
                     active={
                       this.props.history.findIndex((e) => e.card == card) < 0
                     }
-                    width={136}
+                    width={125}
                     card={card}
                     selected={this.props.selectedCard == card}
                     onClick={() => this.selectCard(card)}
