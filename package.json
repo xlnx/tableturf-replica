@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lint": "eslint --ignore-path .gitignore src",
     "update_schema": "typescript-json-schema tsconfig.json * --include src/client/bot/Typing.d.ts src/core/Typing.d.ts --out src/Schema.json --required",
     "build": "tsc && vite build",
     "preview": "vite preview",
