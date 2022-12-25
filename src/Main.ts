@@ -49,7 +49,7 @@ async function main() {
     case "bot":
       if (url) {
         await BotViaNetworkActivity.connect(url);
-        await ActivityPanel.update({ open: true });
+        await ActivityPanel.show();
         return;
       }
       MessageBar.error("not enough parameters: [connect=bot]");
@@ -57,12 +57,12 @@ async function main() {
     case "player":
       if (url) {
         await OnlineViaInviteLinkActivity.connect(url);
-        await ActivityPanel.update({ open: true });
+        await ActivityPanel.show();
         return;
       }
       if (match) {
         await OnlineViaInviteLinkActivity.connectMatch(match);
-        await ActivityPanel.update({ open: true });
+        await ActivityPanel.show();
         return;
       }
       MessageBar.error("not enough parameters: [connect=player]");

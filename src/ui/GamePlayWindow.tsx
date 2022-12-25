@@ -22,6 +22,7 @@ import { ReactComponent } from "../engine/ReactComponent";
 import { Client } from "../client/Client";
 import { CardSmall } from "./components/CardSmall";
 import gsap from "gsap";
+import { ActivityPanel } from "./Activity";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
@@ -192,7 +193,7 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
             position: "absolute",
             left: 0,
             top: 135,
-            width: 550,
+            width: 545,
             height: 675,
             backgroundColor: "rgba(0, 0, 0, 0.3)",
             boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
@@ -286,7 +287,7 @@ class GamePlayWindow_0 extends Window {
       height: 1040,
     },
     szMeter: {
-      x: -320,
+      x: -315,
       y: -5,
       inks: [
         {
@@ -311,7 +312,7 @@ class GamePlayWindow_0 extends Window {
       ],
     },
     turnMeter: {
-      x: -300,
+      x: -280,
       y: -350,
     },
     card: {
@@ -335,7 +336,7 @@ class GamePlayWindow_0 extends Window {
           y: 442,
         },
         {
-          x: -910,
+          x: -790,
           y: -514,
         },
       ],
@@ -351,6 +352,12 @@ class GamePlayWindow_0 extends Window {
     const root = this.addContainer({
       x: this.layout.width / 2,
       y: this.layout.height / 2,
+    });
+
+    this.szMeter = this.addComponent(new SzMeterComponent(), {
+      parent: root,
+      x: this.layout.szMeter.x,
+      y: this.layout.szMeter.y,
     });
 
     this.board = this.addComponent(new BoardComponent(), {
@@ -375,12 +382,6 @@ class GamePlayWindow_0 extends Window {
           preview2: count.area[1 - this.client.playerId],
         });
       }
-    });
-
-    this.szMeter = this.addComponent(new SzMeterComponent(), {
-      parent: root,
-      x: this.layout.szMeter.x,
-      y: this.layout.szMeter.y,
     });
 
     const cardRoot = this.addContainer({
@@ -522,6 +523,15 @@ class GamePlayWindow_0 extends Window {
       ctx.phase == phase && ctx0.phase != ctx.phase;
     const players = [this.client.playerId, 1 - this.client.playerId];
 
+    [this.spMeter1, this.spMeter2].forEach((e, i) => {
+      const player = players[i];
+      if (G.players[player]) {
+        e.update({
+          name: G.players[player].name,
+        });
+      }
+    });
+
     [this.card1, this.card2].forEach((ui, i) => {
       const player = players[i];
       if (!!G.moves[player] && !G0.moves[player]) {
@@ -628,13 +638,19 @@ class GamePlayWindow_0 extends Window {
       enter("game") ||
       (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0)
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.uiTask.then(async () => {
+      this._uiThreadAppend(async () => {
         // will block state update
         const move = await this._queryMovement();
         if (move) {
           this.client.send("move", move);
         }
+      });
+    }
+
+    // after match
+    if (enter("prepare")) {
+      this._uiThreadAppend(async () => {
+        await ActivityPanel.show();
       });
     }
   }

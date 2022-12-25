@@ -119,6 +119,14 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
     });
   }
 
+  async show(ok = true) {
+    await this.update({ open: ok });
+  }
+
+  async hide() {
+    await this.show(false);
+  }
+
   render(): React.ReactNode {
     const w = 128;
     const wi = 32;
@@ -183,7 +191,8 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
           left: this.props.open ? 0 : -600,
           width: 600,
           height: 1080,
-          transition: `left ${200}ms cubic-bezier(0.65, 0, 0.35, 1)`,
+          transition: `left ${400}ms cubic-bezier(0.65, 0, 0.35, 1)`,
+          pointerEvents: this.props.open ? "all" : "none",
         }}
       >
         <Paper
@@ -210,6 +219,7 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
                 backgroundSize: "100% 100%",
                 width: "100%",
                 height: "100%",
+                pointerEvents: "all",
                 cursor: "pointer",
               }}
               onClick={() => this.update({ open: !this.props.open })}

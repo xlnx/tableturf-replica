@@ -1,5 +1,5 @@
 import { Box, Grid, MenuItem, TextField } from "@mui/material";
-import { Activity } from "../Activity";
+import { Activity, ActivityPanel } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { getLogger } from "loglevel";
@@ -84,6 +84,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     }
     await InkResetAnimation.play(async () => {
       GamePlayWindow.send("cancel");
+      await ActivityPanel.show();
       TryOutWindow.show();
     });
   }
@@ -112,6 +113,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     if (enter("init")) {
       await InkResetAnimation.play(async () => {
         await GamePlayWindow.uiReset(G);
+        await ActivityPanel.hide();
         this.props.client.send("sync");
         GamePlayWindow.show();
       });
