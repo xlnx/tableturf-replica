@@ -78,9 +78,9 @@ const updatePlayerInfo = {
   ignoreStaleStateID: true,
 };
 
-const resetPlayerInfo = {
-  move: ({ G }, player: IPlayerId) => {
-    G.players[player] = null;
+const updateState = {
+  move: ({ G }, G1: Partial<TableturfGameState>) => {
+    Object.assign(G, G1);
   },
   ignoreStaleStateID: true,
 };
@@ -119,7 +119,7 @@ export const TableturfGame: Game<TableturfGameState> = {
       moves: {
         toggleReady,
         updatePlayerInfo,
-        resetPlayerInfo,
+        updateState,
       },
       turn: {
         activePlayers: ActivePlayers.ALL,

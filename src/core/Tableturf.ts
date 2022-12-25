@@ -275,6 +275,10 @@ export function getCardById(card: number) {
   return e;
 }
 
+export function getCards() {
+  return CARD_ID_LOOKUP.slice();
+}
+
 /* stage apis */
 const STAGE_ID_LOOKUP: IStage[] = [];
 
@@ -295,6 +299,10 @@ export function getStageById(stage: number) {
   const e = STAGE_ID_LOOKUP[stage];
   assert(!!e);
   return e;
+}
+
+export function getStages() {
+  return STAGE_ID_LOOKUP.slice();
 }
 
 /* game apis */

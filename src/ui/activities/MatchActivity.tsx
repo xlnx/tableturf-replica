@@ -1,9 +1,9 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, MenuItem, TextField } from "@mui/material";
 import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { getLogger } from "loglevel";
-import { TableturfClientState, TableturfPlayerInfo } from "../../Game";
+import { TableturfClientState } from "../../Game";
 import { Client } from "../../client/Client";
 import { AlertDialog } from "../components/AlertDialog";
 import { P2PHost } from "../../client/P2P";
@@ -12,18 +12,16 @@ import { System } from "../../engine/System";
 import { GamePlayWindow } from "../GamePlayWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
 import { TryOutWindow } from "../TryOutWindow";
+import { getStages } from "../../core/Tableturf";
 
 const logger = getLogger("main-dialog");
 logger.setLevel("info");
 
 interface MatchActivityProps {
   client: Client;
+  player: IPlayerId;
+  state: TableturfClientState;
   manualExit: boolean;
-  // prepare phase
-  ready: boolean;
-  players: TableturfPlayerInfo[];
-  // game info
-  playing: boolean;
 }
 
 class MatchActivity_0 extends Activity<MatchActivityProps> {
@@ -34,16 +32,20 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       parent: () => RootActivity,
       //
       client: null,
+      player: 0 as IPlayerId,
+      state: null,
       manualExit: false,
-      ready: false,
-      players: Array(2).fill(null),
-      playing: false,
     };
   }
 
   async start(client: Client) {
-    await this.update({ client, manualExit: false });
-    // client.on("data", this.handleData.bind(this));
+    console.assert(client.isConnected());
+    await this.update({
+      client,
+      player: client.playerId,
+      state: client.state,
+      manualExit: false,
+    });
     client.on("update", this.handleUpdate.bind(this));
     client.on("disconnect", async () => {
       await this.handleDisconnect();
@@ -66,10 +68,6 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     return ok;
   }
 
-  private isHost() {
-    return this.props.client && this.props.client instanceof P2PHost;
-  }
-
   private async handleDisconnect() {
     await this.update({ client: null });
     await this.uiHandlePlayerLeave();
@@ -78,28 +76,26 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   private async uiHandlePlayerLeave() {
     logger.debug("uiHandlePlayerLeave");
     MessageBar.warning("${player} left the room");
-    if (this.props.playing) {
-      if (!this.props.manualExit) {
-        await AlertDialog.prompt({
-          msg: "A communication error has occurred",
-          cancelMsg: null,
-        });
-      }
-      await InkResetAnimation.play(async () => {
-        GamePlayWindow.send("cancel");
-        TryOutWindow.show();
+    if (!this.props.manualExit) {
+      await AlertDialog.prompt({
+        msg: "A communication error has occurred",
+        cancelMsg: null,
       });
     }
+    await InkResetAnimation.play(async () => {
+      GamePlayWindow.send("cancel");
+      TryOutWindow.show();
+    });
   }
 
   private async handleUpdate(
-    { G, ctx }: TableturfClientState,
+    state: TableturfClientState,
     { G: G0, ctx: ctx0 }: TableturfClientState
   ) {
+    const { G, ctx } = state;
+
     const enter = (phase: string) =>
       ctx.phase == phase && ctx0.phase != ctx.phase;
-    const leave = (phase: string) =>
-      ctx0.phase == phase && ctx0.phase != ctx.phase;
 
     for (let i = 0; i < 2; ++i) {
       if (!G.players[i] && !!G0.players[i]) {
@@ -121,18 +117,15 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       });
     }
 
-    if (leave("prepare")) {
-      console.assert(!this.props.playing);
-      await this.update({ playing: true });
-    }
+    await this.update({ state });
+  }
 
-    if (ctx.phase == "prepare") {
-      await this.update({
-        ready: G.ready[this.props.client.playerId],
-        players: G.players,
-        playing: false,
-      });
-    }
+  isControlDisabled() {
+    return !(this.props.client && this.props.state.ctx.phase == "prepare");
+  }
+
+  isHostControlDisabled() {
+    return this.isControlDisabled() || !this.props.client.isHost();
   }
 
   render() {
@@ -151,12 +144,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     };
 
     let copyInviteLinkBtn = null;
-    if (this.isHost()) {
+    if (this.props.client && this.props.client instanceof P2PHost) {
       copyInviteLinkBtn = (
         <Grid item xs={6}>
           <BasicButton
             fullWidth
-            disabled={this.props.playing}
+            disabled={this.isHostControlDisabled()}
             onClick={copyInviteLink}
           >
             Copy Invite Link
@@ -165,9 +158,32 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       );
     }
 
+    const stageMenuItems = getStages().map((stage, i) => (
+      <MenuItem value={i} key={i}>
+        {stage.name}
+      </MenuItem>
+    ));
+
     return (
       <>
-        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}></Grid>
+        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              select
+              label="Stage"
+              disabled={this.isHostControlDisabled()}
+              value={this.props.state.G.stage}
+              onChange={({ target }) =>
+                this.props.client.send("updateState", {
+                  stage: Number(target.value),
+                })
+              }
+            >
+              {stageMenuItems}
+            </TextField>
+          </Grid>
+        </Grid>
         <Box
           sx={{
             boxSizing: "border-box",
@@ -183,8 +199,8 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             <Grid item xs={6}>
               <BasicButton
                 fullWidth
-                selected={this.props.ready}
-                disabled={this.props.playing}
+                selected={this.props.state.G.ready[this.props.player]}
+                disabled={this.isControlDisabled()}
                 onClick={() => this.props.client.send("toggleReady")}
               >
                 Ready!

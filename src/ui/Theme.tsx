@@ -1,5 +1,5 @@
 import { createTheme, PaperTypeMap } from "@mui/material";
-import { Box, Paper, Grid, styled } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import ToggleButton, { ToggleButtonTypeMap } from "@mui/material/ToggleButton";
 
 export const ResponsiveBox = styled(Box)(() => ({
@@ -47,50 +47,6 @@ type PaperProps_0 = PaperTypeMap["props"];
 interface MyDialogProps extends PaperProps_0 {
   open: boolean;
   onClose: () => void;
-}
-
-// TODO: dialogs aren't needed anymore
-export function MyDialog({ children, open, sx, onClose }: MyDialogProps) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: 1920,
-        height: 1080,
-        visibility: open ? "visible" : "hidden",
-        opacity: open ? 1 : 0,
-        backgroundColor: "#0000007f",
-        pointerEvents: "all",
-        transition: "all 0.2s ease-in-out",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          position: "relative",
-          top: "50%",
-          transform: "translateY(-50%)",
-        }}
-      >
-        <Grid container alignItems="center" justifyContent="center">
-          <div onClick={(evt) => evt.stopPropagation()}>
-            <Paper
-              sx={{
-                height: "max-content",
-                borderRadius: 2,
-                p: 2,
-                ...sx,
-              }}
-            >
-              {children}
-            </Paper>
-          </div>
-        </Grid>
-      </div>
-    </div>
-  );
 }
 
 // const aeroBoxStyle = {
@@ -154,6 +110,13 @@ export const Theme = createTheme({
         indicator: {
           // this thing don't work with transform: scale(...)
           visibility: "hidden",
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: "0.6rem",
         },
       },
     },

@@ -60,7 +60,9 @@ export class P2PHost extends Client {
         this._cleanUp = true;
         this._peer = null;
         this.client.events.setPhase("reset");
-        this.send("resetPlayerInfo", 1);
+        const players = [...this.client.getState().G.players];
+        players[1] = null;
+        this.send("updateState", { players });
       }
     }
   }
@@ -90,6 +92,10 @@ export class P2PClient extends Client {
         },
       }),
     });
+  }
+
+  isHost() {
+    return false;
   }
 
   static async connect(matchId: string) {

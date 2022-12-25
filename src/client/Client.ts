@@ -186,6 +186,18 @@ export class Client {
     }
   }
 
+  isConnected() {
+    return this._isConnected;
+  }
+
+  isHost() {
+    return true;
+  }
+
+  get state() {
+    return this._prevState;
+  }
+
   protected getDefaultPlayerInfo(): TableturfPlayerInfo {
     const db = DB.read();
     return {
