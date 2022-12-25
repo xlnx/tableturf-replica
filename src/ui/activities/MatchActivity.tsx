@@ -114,8 +114,8 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     if (enter("init")) {
       await InkResetAnimation.play(async () => {
         await GamePlayWindow.uiReset(G);
-        await ActivityPanel.hide();
         this.props.client.send("sync");
+        await ActivityPanel.hide();
         GamePlayWindow.show();
       });
     }

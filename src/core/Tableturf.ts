@@ -453,7 +453,8 @@ export function enumerateGameMoves(
   player: IPlayerId
 ): IPlayerMovement[] {
   const li = [];
-  game.players[player].hand.forEach((card, hand) => {
+  const p = game.players[player];
+  p.hand.forEach((card, hand) => {
     for (const special of [true, false]) {
       li.push(
         ...enumerateBoardMoves(game, player, card, special).map(
@@ -471,7 +472,15 @@ export function enumerateGameMoves(
     }
   });
   return [
-    ...li,
+    ...li.filter((e) => {
+      if (e.action == "special") {
+        const card = getCardById(p.hand[e.hand]);
+        if (card.count.special > p.count.special) {
+          return false;
+        }
+      }
+      return true;
+    }),
     ...[0, 1, 2, 3].map((hand) => ({
       player,
       action: "discard",

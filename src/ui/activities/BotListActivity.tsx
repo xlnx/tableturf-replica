@@ -8,8 +8,9 @@ import { LoadingDialog } from "../components/LoadingDialog";
 import { MatchActivity } from "./MatchActivity";
 import { BotClient } from "../../client/bot/Client";
 import { BotConnector } from "../../client/bot/Bot";
+import { RandomBot } from "../../bots/RandomBot";
 
-const bots = [DummyBot.connector];
+const bots = [DummyBot.connector, RandomBot.connector];
 
 class BotListActivity_0 extends Activity {
   init() {
@@ -30,19 +31,17 @@ class BotListActivity_0 extends Activity {
     };
 
     const li = bots.map((connector) => (
-      <Box key={connector.id}>
+      <Grid item xs={12} key={connector.id}>
         <BasicButton fullWidth onClick={() => handleConnect(connector)}>
           {connector.info.name}
         </BasicButton>
-      </Box>
+      </Grid>
     ));
 
     return (
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
-          <Grid item xs={12}>
-            <List>{li}</List>
-          </Grid>
+          {li}
         </Grid>
         <Box
           sx={{

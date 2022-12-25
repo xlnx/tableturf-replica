@@ -141,14 +141,6 @@ export class TurnMeterComponent extends Component<ITimerComponentProps> {
     this.updateFn = async (v) => {
       const h = 20;
       const dt = 0.05;
-      const dt1 = 0.2;
-      const dt2 = 0.4;
-      const scale = 1.2;
-
-      const a1 = this.addAnimation((t) => {
-        counterRoot.y = 0;
-        root.scale.set(EaseFunc.LINEAR.interpolate(1, scale, t));
-      });
 
       const a2 = this.addAnimation((t) => {
         const e = EaseFunc.EASE_OUT_CUBIC.apply(t);
@@ -160,22 +152,9 @@ export class TurnMeterComponent extends Component<ITimerComponentProps> {
         counterRoot.y = EaseFunc.LINEAR.interpolate(-h, 0, e);
       });
 
-      const a4 = this.addAnimation((t) => {
-        counterRoot.y = 0;
-        root.scale.set(EaseFunc.LINEAR.interpolate(scale, 1, t));
-      });
-
-      const sleep = async (t: number) => await this.addAnimation().play(t);
-
-      await a1.play(dt1);
-      await sleep(dt2);
-
       await a2.play(dt);
       this.update({ value: v });
       await a3.play(dt);
-
-      await sleep(dt2);
-      await a4.play(dt1);
     };
   }
 

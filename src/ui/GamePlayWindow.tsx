@@ -23,6 +23,9 @@ import { Client } from "../client/Client";
 import { CardSmall } from "./components/CardSmall";
 import gsap from "gsap";
 import { ActivityPanel } from "./Activity";
+import { AlertDialog } from "./components/AlertDialog";
+import { InkResetAnimation } from "./InkResetAnimation";
+import { TryOutWindow } from "./TryOutWindow";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
@@ -262,7 +265,6 @@ class GamePlayWindow_0 extends Window {
   // private readonly hand: HandComponent;
   private readonly szMeter: SzMeterComponent;
   private readonly turnMeter: TurnMeterComponent;
-  private readonly overlay: Sprite;
   private readonly spCutInAnim: SpCutInAnimation;
   private readonly card1: GamePlayCardComponent;
   private readonly card2: GamePlayCardComponent;
@@ -408,17 +410,6 @@ class GamePlayWindow_0 extends Window {
       })
     );
     this.spMeter2.update({ turn: -1 });
-
-    this.overlay = this.addSprite({
-      parent: root,
-      anchor: 0.5,
-      width: this.layout.width,
-      height: this.layout.height,
-      tint: Color.BLACK,
-      texture: Texture.WHITE,
-      alpha: 0,
-    });
-    this.overlay.visible = false;
 
     this.turnMeter = this.addComponent(new TurnMeterComponent(), {
       parent: root,
@@ -608,28 +599,10 @@ class GamePlayWindow_0 extends Window {
         // draw card
         await Promise.all([
           this.panel.uiUpdateGameState(G),
+          this.turnMeter.uiUpdate(G.game.round),
           this.card1.uiHideCard(),
           this.card2.uiHideCard(),
         ]);
-
-        // round meter
-        const alpha = 0.5;
-        const a1 = this.addAnimation((t) => {
-          this.overlay.alpha = EaseFunc.LINEAR.interpolate(0, alpha, t);
-        });
-        const a2 = this.addAnimation((t) => {
-          this.overlay.alpha = EaseFunc.LINEAR.interpolate(alpha, 0, t);
-        });
-
-        this.overlay.visible = true;
-        await Promise.all([
-          a1
-            .play(0.2)
-            .then(() => this.addAnimation().play(1))
-            .then(() => a2.play(0.2)),
-          this.turnMeter.uiUpdate(G.game.round),
-        ]);
-        this.overlay.visible = false;
       });
     }
 
@@ -651,7 +624,18 @@ class GamePlayWindow_0 extends Window {
     // after match
     if (enter("prepare")) {
       this._uiThreadAppend(async () => {
-        await ActivityPanel.show();
+        const win =
+          G.game.board.count.area[players[0]] >
+          G.game.board.count.area[players[1]];
+        await AlertDialog.prompt({
+          msg: `You ${win ? "win" : "lose"}`,
+          cancelMsg: "",
+        });
+        await InkResetAnimation.play(async () => {
+          this.send("cancel");
+          await ActivityPanel.show();
+          TryOutWindow.show();
+        });
       });
     }
   }
