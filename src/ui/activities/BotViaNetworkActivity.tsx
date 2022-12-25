@@ -35,7 +35,7 @@ class BotViaNetworkActivity_0 extends Activity {
     const [state, setState] = React.useState({ url: "" });
     const handleConnect = async () => {
       try {
-        this.connect(state.url);
+        await this.connect(state.url);
       } catch (err) {
         MessageBar.error(err);
       }

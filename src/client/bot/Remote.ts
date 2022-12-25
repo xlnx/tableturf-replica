@@ -74,7 +74,9 @@ export class RemoteBot extends Bot {
       rpc.on("close", this.handleDisconnect.bind(this));
       return this;
     } catch (e) {
-      rpc && rpc.close();
+      try {
+        rpc && rpc.close();
+      } catch {}
       throw e;
     }
   }
