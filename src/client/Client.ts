@@ -9,6 +9,7 @@ import {
   TableturfClientState,
   TableturfGame,
   TableturfGameState,
+  TableturfPlayerInfo,
 } from "../Game";
 import { DB } from "../Database";
 
@@ -185,8 +186,12 @@ export class Client {
     }
   }
 
-  protected getDefaultPlayerInfo() {
-    return DB.player;
+  protected getDefaultPlayerInfo(): TableturfPlayerInfo {
+    const db = DB.read();
+    return {
+      name: db.playerName,
+      deck: db.decks[db.currDeck].deck.slice(),
+    };
   }
 
   protected handleTransportData(data: TransportData) {

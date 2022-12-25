@@ -64,10 +64,11 @@ class Panel extends ReactComponent<Props> {
 
   init(): Props {
     const stage = 3;
+    const db = DB.read();
     return {
       // ...
       stage,
-      deck: DB.player.deck.slice(),
+      deck: db.decks[db.currDeck].deck.slice(),
       // ...
       selectedCard: -1,
       history: [],

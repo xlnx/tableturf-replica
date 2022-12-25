@@ -112,7 +112,8 @@ class DeckEditWindow_0 extends Window {
       },
     });
 
-    this.uiReset(DB.player.deck.slice());
+    const db = DB.read();
+    this.uiReset(db.decks[db.currDeck].deck.slice());
   }
 
   protected renderReact(): ReactNode {

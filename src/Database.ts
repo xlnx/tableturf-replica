@@ -1,27 +1,47 @@
 import Cookies from "js-cookie";
 import { getLogger } from "loglevel";
-import { StarterDeck, TableturfPlayerInfo } from "./Game";
+import { StarterDeck } from "./Game";
 
 const logger = getLogger("database");
 logger.setLevel("debug");
 
-interface DBSchema {
-  player: TableturfPlayerInfo;
+interface IDeckData {
+  name: string;
+  deck: number[];
 }
 
-export const DB: DBSchema = {
-  player: {
-    name: "Player",
-    deck: StarterDeck.slice(),
-  },
-  ...JSON.parse(Cookies.get("db") || "{}"),
+interface IRootData {
+  playerName: string;
+  decks: IDeckData[];
+  currDeck: number;
+}
+
+const defaultData: IRootData = {
+  playerName: "Player",
+  decks: [
+    {
+      name: "Starter Deck",
+      deck: StarterDeck.slice(),
+    },
+  ],
+  currDeck: 0,
 };
 
-logger.log(DB);
+class Database {
+  data: IRootData = {
+    ...defaultData,
+    ...JSON.parse(Cookies.get("db") || "{}"),
+  };
 
-window.addEventListener("beforeunload", () => {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + 1000 * 36000);
-  Cookies.set("db", JSON.stringify(DB));
-  Cookies.set("expires", expires.toUTCString());
-});
+  update(data: Partial<IRootData>) {
+    this.data = { ...this.data, ...data };
+    Cookies.set("db", JSON.stringify(this.data), { expires: 365 });
+  }
+
+  read(): IRootData {
+    return { ...this.data };
+  }
+}
+
+export const DB = new Database();
+logger.log(DB);
