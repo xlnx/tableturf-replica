@@ -1,0 +1,110 @@
+import "./Card.less";
+
+import React from "react";
+import { PulseAnimation } from "../../engine/animations/PulseAnimation";
+
+interface CardProps {
+  layout: { width: number; height: number; radius: number };
+  width: number;
+  radius?: number;
+  children?: React.ReactNode;
+  active?: boolean;
+  selected?: boolean;
+  onClick?: () => void;
+}
+
+export function Card({
+  layout,
+  width,
+  children,
+  active = true,
+  selected = false,
+  onClick = () => {},
+}: CardProps) {
+  selected = active && selected;
+  const [state, setState] = React.useState({
+    bodyScale: 1,
+    clickAnim: new PulseAnimation({
+      from: 1,
+      to: 1.04,
+      time: 0.15,
+      update: (v) => setState({ ...state, bodyScale: v }),
+    }),
+  });
+  const handleClick = () => {
+    if (!active) {
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    state.clickAnim.send();
+    onClick();
+  };
+  return (
+    <div
+      className={`
+        card 
+        ${active ? "card-active" : "card-inactive"} 
+        ${selected ? "card-selected" : ""}
+      `}
+      style={{
+        width,
+        height: (layout.height / layout.width) * width,
+      }}
+      onClick={handleClick}
+    >
+      <div
+        className="card-body"
+        style={{
+          width: "100%",
+          height: "100%",
+          scale: `${state.bodyScale}`,
+          transformOrigin: "center",
+          pointerEvents: "none",
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: layout.width,
+            height: layout.height,
+            borderRadius: layout.radius,
+            backgroundColor: "#4f5055",
+            overflow: "hidden",
+            transform: `scale(${width / layout.width})`,
+            transformOrigin: "top left",
+            boxShadow: selected
+              ? "4px 4px rgba(0, 0, 0, 0.5)"
+              : "2px 2px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <div
+            className="card-content"
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            {children}
+          </div>
+          <div
+            className="card-overlay"
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+            }}
+          ></div>
+          <div
+            className="card-glow"
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+            }}
+          ></div>
+        </div>
+      </div>
+    </div>
+  );
+}

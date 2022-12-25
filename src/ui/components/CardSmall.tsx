@@ -4,6 +4,7 @@ import { PulseAnimation } from "../../engine/animations/PulseAnimation";
 import { CardGrid } from "./CardGrid";
 
 import "./CardSmall.less";
+import { Card } from "./Card";
 
 interface CardSmallProps {
   card: number;
@@ -20,7 +21,6 @@ export function CardSmall({
   selected = false,
   onClick = () => {},
 }: CardSmallProps) {
-  selected = active && selected;
   const [state, setState] = React.useState({
     bodyScale: 1,
     clickAnim: new PulseAnimation({
@@ -55,136 +55,71 @@ export function CardSmall({
       </div>
     );
   }
-  const handleClick = () => {
-    if (!active) {
-      return;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    state.clickAnim.send();
-    onClick();
-  };
   const w = 153;
   const h = 196;
   const p = 9;
   return (
-    <div
-      className={`
-        card-small 
-        ${active ? "card-small-active" : "card-small-inactive"} 
-        ${selected ? "card-small-selected" : ""}
-      `}
-      style={{
-        width,
-        height: (h / w) * width,
-      }}
-      onClick={handleClick}
+    <Card
+      width={width}
+      layout={{ width: w, height: h, radius: 7 }}
+      active={active}
+      selected={selected}
+      onClick={onClick}
     >
-      <div
-        className="card-small-body"
+      <img
+        src={`textures/${card.render.bg}`}
         style={{
+          position: "absolute",
+          left: 0,
+          top: p,
           width: "100%",
           height: "100%",
-          scale: `${state.bodyScale}`,
-          transformOrigin: "center",
-          pointerEvents: "none",
+          filter: "brightness(0.7)",
+        }}
+      ></img>
+      <CardGrid
+        rect={card}
+        width={w - 2 * p}
+        style={{
+          position: "absolute",
+          left: p,
+          top: p,
+          transform: "scale(1, 0.934)",
+          transformOrigin: "top left",
+        }}
+      ></CardGrid>
+      <div
+        style={{
+          position: "absolute",
+          left: 6,
+          top: h - 6 - 44,
+          width: 48,
+          height: 44,
+          borderRadius: 11,
+          backgroundColor: "black",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <div
+        <span
           style={{
-            position: "relative",
-            width: w,
-            height: h,
-            borderRadius: 7,
-            backgroundColor: "#4f5055",
-            overflow: "hidden",
-            transform: `scale(${width / w})`,
-            transformOrigin: "top left",
-            boxShadow: selected
-              ? "4px 4px rgba(0, 0, 0, 0.5)"
-              : "2px 2px rgba(0, 0, 0, 0.2)",
+            color: "white",
+            fontFamily: "Splatoon1",
           }}
         >
-          <div
-            className="card-small-content"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <img
-              src={`textures/${card.render.bg}`}
-              style={{
-                position: "absolute",
-                left: 0,
-                top: p,
-                width: "100%",
-                height: "100%",
-                filter: "brightness(0.7)",
-              }}
-            ></img>
-            <CardGrid
-              rect={card}
-              width={w - 2 * p}
-              style={{
-                position: "absolute",
-                left: p,
-                top: p,
-                transform: "scale(1, 0.934)",
-                transformOrigin: "top left",
-              }}
-            ></CardGrid>
-            <div
-              style={{
-                position: "absolute",
-                left: 6,
-                top: h - 6 - 44,
-                width: 48,
-                height: 44,
-                borderRadius: 11,
-                backgroundColor: "black",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <span
-                style={{
-                  color: "white",
-                  fontFamily: "Splatoon1",
-                }}
-              >
-                {card.count.area}
-              </span>
-            </div>
-            <div
-              style={{
-                position: "relative",
-                left: 63,
-                top: 155,
-              }}
-            >
-              {spMeter}
-            </div>
-          </div>
-          <div
-            className="card-small-overlay"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          ></div>
-          <div
-            className="card-small-glow"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          ></div>
-        </div>
+          {card.count.area}
+        </span>
       </div>
-    </div>
+      <div
+        style={{
+          position: "relative",
+          left: 63,
+          top: 155,
+        }}
+      >
+        {spMeter}
+      </div>
+    </Card>
   );
 }
