@@ -23,7 +23,7 @@ class OnlineLoungeActivity_0 extends Activity {
         task: P2PHost.create(),
         message: "Creating Room...",
       });
-      MatchActivity.start(client);
+      await MatchActivity.start(client);
     };
 
     return (

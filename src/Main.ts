@@ -34,6 +34,7 @@ WindowManager.install({
   ],
 });
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 RootActivity.show();
 
 TryOutWindow.show();

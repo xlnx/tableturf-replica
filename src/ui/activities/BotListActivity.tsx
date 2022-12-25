@@ -26,7 +26,7 @@ class BotListActivity_0 extends Activity {
         message: "Connecting...",
         task: BotClient.connect(connector),
       });
-      MatchActivity.start(client);
+      await MatchActivity.start(client);
     };
 
     const li = bots.map((connector) => (

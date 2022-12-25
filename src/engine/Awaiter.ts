@@ -25,7 +25,7 @@ export class Awaiter {
       reject,
     };
     if (this.slots.has(topic)) {
-      this.slots.get(topic)!.push(pipe);
+      this.slots.get(topic).push(pipe);
     } else {
       this.slots.set(topic, [pipe]);
     }
@@ -39,7 +39,7 @@ export class Awaiter {
     if (!this.slots.has(topic)) {
       return false;
     }
-    this.slots.get(topic)!.forEach(({ resolve }) => resolve(value));
+    this.slots.get(topic).forEach(({ resolve }) => resolve(value));
     this.slots.delete(topic);
     return true;
   }

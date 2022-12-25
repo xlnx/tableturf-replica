@@ -4,7 +4,7 @@ import { Component } from "../Component";
 export class EventHandler {
   readonly id = v4();
   readonly stops: EventType[] = [];
-  allowFire: boolean = true;
+  allowFire = true;
 
   constructor(readonly type: EventType, readonly sender: Component) {}
 

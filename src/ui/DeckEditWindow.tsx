@@ -119,6 +119,9 @@ class DeckEditWindow_0 extends Window {
     const getDeck = () => {
       return this.deckView.props.items.value.map((e) => e.props.card.value.id);
     };
+    const handleTestDeck = async () => {
+      await TryOutWindow.panel.reset({ deck: getDeck() });
+    };
     return (
       <ThemeProvider theme={Theme}>
         <BasicButton
@@ -129,10 +132,7 @@ class DeckEditWindow_0 extends Window {
             width: 200,
             height: 80,
           }}
-          onClick={() => {
-            TryOutWindow.panel.reset({ deck: getDeck() });
-            // Lobby.togglePixiWindow(TryOutWindow);
-          }}
+          onClick={handleTestDeck}
         >
           Test Deck
         </BasicButton>

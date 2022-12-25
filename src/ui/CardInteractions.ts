@@ -121,16 +121,22 @@ export class CardInteractions {
         switch (s) {
           case "normal":
             {
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               cardTilt.update(0);
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               overlayAlpha.update(0);
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               overlayAlpha1.update(0);
               glow.visible = false;
             }
             break;
           case "hover":
             {
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               cardTilt.update(-2);
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               overlayAlpha.update(0.2);
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               overlayAlpha1.update(0);
               HoverGlowTexture.V.reset();
               glow.visible = true;
@@ -138,8 +144,11 @@ export class CardInteractions {
             break;
           case "disabled":
             {
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               cardTilt.update(0);
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               overlayAlpha.update(0);
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               overlayAlpha1.update(0.5);
               glow.visible = false;
             }
@@ -175,6 +184,7 @@ export class CardInteractions {
 
         tap(pos: ICoordinate): void {
           if (!self.disabled.value) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             cardClickAnim.send();
             self.onTapFn();
           }

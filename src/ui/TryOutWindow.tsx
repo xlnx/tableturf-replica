@@ -11,8 +11,6 @@ import { Color } from "../engine/Color";
 import { Texture } from "pixi.js";
 import { MessageBar } from "./components/MessageBar";
 import { System } from "../engine/System";
-import { DeckEditWindow } from "./DeckEditWindow";
-// import { Lobby } from "../Lobby";
 import { DB } from "../Database";
 import BgMotionGlsl from "./shaders/BgMotion.glsl?raw";
 import React from "react";
@@ -134,20 +132,20 @@ class Panel extends ReactComponent<Props> {
   }
 
   async undo() {
-    let { history } = this.props;
+    const history = this.props.history.slice();
     if (history.length == 0) {
       MessageBar.error("no further actions.");
       return;
     }
-    history = history.slice();
     const { prevState: state } = history.pop();
-    this.update({ history, state });
+    await this.update({ history, state });
     // TODO: move gui into self
     const { board } = this.window;
-    await board.uiReset(state);
+    board.uiReset(state);
   }
 
   componentDidMount() {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.reset();
   }
 

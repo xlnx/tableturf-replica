@@ -10,6 +10,10 @@ export class Cell<T> {
     return this;
   }
 
+  /**
+   * @deprecated
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onEase(sec: number, func: EaseFunc = EaseFunc.LINEAR): this {
     return this;
   }

@@ -122,7 +122,7 @@ export function isBoardPosCharged(board: IRect, pos: ICoordinate): boolean {
   if (Math.abs(v) != Spaces.SPECIAL) {
     return false;
   }
-  for (let [dx, dy] of EightNeighbours) {
+  for (const [dx, dy] of EightNeighbours) {
     const p1 = { x: pos.x + dx, y: pos.y + dy };
     if (isInBoard(board, p1)) {
       const v1 = getValue(board, p1);
@@ -177,7 +177,7 @@ export function isBoardMoveValid(
   let neighbour = false;
 
   const rect = rotateCard(getCardById(move.card), move.rotation);
-  forEachNonEmpty(rect, ({ x, y }, v) => {
+  forEachNonEmpty(rect, ({ x, y }) => {
     if (!ok) {
       return;
     }
@@ -192,7 +192,7 @@ export function isBoardMoveValid(
       ok = Math.abs(getValue(board, pos)) <= Spaces.TRIVIAL;
     }
     if (ok && !neighbour) {
-      for (let [dx, dy] of EightNeighbours) {
+      for (const [dx, dy] of EightNeighbours) {
         const pos1 = { x: pos.x + dx, y: pos.y + dy };
         if (isInBoard(board, pos1)) {
           const v = getValue(board, pos1) * player2Turn(move.player);
@@ -211,7 +211,7 @@ export function isBoardMoveValid(
 /* card apis */
 const CARD_ID_LOOKUP: ICard[] = [];
 
-for (let info of MiniGameCardInfo) {
+for (const info of MiniGameCardInfo) {
   const id = info["Number"];
   const name = info["Name"];
   const values = [];
@@ -272,7 +272,7 @@ export function rotateCard(card: ICard, rotation: IRotation): IRect {
 export function getCardById(card: number) {
   const e = CARD_ID_LOOKUP[card];
   assert(!!e);
-  return e!;
+  return e;
 }
 
 /* stage apis */
@@ -294,7 +294,7 @@ for (const info of MiniGameBoardInfo) {
 export function getStageById(stage: number) {
   const e = STAGE_ID_LOOKUP[stage];
   assert(!!e);
-  return e!;
+  return e;
 }
 
 /* game apis */
@@ -374,7 +374,7 @@ export function moveGame(
       return null;
     }
     return {
-      ...params!,
+      ...params,
       player,
       card: cards[i].id,
     };
@@ -386,7 +386,7 @@ export function moveGame(
     const li = new Set();
     [p1, p2].forEach(({ rotation, position }, i) => {
       const rect = rotateCard(cards[i], rotation);
-      forEachNonEmpty(rect, ({ x, y }, v) => {
+      forEachNonEmpty(rect, ({ x, y }) => {
         const pos = { x: x + position.x, y: y + position.y };
         const key = pos.x.toString() + ":" + pos.y.toString();
         if (li.has(key)) {
@@ -413,8 +413,10 @@ export function moveGame(
     }
   }
 
-  let { round, board, players } = game;
+  const { round, players } = game;
+  let { board } = game;
   const { count } = board;
+
   for (const li of boardMoves) {
     board = moveBoard(board, li);
   }

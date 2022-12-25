@@ -49,7 +49,7 @@ export function getWorldPos(
   obj: Component | Sprite
 ): ICoordinate {
   const v = getGlobalBBox(obj);
-  let { x, y } = pos;
+  const { x, y } = pos;
   const [x1, y1] = [v[2] - v[0], v[3] - v[1]];
   const [x2, y2] = [v[6] - v[0], v[7] - v[1]];
   return {

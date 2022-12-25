@@ -76,7 +76,7 @@ export class RemoteBot extends Bot {
     } catch (e) {
       try {
         rpc && rpc.close();
-      } catch {}
+      } catch {} // eslint-disable-line no-empty
       throw e;
     }
   }
@@ -84,7 +84,7 @@ export class RemoteBot extends Bot {
   stop() {
     try {
       this._rpc && this._rpc.close();
-    } catch (err) {}
+    } catch {} // eslint-disable-line no-empty
   }
 
   async createSession(

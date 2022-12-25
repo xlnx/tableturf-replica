@@ -253,7 +253,7 @@ export class Component<IProps extends {} = {}> extends Awaiter {
   }
 
   getHandlers(et: EventType): EventHandler[] {
-    let li = this.evts.get(et);
+    const li = this.evts.get(et);
     if (li != null) {
       return li.slice();
     }

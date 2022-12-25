@@ -6,7 +6,7 @@ export class PointerHandler extends EventHandler {
   readonly triggerThresholdPx: number = 5;
   readonly doubleTapThresholdMs: number = 500;
 
-  private _first: boolean = true;
+  private _first = true;
   private _pos: ICoordinate = null;
   private _lastTapTime: number = null;
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { CardHeader, Divider, Box, Grid } from "@mui/material";
+import { CardHeader, Divider, Grid } from "@mui/material";
 import { ReactComponent } from "../../engine/ReactComponent";
 import { Dialog } from "./Dialog";
 import { BasicButton } from "../Theme";

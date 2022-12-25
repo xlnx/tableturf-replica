@@ -1,6 +1,6 @@
 import { Component } from "../engine/Component";
 import { GridComponent } from "./GridComponent";
-import { Container, Sprite, Texture } from "pixi.js";
+import { Container, Sprite } from "pixi.js";
 import { SpFireTexture } from "./SpFireTexture";
 import { OverlayTexture } from "./OverlayTexture";
 import { Animation } from "../engine/animations/Animation";
@@ -54,7 +54,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
   private readonly flashAnimation: Animation;
 
   private board: IBoardState;
-  private lk: boolean = false;
+  private lk = false;
   private selection: number[];
 
   private onUpdateInputFn: OnUpdateInputFn = () => {};
@@ -353,9 +353,11 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       const input = this.props.input.value;
       const accept = this.props.acceptInput.value;
       if (accept && input) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         tileAlpha.update(input.isSpecialAttack ? 0.4 : 1);
         this.uiUpdateInput(input);
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         tileAlpha.update(1);
         this.uiUpdateInput(null);
       }

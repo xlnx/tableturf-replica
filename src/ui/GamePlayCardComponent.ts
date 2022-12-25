@@ -1,4 +1,3 @@
-// import { Card } from "../../core/Card";
 import { CardComponent } from "./CardComponent";
 import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";
@@ -120,7 +119,7 @@ export class GamePlayCardComponent extends Component<ICardAnimationProps> {
     this.props.card.onUpdate(fn);
     this.props.turn.onUpdate(fn);
 
-    let t0: number = 0;
+    let t0 = 0;
     const fn1 = (t: number) => {
       const dt = t - t0;
       t0 = t;
