@@ -1,8 +1,11 @@
+import "./TryOutWindow.less";
+
 import { Window } from "../engine/Window";
 import { BoardComponent } from "./BoardComponent";
 import { ColorPalette } from "./ColorPalette";
 import {
   getCardById,
+  getCards,
   initGame,
   isBoardMoveValid,
   moveBoard,
@@ -30,8 +33,7 @@ import { ReactComponent } from "../engine/ReactComponent";
 import { StarterDeck } from "../Game";
 import { getLogger } from "loglevel";
 import { rectToString } from "../core/Utils";
-
-import "./TryOutWindow.less";
+// import { CardLarge } from "./components/CardLarge";
 
 const logger = getLogger("try-out-window");
 logger.setLevel("debug");
@@ -164,17 +166,20 @@ class Panel extends ReactComponent<Props> {
           boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
         }}
       >
-        <List>
-          <Grid container>
+        <Box sx={{ width: "100%", height: "100%" }}>
+          <Grid
+            container
+            sx={{ width: "100%", height: "100%", overflow: "hidden" }}
+          >
             {this.props.deck.map((card) => (
-              <Grid key={card} item xs={4}>
+              <Grid item xs={4} key={card}>
                 <Box sx={{ p: 1 }}>
                   <CardSmall
+                    width={125}
+                    card={card}
                     active={
                       this.props.history.findIndex((e) => e.card == card) < 0
                     }
-                    width={125}
-                    card={card}
                     selected={this.props.selectedCard == card}
                     onClick={() => this.selectCard(card)}
                   ></CardSmall>
@@ -182,7 +187,7 @@ class Panel extends ReactComponent<Props> {
               </Grid>
             ))}
           </Grid>
-        </List>
+        </Box>
       </Paper>
     );
 
@@ -279,6 +284,7 @@ class Panel extends ReactComponent<Props> {
     return (
       <ThemeProvider theme={Theme}>
         {deckPanel}
+        {/* {cardPoolPanel} */}
         {historyPanel}
         {btnPanel}
       </ThemeProvider>

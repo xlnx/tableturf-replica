@@ -2,6 +2,10 @@ import "./Card.less";
 
 import React from "react";
 import { PulseAnimation } from "../../engine/animations/PulseAnimation";
+import { getLogger } from "loglevel";
+
+const logger = getLogger("card");
+logger.setLevel("info");
 
 interface CardProps {
   layout: { width: number; height: number; radius: number };
@@ -21,6 +25,8 @@ export function Card({
   selected = false,
   onClick = () => {},
 }: CardProps) {
+  logger.log(`card rerender`);
+
   selected = active && selected;
   const [state, setState] = React.useState({
     bodyScale: 1,
@@ -31,6 +37,7 @@ export function Card({
       update: (v) => setState({ ...state, bodyScale: v }),
     }),
   });
+
   const handleClick = () => {
     if (!active) {
       return;
@@ -39,6 +46,7 @@ export function Card({
     state.clickAnim.send();
     onClick();
   };
+
   return (
     <div
       className={`
@@ -89,14 +97,6 @@ export function Card({
           </div>
           <div
             className="card-overlay"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          ></div>
-          <div
-            className="card-glow"
             style={{
               position: "absolute",
               width: "100%",
