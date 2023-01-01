@@ -30,20 +30,25 @@ export function Card({
   selected = active && selected;
   const [state, setState] = React.useState({
     bodyScale: 1,
-    clickAnim: new PulseAnimation({
-      from: 1,
-      to: 1.04,
-      time: 0.15,
-      update: (v) => setState({ ...state, bodyScale: v }),
-    }),
   });
+
+  const clickAnim = React.useMemo(
+    () =>
+      new PulseAnimation({
+        from: 1,
+        to: 1.04,
+        time: 0.15,
+        update: (v) => setState({ ...state, bodyScale: v }),
+      }),
+    []
+  );
 
   const handleClick = () => {
     if (!active) {
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    state.clickAnim.send();
+    clickAnim.send();
     onClick();
   };
 

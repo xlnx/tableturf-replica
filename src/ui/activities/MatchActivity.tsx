@@ -174,6 +174,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             <TextField
               fullWidth
               select
+              variant="standard"
               label="Stage"
               disabled={this.isHostControlDisabled()}
               value={this.props.state.G.stage}

@@ -23,12 +23,10 @@ export function CardLarge({
   selected = false,
   onClick = () => {},
 }: CardLargeProps) {
-  logger.log(`card-large re-render`);
-
   const w = 344;
   const h = 480;
-
   const node = useMemo(() => {
+    logger.log(`card-large re-render`);
     const card = getCardById(cardId);
     const l0 = { Common: "Cmn", Rare: "Rre", Fresh: "Frh" }[card.rarity];
     const l1 = ["Common", "Rare", "Fresh"].indexOf(card.rarity);

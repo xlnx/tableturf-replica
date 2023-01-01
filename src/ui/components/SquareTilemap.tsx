@@ -39,6 +39,8 @@ interface SquareTilemapProps {
   };
 }
 
+const canvas = document.createElement("canvas");
+
 export function SquareTilemap<Props extends SquareTilemapProps>({
   rect,
   values,
@@ -46,47 +48,42 @@ export function SquareTilemap<Props extends SquareTilemapProps>({
   layout: { width: wi, padding: { x: px, y: py } = { x: 0, y: 0 } },
   ...rest
 }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>();
-  const [task, setTask] = useState(new Promise<void>((resolve) => resolve()));
+  const [state, setState] = useState({
+    url: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+  });
 
   const [w, h] = rect.size;
   const dx = wi + px;
   const dy = wi + py;
   useEffect(() => {
     logger.log("tilemap re-render");
-    const newTask = task.then(() =>
-      Promise.all(values.map(({ image }) => loadImage(image))).then((imgs) => {
-        const styles = new Map<
-          number,
-          { image: HTMLImageElement; alpha: number }
-        >();
-        values.forEach(({ value, alpha = 1 }, i) => {
-          styles.set(value, { image: imgs[i], alpha });
-        });
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let y = 0; y < h; ++y) {
-          for (let x = 0; x < w; ++x) {
-            const style = styles.get(getValue(rect, { x, y }));
-            if (!style) {
-              continue;
-            }
-            const { image, alpha } = style;
-            ctx.globalAlpha = alpha;
-            ctx.drawImage(image, x * dx, y * dy, wi, wi);
-            ctx.globalAlpha = 1;
+    Promise.all(values.map(({ image }) => loadImage(image))).then((imgs) => {
+      const styles = new Map<
+        number,
+        { image: HTMLImageElement; alpha: number }
+      >();
+      values.forEach(({ value, alpha = 1 }, i) => {
+        styles.set(value, { image: imgs[i], alpha });
+      });
+      canvas.width = w * dx;
+      canvas.height = h * dy;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let y = 0; y < h; ++y) {
+        for (let x = 0; x < w; ++x) {
+          const style = styles.get(getValue(rect, { x, y }));
+          if (!style) {
+            continue;
           }
+          const { image, alpha } = style;
+          ctx.globalAlpha = alpha;
+          ctx.drawImage(image, x * dx, y * dy, wi, wi);
+          ctx.globalAlpha = 1;
         }
-      })
-    );
-    setTask(newTask);
+      }
+      setState({ ...state, url: canvas.toDataURL() });
+    });
   }, [rect, values]);
-
-  const inner = useMemo(
-    () => <canvas ref={canvasRef} width={w * dx} height={h * dy} />,
-    [rect, values]
-  );
 
   return (
     <div {...rest}>
@@ -98,7 +95,7 @@ export function SquareTilemap<Props extends SquareTilemapProps>({
             transformOrigin: "top left",
           }}
         >
-          {inner}
+          <img src={state.url} width={w * dx} height={h * dy} />
         </div>
       </div>
     </div>

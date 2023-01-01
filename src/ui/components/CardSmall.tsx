@@ -22,13 +22,11 @@ export function CardSmall({
   selected = false,
   onClick = () => {},
 }: CardSmallProps) {
-  logger.log(`card-small re-render`);
-
   const w = 153;
   const h = 196;
   const p = 9;
-
   const node = useMemo(() => {
+    logger.log(`card-small re-render`);
     const card = getCardById(cardId);
     return (
       <div style={{ width: w, height: h }}>

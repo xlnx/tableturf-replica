@@ -276,7 +276,7 @@ export function getCardById(card: number) {
 }
 
 export function getCards() {
-  return CARD_ID_LOOKUP.slice();
+  return CARD_ID_LOOKUP.slice(1);
 }
 
 /* stage apis */
