@@ -57,6 +57,7 @@ export function SquareTilemap<Props extends SquareTilemapProps>({
   const dy = wi + py;
   useEffect(() => {
     logger.log("tilemap re-render");
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.all(values.map(({ image }) => loadImage(image))).then((imgs) => {
       const styles = new Map<
         number,

@@ -47,9 +47,9 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
 
   render() {
     useEffect(() => {
-      DB.subscribe(() => {
+      DB.subscribe(async () => {
         const decks = DB.read().decks;
-        this.update({
+        await this.update({
           decks,
           cards: decks[this.props.deck].deck,
         });
@@ -58,6 +58,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
 
     useEffect(() => {
       if (this.props.editing) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         CardVaultPanel.update({ excludeCards: DeckPanel.props.cards });
       }
     }, [this.props.cards, this.props.editing]);
@@ -100,9 +101,9 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
               label="Deck"
               autoComplete="off"
               value={this.props.deck}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const deck = +e.target.value;
-                this.update({
+                await this.update({
                   deck,
                   cards: this.props.decks[deck].deck,
                 });

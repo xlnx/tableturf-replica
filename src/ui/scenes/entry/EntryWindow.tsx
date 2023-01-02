@@ -195,15 +195,15 @@ class Panel extends ReactComponent<Props> {
 
     useEffect(() => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      (async () => {
-        await DeckPanel.update({
-          onClickCard: this.handleCardClick.bind(this),
-        });
-        await this.reset();
-      })();
+      DeckPanel.update({
+        onClickCard: this.handleCardClick.bind(this),
+      });
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.reset();
     }, []);
 
     useEffect(() => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       DeckPanel.update({
         excludeCards: this.props.history.map(({ card }) => card),
       });
@@ -226,7 +226,7 @@ class Panel extends ReactComponent<Props> {
           }}
           onClick={async () => {
             await this.reset();
-            DeckPanel.edit();
+            await DeckPanel.edit();
           }}
         >
           Edit Deck
