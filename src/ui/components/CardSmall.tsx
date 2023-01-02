@@ -31,7 +31,7 @@ export function CardSmall({
     return (
       <div style={{ width: w, height: h }}>
         <img
-          src={`textures/${card.render.bg}`}
+          src={`/textures/${card.render.bg}`}
           style={{
             position: "absolute",
             left: 0,

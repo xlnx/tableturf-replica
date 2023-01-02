@@ -6,6 +6,8 @@ import { getCardById, getCards } from "../../../core/Tableturf";
 import { I18n } from "../../../i18n/I18n";
 import { BasicButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
+import { DeckSaveDialog } from "./DeckSaveDialog";
+import { DeckPanel } from "./DeckPanel";
 
 const allCards = getCards().map(({ id, name }) => ({
   id,
@@ -108,18 +110,22 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
     const index = [];
     state.cards.forEach((id, i) => (index[id] = i));
 
+    const x1 = 1920 - 1300 - 32;
+    const dt = 300;
     return (
       <Paper
+        className={this.props.open ? "card-vault-open" : "card-vault-closed"}
         sx={{
           position: "absolute",
           width: 1300,
           height: 1020,
-          left: this.props.open ? 600 : 1920,
+          left: this.props.open ? x1 : x1 + 64,
+          opacity: this.props.open ? 1 : 0,
           top: 24,
           p: 4,
           boxSizing: "border-box",
           boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-          transition: `left ${400}ms cubic-bezier(0.65, 0, 0.35, 1)`,
+          transition: `all ${dt}ms cubic-bezier(0.65, 0, 0.35, 1)`,
           pointerEvents: this.props.open ? "all" : "none",
         }}
       >
@@ -147,7 +153,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                 onChange={(e) => setState({ ...state, query: e.target.value })}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField
                 select
                 fullWidth
@@ -162,7 +168,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                 {sortMenuItems}
               </TextField>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={1}>
               <BasicButton
                 fullWidth
                 selected={state.reverse}
@@ -174,9 +180,22 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
             <Grid item xs={2}>
               <BasicButton
                 fullWidth
+                onClick={() =>
+                  DeckSaveDialog.prompt(
+                    DeckPanel.props.deck,
+                    DeckPanel.props.cards.slice()
+                  )
+                }
+              >
+                Save As
+              </BasicButton>
+            </Grid>
+            <Grid item xs={2}>
+              <BasicButton
+                fullWidth
                 onClick={() => this.update({ open: false })}
               >
-                Close
+                Cancel
               </BasicButton>
             </Grid>
           </Grid>

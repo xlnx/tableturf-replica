@@ -19,7 +19,6 @@ import React from "react";
 import {
   Box,
   Paper,
-  Grid,
   List,
   ThemeProvider,
   Typography,
@@ -27,12 +26,13 @@ import {
 } from "@mui/material";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Theme, BasicButton } from "../../Theme";
-import { CardSmall } from "../../components/CardSmall";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { StarterDeck } from "../../../Game";
 import { getLogger } from "loglevel";
 import { rectToString } from "../../../core/Utils";
 import { CardVaultPanel } from "./CardVaultPanel";
+import { DeckPanel } from "./DeckPanel";
+import { DeckSaveDialog } from "./DeckSaveDialog";
 
 const logger = getLogger("entry-window");
 logger.setLevel("debug");
@@ -152,43 +152,43 @@ class Panel extends ReactComponent<Props> {
   }
 
   render(): React.ReactNode {
-    const deckPanel = (
-      <Paper
-        sx={{
-          position: "absolute",
-          width: 480,
-          height: 940,
-          left: 30,
-          top: 100,
-          p: 3,
-          boxSizing: "border-box",
-          boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-        }}
-      >
-        <Box sx={{ width: "100%", height: "100%" }}>
-          <Grid
-            container
-            sx={{ width: "100%", height: "100%", overflow: "hidden" }}
-          >
-            {this.props.deck.map((card) => (
-              <Grid item xs={4} key={card}>
-                <Box sx={{ p: 1 }}>
-                  <CardSmall
-                    width={125}
-                    card={card}
-                    active={
-                      this.props.history.findIndex((e) => e.card == card) < 0
-                    }
-                    selected={this.props.selectedCard == card}
-                    onClick={() => this.selectCard(card)}
-                  ></CardSmall>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </Paper>
-    );
+    // const deckPanel = (
+    //   <Paper
+    //     sx={{
+    //       position: "absolute",
+    //       width: 480,
+    //       height: 940,
+    //       left: 30,
+    //       top: 100,
+    //       p: 3,
+    //       boxSizing: "border-box",
+    //       boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
+    //     }}
+    //   >
+    //     <Box sx={{ width: "100%", height: "100%" }}>
+    //       <Grid
+    //         container
+    //         sx={{ width: "100%", height: "100%", overflow: "hidden" }}
+    //       >
+    //         {this.props.deck.map((card) => (
+    //           <Grid item xs={4} key={card}>
+    //             <Box sx={{ p: 1 }}>
+    //               <CardSmall
+    //                 width={125}
+    //                 card={card}
+    //                 active={
+    //                   this.props.history.findIndex((e) => e.card == card) < 0
+    //                 }
+    //                 selected={this.props.selectedCard == card}
+    //                 onClick={() => this.selectCard(card)}
+    //               ></CardSmall>
+    //             </Box>
+    //           </Grid>
+    //         ))}
+    //       </Grid>
+    //     </Box>
+    //   </Paper>
+    // );
 
     const historyPanel = (
       <List
@@ -282,10 +282,11 @@ class Panel extends ReactComponent<Props> {
 
     return (
       <ThemeProvider theme={Theme}>
-        {deckPanel}
         {historyPanel}
         {btnPanel}
+        {DeckPanel.node}
         {CardVaultPanel.node}
+        {DeckSaveDialog.node}
       </ThemeProvider>
     );
   }

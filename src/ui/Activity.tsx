@@ -131,6 +131,7 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
     const w = 128;
     const wi = 32;
     const dt = 300;
+
     const activities = [];
     logger.log(this.props.current.props.title);
     logger.log(this.props.activities);
@@ -184,6 +185,7 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
         </div>
       );
     });
+
     return (
       <Box
         sx={{
@@ -191,7 +193,7 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
           left: this.props.open ? 0 : -600,
           width: 600,
           height: 1080,
-          transition: `left ${400}ms cubic-bezier(0.65, 0, 0.35, 1)`,
+          transition: `left ${dt}ms cubic-bezier(0.65, 0, 0.35, 1)`,
           pointerEvents: this.props.open ? "all" : "none",
         }}
       >
