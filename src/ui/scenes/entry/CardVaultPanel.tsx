@@ -50,13 +50,28 @@ const sorters = [
 
 interface CardVaultProps {
   open: boolean;
+  resolve: any;
 }
 
 class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
   init() {
     return {
       open: false,
+      resolve: () => {},
     };
+  }
+
+  async prompt() {
+    let resolve;
+    const promise = new Promise((_) => (resolve = _));
+    await this.update({
+      open: true,
+      resolve: async () => {
+        await this.update({ open: false });
+        resolve();
+      },
+    });
+    return await promise;
   }
 
   render() {
@@ -191,11 +206,8 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
               </BasicButton>
             </Grid>
             <Grid item xs={2}>
-              <BasicButton
-                fullWidth
-                onClick={() => this.update({ open: false })}
-              >
-                Cancel
+              <BasicButton fullWidth onClick={() => this.props.resolve()}>
+                Quit Edit
               </BasicButton>
             </Grid>
           </Grid>

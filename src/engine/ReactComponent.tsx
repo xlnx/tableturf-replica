@@ -12,6 +12,7 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
       constructor(props) {
         super(props);
         self._ctx = {
+          state: this.state,
           getState: () => this.state,
           setState: (e, f) => this.setState(e, f),
         };
@@ -47,11 +48,12 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
 
   update(newProps: Partial<Props>): Promise<void> {
     return new Promise((resolve) => {
-      if (this._ctx.state) {
+      if (!this._ctx.setState) {
         this._ctx.state = { ...this._ctx.state, ...newProps };
         resolve();
       } else {
-        this._ctx.setState({ ...this.props, ...newProps }, resolve);
+        this._ctx.state = { ...this._ctx.state, ...newProps };
+        this._ctx.setState({ ...this._ctx.state }, resolve);
       }
     });
   }

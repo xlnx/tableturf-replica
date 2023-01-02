@@ -9,26 +9,37 @@ import {
 import { CardSmall } from "../../components/CardSmall";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { DB } from "../../../Database";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getCardById } from "../../../core/Tableturf";
+import { CardVaultPanel } from "./CardVaultPanel";
 
 interface DeckPanelProps {
-  invalidateCards: number[];
+  excludeCards: number[];
+  decks: IDeckData[];
+  deck: number;
   cards: number[];
   card: number;
-  deck: number;
-  decks: IDeckData[];
+  editing: boolean;
+  onClickCard: (card: number) => void;
 }
 
 class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
   init(): DeckPanelProps {
     return {
-      invalidateCards: [],
+      excludeCards: [],
+      decks: DB.read().decks.slice(),
+      deck: 0,
       cards: [],
       card: -1,
-      deck: 0,
-      decks: DB.read().decks.slice(),
+      editing: false,
+      onClickCard: () => {},
     };
+  }
+
+  async edit() {
+    await this.update({ editing: true });
+    await CardVaultPanel.prompt();
+    await this.update({ editing: false });
   }
 
   render() {
@@ -40,8 +51,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
       this.update({ cards: this.props.decks[this.props.deck].deck.slice() });
     }, [this.props.deck, this.props.decks]);
 
-    const { cards } = this.props;
-    const area = cards
+    const area = this.props.cards
       .map((card) => getCardById(card).count.area)
       .reduce((a, b) => a + b, 0);
 
@@ -107,15 +117,23 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
               pr: 1,
             }}
           >
-            {cards.map((card) => (
+            {this.props.cards.map((card) => (
               <Grid item xs={4} key={card}>
                 <Box sx={{ p: 1 }}>
                   <CardSmall
                     width={123}
                     card={card}
-                    active={this.props.invalidateCards.indexOf(card) < 0}
-                    selected={this.props.card == card}
-                    // onClick={() => this.selectCard(card)}
+                    active={
+                      this.props.editing ||
+                      this.props.excludeCards.indexOf(card) < 0
+                    }
+                    selected={!this.props.editing && this.props.card == card}
+                    onClick={() => {
+                      if (!this.props.editing) {
+                        this.props.onClickCard(card);
+                        this.update({ card });
+                      }
+                    }}
                   ></CardSmall>
                 </Box>
               </Grid>

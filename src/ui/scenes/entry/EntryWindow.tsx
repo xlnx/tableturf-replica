@@ -15,7 +15,7 @@ import { MessageBar } from "../../components/MessageBar";
 import { System } from "../../../engine/System";
 import { DB } from "../../../Database";
 import BgMotionGlsl from "../../shaders/BgMotion.glsl?raw";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Paper,
@@ -53,7 +53,6 @@ interface PublicProps {
 }
 
 interface Props extends PublicProps {
-  selectedCard: number;
   history: HistoryRecord[];
   state: IBoardState;
 }
@@ -71,7 +70,6 @@ class Panel extends ReactComponent<Props> {
       stage,
       deck: db.decks[db.currDeck].deck.slice(),
       // ...
-      selectedCard: -1,
       history: [],
       state: initBoard(stage),
     };
@@ -102,16 +100,15 @@ class Panel extends ReactComponent<Props> {
     ];
     state = moveBoard(state, [move]);
     await this.update({ state, history });
-    await this.selectCard(-1);
+    // await this.selectCard(-1);
     // TODO: move gui into self
     await board.uiPlaceCards([move]);
     board.uiUpdateFire();
   }
 
-  async selectCard(card: number) {
-    const { selectedCard } = this.props;
+  handleCardClick(card: number) {
     const { board } = this.window;
-    if (card > 0 && selectedCard == card) {
+    if (card > 0 && DeckPanel.props.card == card) {
       board.uiRotateInput(1);
     }
     board.update({
@@ -120,7 +117,6 @@ class Panel extends ReactComponent<Props> {
         card: card > 0 ? getCardById(card) : null,
       },
     });
-    await this.update({ selectedCard: card });
   }
 
   async reset(props?: Partial<PublicProps>) {
@@ -146,50 +142,7 @@ class Panel extends ReactComponent<Props> {
     board.uiReset(state);
   }
 
-  componentDidMount() {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.reset();
-  }
-
   render(): React.ReactNode {
-    // const deckPanel = (
-    //   <Paper
-    //     sx={{
-    //       position: "absolute",
-    //       width: 480,
-    //       height: 940,
-    //       left: 30,
-    //       top: 100,
-    //       p: 3,
-    //       boxSizing: "border-box",
-    //       boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-    //     }}
-    //   >
-    //     <Box sx={{ width: "100%", height: "100%" }}>
-    //       <Grid
-    //         container
-    //         sx={{ width: "100%", height: "100%", overflow: "hidden" }}
-    //       >
-    //         {this.props.deck.map((card) => (
-    //           <Grid item xs={4} key={card}>
-    //             <Box sx={{ p: 1 }}>
-    //               <CardSmall
-    //                 width={125}
-    //                 card={card}
-    //                 active={
-    //                   this.props.history.findIndex((e) => e.card == card) < 0
-    //                 }
-    //                 selected={this.props.selectedCard == card}
-    //                 onClick={() => this.selectCard(card)}
-    //               ></CardSmall>
-    //             </Box>
-    //           </Grid>
-    //         ))}
-    //       </Grid>
-    //     </Box>
-    //   </Paper>
-    // );
-
     const historyPanel = (
       <List
         sx={{
@@ -240,7 +193,23 @@ class Panel extends ReactComponent<Props> {
       </List>
     );
 
-    const MyBtn = styled(BasicButton)(({ theme }) => ({
+    useEffect(() => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      (async () => {
+        await DeckPanel.update({
+          onClickCard: this.handleCardClick.bind(this),
+        });
+        await this.reset();
+      })();
+    }, []);
+
+    useEffect(() => {
+      DeckPanel.update({
+        excludeCards: this.props.history.map(({ card }) => card),
+      });
+    }, [this.props.history]);
+
+    const MyBtn = styled(BasicButton)(() => ({
       position: "absolute",
       width: 220,
       height: 90,
@@ -255,7 +224,10 @@ class Panel extends ReactComponent<Props> {
             left: 1650,
             top: y0 + h * 0,
           }}
-          onClick={() => CardVaultPanel.update({ open: true })}
+          onClick={async () => {
+            await this.reset();
+            DeckPanel.edit();
+          }}
         >
           Edit Deck
         </MyBtn>
