@@ -45,19 +45,7 @@ export function CardSmall({
             filter: "brightness(0.7)",
           }}
         ></img>
-        <SquareTilemap
-          rect={card}
-          values={[
-            {
-              image: "/textures/empty_space.webp",
-              alpha: 0.7,
-              value: Spaces.EMPTY,
-            },
-            { image: "/textures/pure_yellow.webp", value: Spaces.TRIVIAL },
-            { image: "/textures/pure_orange.webp", value: Spaces.SPECIAL },
-          ]}
-          width={layout.width - 2 * layout.padding}
-          layout={{ width: 40 }}
+        <div
           style={{
             position: "absolute",
             left: layout.padding,
@@ -65,7 +53,23 @@ export function CardSmall({
             transform: "scale(1, 0.934)",
             transformOrigin: "top left",
           }}
-        />
+        >
+          <SquareTilemap
+            id={`card-grid-${card.id}`}
+            rect={card}
+            values={[
+              {
+                image: "/textures/empty_space.webp",
+                alpha: 0.7,
+                value: Spaces.EMPTY,
+              },
+              { image: "/textures/pure_yellow.webp", value: Spaces.TRIVIAL },
+              { image: "/textures/pure_orange.webp", value: Spaces.SPECIAL },
+            ]}
+            width={layout.width - 2 * layout.padding}
+            layout={{ width: 40 }}
+          />
+        </div>
         <div
           style={{
             position: "absolute",
@@ -89,23 +93,27 @@ export function CardSmall({
             {card.count.area}
           </span>
         </div>
-        <SquareTilemap
-          rect={{
-            size: [5, 2],
-            values: Array(card.count.special).fill(0),
-          }}
-          values={[{ image: "/textures/pure_orange.webp", value: 0 }]}
-          width={145 / 2}
-          layout={{
-            width: 40,
-            padding: { x: 8, y: 8 },
-          }}
+        <div
           style={{
             position: "absolute",
             left: 60,
             top: 152,
           }}
-        />
+        >
+          <SquareTilemap
+            id={`card-small-sp-${card.count.special}`}
+            rect={{
+              size: [5, 2],
+              values: Array(card.count.special).fill(0),
+            }}
+            values={[{ image: "/textures/pure_orange.webp", value: 0 }]}
+            width={145 / 2}
+            layout={{
+              width: 40,
+              padding: { x: 8, y: 8 },
+            }}
+          />
+        </div>
       </div>
     );
   }, [cardId, width]);

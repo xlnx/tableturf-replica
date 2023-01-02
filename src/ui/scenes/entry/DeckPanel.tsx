@@ -73,17 +73,6 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
       </MenuItem>
     ));
 
-    const handleCardClick = (card: number) => async () => {
-      if (!this.props.editing) {
-        await this.update({ card });
-        this.props.onClickCard(card);
-      } else {
-        const cards = this.props.cards.slice();
-        cards.splice(cards.indexOf(card), 1);
-        await this.update({ cards });
-      }
-    };
-
     const ctrlPanel = useMemo(
       () => (
         <Grid
@@ -120,19 +109,23 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
       [this.props.deck, this.props.cards]
     );
 
-    const cardTemplates = useMemo(
+    const handleCardClick = useMemo(
       () =>
-        getCards().map(({ id }) => ({
-          id,
-          onClick: handleCardClick(id),
-        })),
+        getCards().map(({ id: card }) => async () => {
+          if (!this.props.editing) {
+            await this.update({ card });
+            this.props.onClickCard(card);
+          } else {
+            const cards = this.props.cards.slice();
+            cards.splice(cards.indexOf(card), 1);
+            await this.update({ cards });
+          }
+        }),
       []
     );
 
-    const cardsPanel = useMemo(() => {
-      const index = [];
-      this.props.cards.forEach((id, i) => (index[id] = i));
-      return (
+    const cardsPanel = useMemo(
+      () => (
         <Box
           sx={{
             position: "relative",
@@ -144,44 +137,38 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
             pr: 1,
           }}
         >
-          {cardTemplates.map(({ id, onClick }) => {
-            const idx = index[id];
-            const visible = idx != null;
-            return (
-              <Box
-                key={id}
-                sx={{
-                  p: 1,
-                  position: "absolute",
-                  opacity: visible ? 1 : 0,
-                  transform: `translate(
-                  ${(idx % 3) * 108}%,
-                  ${Math.floor(idx / 3) * 174}px
+          {this.props.cards.map((id, i) => (
+            <Box
+              key={id}
+              sx={{
+                p: 1,
+                position: "absolute",
+                transform: `translate(
+                  ${(i % 3) * 108}%,
+                  ${Math.floor(i / 3) * 174}px
                 )`,
-                  pointerEvents: visible ? "inherit" : "none",
-                }}
-              >
-                <CardSmall
-                  width={123}
-                  card={id}
-                  active={
-                    this.props.editing ||
-                    this.props.excludeCards.indexOf(id) < 0
-                  }
-                  selected={!this.props.editing && this.props.card == id}
-                  onClick={onClick}
-                ></CardSmall>
-              </Box>
-            );
-          })}
+              }}
+            >
+              <CardSmall
+                width={123}
+                card={id}
+                active={
+                  this.props.editing || this.props.excludeCards.indexOf(id) < 0
+                }
+                selected={!this.props.editing && this.props.card == id}
+                onClick={handleCardClick[id - 1]}
+              ></CardSmall>
+            </Box>
+          ))}
         </Box>
-      );
-    }, [
-      this.props.cards,
-      this.props.card,
-      this.props.editing,
-      this.props.excludeCards,
-    ]);
+      ),
+      [
+        this.props.cards,
+        this.props.card,
+        this.props.editing,
+        this.props.excludeCards,
+      ]
+    );
 
     return (
       <Paper

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { getValue } from "../../core/Tableturf";
 import { getLogger } from "loglevel";
 
@@ -22,7 +22,11 @@ async function loadImage(url: string) {
   return promise;
 }
 
+const canvas = document.createElement("canvas");
+const tilemapCache = new Map<string, string | Promise<string>>();
+
 interface SquareTilemapProps {
+  id: string;
   rect: IRect;
   values: {
     value: number;
@@ -39,65 +43,80 @@ interface SquareTilemapProps {
   };
 }
 
-const canvas = document.createElement("canvas");
-
-export function SquareTilemap<Props extends SquareTilemapProps>({
+export function SquareTilemap({
+  id,
   rect,
   values,
   width,
   layout: { width: wi, padding: { x: px, y: py } = { x: 0, y: 0 } },
-  ...rest
-}: Props) {
-  const [state, setState] = useState({
-    url: "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-  });
+}: SquareTilemapProps) {
+  const [version, setVersion] = useState(0);
 
   const [w, h] = rect.size;
   const dx = wi + px;
   const dy = wi + py;
-  useEffect(() => {
-    logger.log("tilemap re-render");
+
+  let item = tilemapCache.get(id);
+  if (!item) {
+    logger.log(`tilemap render: ${id}`);
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Promise.all(values.map(({ image }) => loadImage(image))).then((imgs) => {
-      const styles = new Map<
-        number,
-        { image: HTMLImageElement; alpha: number }
-      >();
-      values.forEach(({ value, alpha = 1 }, i) => {
-        styles.set(value, { image: imgs[i], alpha });
-      });
-      canvas.width = w * dx;
-      canvas.height = h * dy;
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let y = 0; y < h; ++y) {
-        for (let x = 0; x < w; ++x) {
-          const style = styles.get(getValue(rect, { x, y }));
-          if (!style) {
-            continue;
+    item = Promise.all(values.map(({ image }) => loadImage(image))).then(
+      (imgs) => {
+        const styles = new Map<
+          number,
+          { image: HTMLImageElement; alpha: number }
+        >();
+        values.forEach(({ value, alpha = 1 }, i) => {
+          styles.set(value, { image: imgs[i], alpha });
+        });
+        canvas.width = w * dx;
+        canvas.height = h * dy;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let y = 0; y < h; ++y) {
+          for (let x = 0; x < w; ++x) {
+            const style = styles.get(getValue(rect, { x, y }));
+            if (!style) {
+              continue;
+            }
+            const { image, alpha } = style;
+            ctx.globalAlpha = alpha;
+            ctx.drawImage(image, x * dx, y * dy, wi, wi);
+            ctx.globalAlpha = 1;
           }
-          const { image, alpha } = style;
-          ctx.globalAlpha = alpha;
-          ctx.drawImage(image, x * dx, y * dy, wi, wi);
-          ctx.globalAlpha = 1;
         }
+        return canvas.toDataURL();
       }
-      setState({ ...state, url: canvas.toDataURL() });
+    );
+    tilemapCache.set(id, item);
+  }
+
+  let url =
+    "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  if (item instanceof Promise) {
+    item.then((url) => {
+      tilemapCache.set(id, url);
+      setVersion(version + 1);
     });
-  }, [rect, values]);
+  } else {
+    url = item;
+  }
 
   return (
-    <div {...rest}>
-      <div style={{ width, height: (h / w) * width }}>
-        <div
-          style={{
-            position: "relative",
-            transform: `scale(${width / (wi * w)})`,
-            transformOrigin: "top left",
-          }}
-        >
-          <img src={state.url} width={w * dx} height={h * dy} />
-        </div>
+    <div style={{ width, height: (h / w) * width }}>
+      <div
+        style={{
+          position: "relative",
+          transform: `scale(${width / (wi * w)})`,
+          transformOrigin: "top left",
+        }}
+      >
+        <img
+          className={`tilemap-${id}`}
+          src={url}
+          width={w * dx}
+          height={h * dy}
+        />
       </div>
     </div>
   );

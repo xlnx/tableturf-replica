@@ -114,36 +114,30 @@ export function CardLarge({
             </span>
           </div>
         ))}
-        <SquareTilemap
-          rect={{
-            size: [5, 2],
-            values: Array(card.count.special).fill(0),
-          }}
-          values={[{ image: "/textures/player1_special_space.webp", value: 0 }]}
-          width={160 / 2}
-          layout={{
-            width: 40,
-            padding: { x: 9, y: 9 },
-          }}
+        <div
           style={{
             position: "absolute",
             left: 96,
             top: 432,
           }}
-        />
-        <SquareTilemap
-          rect={card}
-          values={[
-            {
-              image: "/textures/empty_space.webp",
-              alpha: 0.7,
-              value: Spaces.EMPTY,
-            },
-            { image: "/textures/pure_yellow.webp", value: Spaces.TRIVIAL },
-            { image: "/textures/pure_orange.webp", value: Spaces.SPECIAL },
-          ]}
-          width={122}
-          layout={{ width: 40 }}
+        >
+          <SquareTilemap
+            id={`card-large-sp-${card.count.special}`}
+            rect={{
+              size: [5, 2],
+              values: Array(card.count.special).fill(0),
+            }}
+            values={[
+              { image: "/textures/player1_special_space.webp", value: 0 },
+            ]}
+            width={160 / 2}
+            layout={{
+              width: 40,
+              padding: { x: 9, y: 9 },
+            }}
+          />
+        </div>
+        <div
           style={{
             position: "absolute",
             left: 200,
@@ -151,7 +145,23 @@ export function CardLarge({
             transformOrigin: "center",
             transform: "rotate(7deg)",
           }}
-        />
+        >
+          <SquareTilemap
+            id={`card-grid-${card.id}`}
+            rect={card}
+            values={[
+              {
+                image: "/textures/empty_space.webp",
+                alpha: 0.7,
+                value: Spaces.EMPTY,
+              },
+              { image: "/textures/pure_yellow.webp", value: Spaces.TRIVIAL },
+              { image: "/textures/pure_orange.webp", value: Spaces.SPECIAL },
+            ]}
+            width={122}
+            layout={{ width: 40 }}
+          />
+        </div>
         {[{ WebkitTextStroke: "8px black" }, {}].map((style, i) => (
           <div
             key={i}
