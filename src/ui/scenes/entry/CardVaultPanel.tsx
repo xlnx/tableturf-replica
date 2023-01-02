@@ -141,7 +141,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
           boxSizing: "border-box",
           boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
           transition: `all ${dt}ms cubic-bezier(0.65, 0, 0.35, 1)`,
-          pointerEvents: this.props.open ? "all" : "none",
+          pointerEvents: this.props.open ? "inherit" : "none",
         }}
       >
         <Box
