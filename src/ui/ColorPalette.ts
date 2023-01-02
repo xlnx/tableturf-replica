@@ -36,7 +36,7 @@ export class ColorPalette {
     },
   };
 
-  static readonly TryOut = {
+  static readonly Entry = {
     bg: {
       primary: Color.fromHex(0x262626),
       secondary: Color.fromHex(0x191919),

@@ -33,6 +33,8 @@ interface ICard extends IRect {
   id: number;
   name: string;
   rarity: "Common" | "Rare" | "Fresh";
+  category: string;
+  season: number;
   count: {
     area: number;
     special: number;

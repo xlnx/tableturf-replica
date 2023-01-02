@@ -6,7 +6,7 @@ import { Card } from "./Card";
 import { SquareTilemap } from "./SquareTilemap";
 
 const logger = getLogger("card-large");
-logger.setLevel("info");
+logger.setLevel("debug");
 
 interface CardLargeProps {
   card: number;

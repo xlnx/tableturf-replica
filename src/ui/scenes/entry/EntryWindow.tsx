@@ -1,21 +1,20 @@
-import "./TryOutWindow.less";
+import "./EntryWindow.less";
 
-import { Window } from "../engine/Window";
-import { BoardComponent } from "./BoardComponent";
-import { ColorPalette } from "./ColorPalette";
+import { Window } from "../../../engine/Window";
+import { BoardComponent } from "../../BoardComponent";
+import { ColorPalette } from "../../ColorPalette";
 import {
   getCardById,
-  getCards,
   initGame,
   isBoardMoveValid,
   moveBoard,
-} from "../core/Tableturf";
-import { Color } from "../engine/Color";
+} from "../../../core/Tableturf";
+import { Color } from "../../../engine/Color";
 import { Texture } from "pixi.js";
-import { MessageBar } from "./components/MessageBar";
-import { System } from "../engine/System";
-import { DB } from "../Database";
-import BgMotionGlsl from "./shaders/BgMotion.glsl?raw";
+import { MessageBar } from "../../components/MessageBar";
+import { System } from "../../../engine/System";
+import { DB } from "../../../Database";
+import BgMotionGlsl from "../../shaders/BgMotion.glsl?raw";
 import React from "react";
 import {
   Box,
@@ -27,15 +26,15 @@ import {
   styled,
 } from "@mui/material";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { Theme, BasicButton } from "./Theme";
-import { CardSmall } from "./components/CardSmall";
-import { ReactComponent } from "../engine/ReactComponent";
-import { StarterDeck } from "../Game";
+import { Theme, BasicButton } from "../../Theme";
+import { CardSmall } from "../../components/CardSmall";
+import { ReactComponent } from "../../../engine/ReactComponent";
+import { StarterDeck } from "../../../Game";
 import { getLogger } from "loglevel";
-import { rectToString } from "../core/Utils";
-// import { CardLarge } from "./components/CardLarge";
+import { rectToString } from "../../../core/Utils";
+import { CardVaultPanel } from "./CardVaultPanel";
 
-const logger = getLogger("try-out-window");
+const logger = getLogger("entry-window");
 logger.setLevel("debug");
 
 function initBoard(stage: number): IBoardState {
@@ -60,7 +59,7 @@ interface Props extends PublicProps {
 }
 
 class Panel extends ReactComponent<Props> {
-  constructor(private readonly window: TryOutWindow_0) {
+  constructor(private readonly window: EntryWindow_0) {
     super();
   }
 
@@ -209,7 +208,7 @@ class Panel extends ReactComponent<Props> {
             .map(({ card, isInDeck }) => (
               <CSSTransition
                 timeout={200}
-                classNames="try-out-history-bar"
+                classNames="entry-history-bar"
                 key={card}
               >
                 <Box sx={{ p: 1 }}>
@@ -256,7 +255,7 @@ class Panel extends ReactComponent<Props> {
             left: 1650,
             top: y0 + h * 0,
           }}
-          // onClick={() => Lobby.togglePixiWindow(DeckEditWindow)}
+          onClick={() => CardVaultPanel.update({ open: true })}
         >
           Edit Deck
         </MyBtn>
@@ -284,15 +283,15 @@ class Panel extends ReactComponent<Props> {
     return (
       <ThemeProvider theme={Theme}>
         {deckPanel}
-        {/* {cardPoolPanel} */}
         {historyPanel}
         {btnPanel}
+        {CardVaultPanel.node}
       </ThemeProvider>
     );
   }
 }
 
-class TryOutWindow_0 extends Window {
+class EntryWindow_0 extends Window {
   readonly panel: Panel = new Panel(this);
 
   readonly board: BoardComponent;
@@ -310,7 +309,7 @@ class TryOutWindow_0 extends Window {
 
   constructor() {
     super({
-      bgTint: ColorPalette.TryOut.bg.primary,
+      bgTint: ColorPalette.Entry.bg.primary,
     });
 
     const root = this.addContainer({
@@ -319,9 +318,9 @@ class TryOutWindow_0 extends Window {
     });
 
     const bgShader = this.addShader(BgMotionGlsl, {
-      uColorFgPrimary: ColorPalette.TryOut.bg.primary.rgb01,
-      uColorFgSecondary: ColorPalette.TryOut.bg.primary.rgb01,
-      uColorBg: ColorPalette.TryOut.bg.secondary.rgb01,
+      uColorFgPrimary: ColorPalette.Entry.bg.primary.rgb01,
+      uColorFgSecondary: ColorPalette.Entry.bg.primary.rgb01,
+      uColorBg: ColorPalette.Entry.bg.secondary.rgb01,
       uPatternSampler: System.texture("ThunderPattern_02.webp"),
       uSpeed: 0.01,
       uAngle: -60,
@@ -364,4 +363,4 @@ class TryOutWindow_0 extends Window {
   }
 }
 
-export const TryOutWindow = new TryOutWindow_0();
+export const EntryWindow = new EntryWindow_0();

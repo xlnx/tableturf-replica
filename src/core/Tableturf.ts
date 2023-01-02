@@ -236,6 +236,8 @@ for (const info of MiniGameCardInfo) {
     id,
     name,
     rarity: <any>info["Rarity"],
+    category: info["Category"],
+    season: info["Season"],
     count: {
       area: values.filter((x) => x > 0).length,
       special: info["SpecialCost"],
@@ -270,9 +272,7 @@ export function rotateCard(card: ICard, rotation: IRotation): IRect {
 }
 
 export function getCardById(card: number) {
-  const e = CARD_ID_LOOKUP[card];
-  assert(!!e);
-  return e;
+  return CARD_ID_LOOKUP[card];
 }
 
 export function getCards() {
@@ -296,9 +296,7 @@ for (const info of MiniGameBoardInfo) {
 }
 
 export function getStageById(stage: number) {
-  const e = STAGE_ID_LOOKUP[stage];
-  assert(!!e);
-  return e;
+  return STAGE_ID_LOOKUP[stage];
 }
 
 export function getStages() {

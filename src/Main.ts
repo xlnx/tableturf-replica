@@ -2,7 +2,7 @@ import "./Main.less";
 
 import { ControlPanel } from "./ui/ControlPanel";
 import { getLogger } from "loglevel";
-import { TryOutWindow } from "./ui/TryOutWindow";
+import { EntryWindow } from "./ui/scenes/entry/EntryWindow";
 import { System } from "./engine/System";
 import { WindowManager } from "./engine/WindowManager";
 import { GamePlayWindow } from "./ui/GamePlayWindow";
@@ -22,7 +22,7 @@ WindowManager.install({
   layers: [
     {
       canvas: true,
-      windows: [GamePlayWindow, TryOutWindow, DeckEditWindow],
+      windows: [GamePlayWindow, EntryWindow, DeckEditWindow],
     },
     {
       canvas: true,
@@ -37,7 +37,7 @@ WindowManager.install({
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 RootActivity.show();
 
-TryOutWindow.show();
+EntryWindow.show();
 ControlPanel.show();
 
 async function main() {

@@ -11,7 +11,7 @@ import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
 import { GamePlayWindow } from "../GamePlayWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
-import { TryOutWindow } from "../TryOutWindow";
+import { EntryWindow } from "../scenes/entry/EntryWindow";
 import { getStages } from "../../core/Tableturf";
 import { I18n } from "../../i18n/I18n";
 
@@ -86,7 +86,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     await InkResetAnimation.play(async () => {
       GamePlayWindow.send("cancel");
       await ActivityPanel.show();
-      TryOutWindow.show();
+      EntryWindow.show();
     });
   }
 

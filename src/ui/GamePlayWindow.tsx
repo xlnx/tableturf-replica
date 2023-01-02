@@ -25,7 +25,7 @@ import gsap from "gsap";
 import { ActivityPanel } from "./Activity";
 import { AlertDialog } from "./components/AlertDialog";
 import { InkResetAnimation } from "./InkResetAnimation";
-import { TryOutWindow } from "./TryOutWindow";
+import { EntryWindow } from "./scenes/entry/EntryWindow";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
@@ -634,7 +634,7 @@ class GamePlayWindow_0 extends Window {
         await InkResetAnimation.play(async () => {
           this.send("cancel");
           await ActivityPanel.show();
-          TryOutWindow.show();
+          EntryWindow.show();
         });
       });
     }

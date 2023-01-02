@@ -4,7 +4,7 @@ import { ItemListComponent } from "./ItemListComponent";
 import { Color } from "../engine/Color";
 import { Window } from "../engine/Window";
 import { getCardById } from "../core/Tableturf";
-import { TryOutWindow } from "./TryOutWindow";
+import { EntryWindow } from "./scenes/entry/EntryWindow";
 // import { Lobby } from "../Lobby";
 import { MessageBar } from "./components/MessageBar";
 import { DB } from "../Database";
@@ -121,7 +121,7 @@ class DeckEditWindow_0 extends Window {
       return this.deckView.props.items.value.map((e) => e.props.card.value.id);
     };
     const handleTestDeck = async () => {
-      await TryOutWindow.panel.reset({ deck: getDeck() });
+      await EntryWindow.panel.reset({ deck: getDeck() });
     };
     return (
       <ThemeProvider theme={Theme}>
