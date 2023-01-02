@@ -5,7 +5,10 @@
 }
 
 .hidden {
-  visibility: hidden;
+  // set visibility=hidden in chrome causing react to re-render
+  // visibility: hidden
+  opacity: 0;
+  pointer-events: none !important;
 }
 
 .viewport {

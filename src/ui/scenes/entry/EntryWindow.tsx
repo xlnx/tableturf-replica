@@ -35,7 +35,7 @@ import { DeckPanel } from "./DeckPanel";
 import { DeckSaveDialog } from "./DeckSaveDialog";
 
 const logger = getLogger("entry-window");
-logger.setLevel("debug");
+logger.setLevel("info");
 
 function initBoard(stage: number): IBoardState {
   return initGame(stage, [StarterDeck, StarterDeck]).board;

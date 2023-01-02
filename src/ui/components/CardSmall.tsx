@@ -15,6 +15,13 @@ interface CardSmallProps {
   onClick?: () => void;
 }
 
+const layout = {
+  width: 153,
+  height: 196,
+  radius: 7,
+  padding: 9,
+};
+
 export function CardSmall({
   card: cardId,
   width,
@@ -22,20 +29,17 @@ export function CardSmall({
   selected = false,
   onClick = () => {},
 }: CardSmallProps) {
-  const w = 153;
-  const h = 196;
-  const p = 9;
   const node = useMemo(() => {
     logger.log(`card-small re-render`);
     const card = getCardById(cardId);
     return (
-      <div style={{ width: w, height: h }}>
+      <div style={{ width: layout.width, height: layout.height }}>
         <img
           src={`/textures/${card.render.bg}`}
           style={{
             position: "absolute",
             left: 0,
-            top: p,
+            top: layout.padding,
             width: "100%",
             height: "100%",
             filter: "brightness(0.7)",
@@ -52,12 +56,12 @@ export function CardSmall({
             { image: "/textures/pure_yellow.webp", value: Spaces.TRIVIAL },
             { image: "/textures/pure_orange.webp", value: Spaces.SPECIAL },
           ]}
-          width={w - 2 * p}
+          width={layout.width - 2 * layout.padding}
           layout={{ width: 40 }}
           style={{
             position: "absolute",
-            left: p,
-            top: p,
+            left: layout.padding,
+            top: layout.padding,
             transform: "scale(1, 0.934)",
             transformOrigin: "top left",
           }}
@@ -66,7 +70,7 @@ export function CardSmall({
           style={{
             position: "absolute",
             left: 6,
-            top: h - 6 - 44,
+            top: layout.height - 6 - 44,
             width: 48,
             height: 44,
             borderRadius: 11,
@@ -109,7 +113,7 @@ export function CardSmall({
   return (
     <Card
       width={width}
-      layout={{ width: w, height: h, radius: 7 }}
+      layout={layout}
       active={active}
       selected={selected}
       onClick={onClick}
