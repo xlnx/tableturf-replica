@@ -1,6 +1,5 @@
 import { CardGridComponent } from "./CardGridComponent";
 import { GridComponent } from "./GridComponent";
-import { CardInteractions } from "./CardInteractions";
 import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";
 import { getCardById } from "../core/Tableturf";
@@ -13,8 +12,6 @@ interface ICardComponentProps {
 }
 
 export class CardComponent extends Component<ICardComponentProps> {
-  readonly interactions: CardInteractions;
-
   layout = {
     width: 344,
     height: 480,
@@ -257,7 +254,5 @@ export class CardComponent extends Component<ICardComponentProps> {
 
     this.props.card.onUpdate(fn);
     this.props.turn.onUpdate(fn);
-
-    this.interactions = CardInteractions.install(this, { radius: 30 });
   }
 }

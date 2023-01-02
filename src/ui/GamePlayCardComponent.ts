@@ -78,7 +78,6 @@ export class GamePlayCardComponent extends Component<ICardAnimationProps> {
       parent: cardRoot,
       anchor: 0.5,
     });
-    card.interactions.on.update(false);
 
     this.overlayRoot = this.addContainer({ parent: cardRoot });
     this.overlayRoot.visible = false;

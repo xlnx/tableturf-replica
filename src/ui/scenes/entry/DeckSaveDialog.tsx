@@ -88,7 +88,7 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
               select
               fullWidth
               variant="standard"
-              label="Deck"
+              label="Slot"
               autoComplete="off"
               value={this.props.deck}
               onChange={(e) => this.update({ deck: +e.target.value })}
@@ -100,7 +100,7 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
             <TextField
               fullWidth
               variant="standard"
-              label="Name"
+              label="Deck Name"
               autoComplete="off"
               color={!nameError ? "primary" : "error"}
               placeholder={DB.read().decks[this.props.deck].name}

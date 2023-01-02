@@ -8,6 +8,7 @@ import { BasicButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { DeckSaveDialog } from "./DeckSaveDialog";
 import { DeckPanel } from "./DeckPanel";
+import { MessageBar } from "../../components/MessageBar";
 
 const allCards = getCards().map(({ id, name }) => ({
   id,
@@ -50,6 +51,7 @@ const sorters = [
 
 interface CardVaultProps {
   open: boolean;
+  excludeCards: number[];
   resolve: any;
 }
 
@@ -57,6 +59,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
   init() {
     return {
       open: false,
+      excludeCards: [],
       resolve: () => {},
     };
   }
@@ -104,23 +107,20 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
       setState({ ...state, cards });
     }, [query, sorter, reverse]);
 
-    const renderCard = (card: ICard) => {
-      return (
-        <Box sx={{ p: 1 }}>
-          <CardLarge
-            width={180}
-            card={card.id}
-            onClick={() => console.log(card.id)}
-          ></CardLarge>
-        </Box>
-      );
-    };
-
     const sortMenuItems = sorters.map(({ label }, i) => (
       <MenuItem value={i} key={i}>
         {label}
       </MenuItem>
     ));
+
+    const handleCardClick = (card: number) => async () => {
+      const cards = DeckPanel.props.cards;
+      if (cards.length >= 15) {
+        MessageBar.warning("your deck is full");
+        return;
+      }
+      await DeckPanel.update({ cards: [...cards, card] });
+    };
 
     const index = [];
     state.cards.forEach((id, i) => (index[id] = i));
@@ -219,34 +219,32 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
               flex: 1,
             }}
           >
-            {getCards().map((card, i) =>
-              index[card.id] != null ? (
+            {getCards().map((card) => {
+              const idx = index[card.id];
+              const visible = idx != null;
+              return (
                 <Box
                   key={card.id}
                   sx={{
+                    p: 1,
                     position: "absolute",
-                    left: `${((index[card.id] % 6) / 6) * 100}%`,
-                    top: `${Math.floor(index[card.id] / 6) * 270}px`,
+                    opacity: visible ? 1 : 0,
+                    transform: `translate(
+                      ${(idx % 6) * 100}%, 
+                      ${Math.floor(idx / 6) * 270}px
+                    )`,
+                    pointerEvents: visible ? "inherit" : "none",
                   }}
                 >
-                  {renderCard(card)}
+                  <CardLarge
+                    width={180}
+                    card={card.id}
+                    active={this.props.excludeCards.indexOf(card.id) < 0}
+                    onClick={handleCardClick(card.id)}
+                  ></CardLarge>
                 </Box>
-              ) : (
-                <Box
-                  key={card.id}
-                  sx={{
-                    position: "absolute",
-                    // TODO: visibility hidden has some performance issue with chrome v108
-                    // move the element out of screen to overcome this issue
-                    opacity: 0,
-                    left: -1e5,
-                    top: -1e5,
-                  }}
-                >
-                  {renderCard(card)}
-                </Box>
-              )
-            )}
+              );
+            })}
           </Box>
         </Box>
       </Paper>

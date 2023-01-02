@@ -6,7 +6,6 @@ import { EntryWindow } from "./ui/scenes/entry/EntryWindow";
 import { System } from "./engine/System";
 import { WindowManager } from "./engine/WindowManager";
 import { GamePlayWindow } from "./ui/GamePlayWindow";
-import { DeckEditWindow } from "./ui/DeckEditWindow";
 import { InkResetAnimation } from "./ui/InkResetAnimation";
 import { RootActivity } from "./ui/activities/RootActivity";
 import { MessageBar } from "./ui/components/MessageBar";
@@ -22,7 +21,7 @@ WindowManager.install({
   layers: [
     {
       canvas: true,
-      windows: [GamePlayWindow, EntryWindow, DeckEditWindow],
+      windows: [GamePlayWindow, EntryWindow],
     },
     {
       canvas: true,
