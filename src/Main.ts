@@ -5,7 +5,7 @@ import { getLogger } from "loglevel";
 import { EntryWindow } from "./ui/scenes/entry/EntryWindow";
 import { System } from "./engine/System";
 import { WindowManager } from "./engine/WindowManager";
-import { GamePlayWindow } from "./ui/GamePlayWindow";
+import { MatchWindow } from "./ui/scenes/match/MatchWindow";
 import { InkResetAnimation } from "./ui/InkResetAnimation";
 import { RootActivity } from "./ui/activities/RootActivity";
 import { MessageBar } from "./ui/components/MessageBar";
@@ -21,7 +21,7 @@ WindowManager.install({
   layers: [
     {
       canvas: true,
-      windows: [GamePlayWindow, EntryWindow],
+      windows: [MatchWindow, EntryWindow],
     },
     {
       canvas: true,

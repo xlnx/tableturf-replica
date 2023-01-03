@@ -12,6 +12,7 @@ interface CardProps {
   width: number;
   radius?: number;
   children?: React.ReactNode;
+  animation?: boolean;
   active?: boolean;
   selected?: boolean;
   onClick?: () => void;
@@ -21,6 +22,7 @@ export function Card({
   layout,
   width,
   children,
+  animation = true,
   active = true,
   selected = false,
   onClick = () => {},
@@ -52,13 +54,16 @@ export function Card({
     onClick();
   };
 
+  const className = ["card"];
+  if (animation) {
+    className.push(active ? "card-active" : "card-inactive");
+    if (selected) {
+      className.push("card-selected");
+    }
+  }
   return (
     <div
-      className={`
-        card 
-        ${active ? "card-active" : "card-inactive"} 
-        ${selected ? "card-selected" : ""}
-      `}
+      className={className.join(" ")}
       style={{
         width,
         height: (layout.height / layout.width) * width,

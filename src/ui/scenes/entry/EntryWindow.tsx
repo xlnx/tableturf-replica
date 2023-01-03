@@ -48,22 +48,19 @@ interface HistoryRecord {
   prevState: IBoardState;
 }
 
-interface PublicProps {
+interface EntryWindowPanelProps {
+  history: HistoryRecord[];
+  state: IBoardState;
   stage: number;
   deck: number[];
 }
 
-interface Props extends PublicProps {
-  history: HistoryRecord[];
-  state: IBoardState;
-}
-
-class Panel extends ReactComponent<Props> {
+class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
   constructor(private readonly window: EntryWindow_0) {
     super();
   }
 
-  init(): Props {
+  init(): EntryWindowPanelProps {
     const stage = 3;
     const db = DB.read();
     return {
@@ -120,7 +117,7 @@ class Panel extends ReactComponent<Props> {
     });
   }
 
-  async reset(props?: Partial<PublicProps>) {
+  async reset(props?: Partial<EntryWindowPanelProps>) {
     await this.update({ ...props });
     const { stage } = this.props;
     const state = initBoard(stage);
@@ -265,7 +262,7 @@ class Panel extends ReactComponent<Props> {
 }
 
 class EntryWindow_0 extends Window {
-  readonly panel: Panel = new Panel(this);
+  readonly panel: EntryWindowPanel = new EntryWindowPanel(this);
 
   readonly board: BoardComponent;
 

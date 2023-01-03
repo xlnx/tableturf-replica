@@ -3363,11 +3363,6 @@ pify@^4.0.1:
   resolved "https://registry.npmjs.org/pify/-/pify-4.0.1.tgz"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-pixi-projection@^0.4.4:
-  version "0.4.4"
-  resolved "https://registry.npmjs.org/pixi-projection/-/pixi-projection-0.4.4.tgz"
-  integrity sha512-oZMlfx7CFjxw4F0jkZXdOtJ5rbnHCQ+EdM6f6++CbzQvYnhB9ULKSobP2ZgrQ4oXag1KRJYwwSMSlz77lU/4wA==
-
 pixi-webfont-loader@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/pixi-webfont-loader/-/pixi-webfont-loader-1.0.2.tgz"

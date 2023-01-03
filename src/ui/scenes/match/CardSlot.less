@@ -1,0 +1,46 @@
+@keyframes card-slot-circle-rotate {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card-slot:not(.card-slot-preview) .card-slot-body-spinner {
+  transition: all 250ms linear;
+}
+
+.card-slot:not(.card-slot-preview) .card-slot-body-enter-active {
+  transition: all 250ms linear;
+}
+
+.card-slot:not(.card-slot-preview) .card-slot-body-exit-active {
+  transition: all 250ms linear;
+}
+
+.card-slot-body-enter {
+  transform: translateY(80px);
+  opacity: 0;
+}
+
+.card-slot-body-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.card-slot-body-exit {
+  transform: translateX(0px);
+  opacity: 1;
+}
+
+.card-slot-body-exit-active {
+  transform: translateX(40px);
+  opacity: 0;
+}
+
+.card-slot-circle {
+  transform-origin: center;
+  background-size: 100% 100%;
+  animation: card-slot-circle-rotate 2s infinite linear;
+}

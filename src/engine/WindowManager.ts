@@ -3,7 +3,6 @@ import "./WindowManager.less";
 
 // registered plugins
 import "@pixi/tilemap";
-import "pixi-projection";
 
 import { AbstractRenderer, Application, Container, Sprite } from "pixi.js";
 import { Component } from "./Component";

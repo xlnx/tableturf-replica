@@ -55,7 +55,7 @@ export function CardSmall({
           }}
         >
           <SquareTilemap
-            id={`card-grid-${card.id}`}
+            id={`card-grid-small-${card.id}`}
             rect={card}
             values={[
               {

@@ -246,7 +246,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                       card={card.id}
                       active={this.props.excludeCards.indexOf(card.id) < 0}
                       onClick={handleCardClick(card.id)}
-                    ></CardLarge>
+                    />
                   </Box>
                 );
               })}

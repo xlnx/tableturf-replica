@@ -1,58 +1,76 @@
-import { Sprite, Texture } from "pixi.js";
-import { BoardComponent } from "./BoardComponent";
-import { SpCutInAnimation } from "./SpCutInAnimation";
-import { Window } from "../engine/Window";
-import { ColorPalette } from "./ColorPalette";
-import { Color } from "../engine/Color";
-import { SzMeterComponent } from "./SzMeterComponent";
-import { GamePlayCardComponent } from "./GamePlayCardComponent";
-import { TurnMeterComponent } from "./TurnMeterComponent";
-import { EaseFunc } from "../engine/animations/Ease";
-import { SpMeterComponent } from "./SpMeterComponent";
-import { System } from "../engine/System";
+import { BoardComponent } from "../../BoardComponent";
+import { SpCutInAnimation } from "../../SpCutInAnimation";
+import { Window } from "../../../engine/Window";
+import { ColorPalette } from "../../ColorPalette";
+import { SzMeterComponent } from "../../SzMeterComponent";
+import { TurnMeterComponent } from "../../TurnMeterComponent";
+import { SpMeterComponent } from "../../SpMeterComponent";
+import { System } from "../../../engine/System";
 import { getLogger } from "loglevel";
-import { enumerateBoardMoves } from "../core/Tableturf";
-import { TableturfClientState, TableturfGameState } from "../Game";
-import { getCardById, moveBoard, isGameMoveValid } from "../core/Tableturf";
-import { MessageBar } from "./components/MessageBar";
-import { ReactNode, useRef } from "react";
+import { enumerateBoardMoves } from "../../../core/Tableturf";
+import { TableturfClientState, TableturfGameState } from "../../../Game";
+import {
+  getCardById,
+  moveBoard,
+  isGameMoveValid,
+} from "../../../core/Tableturf";
+import { MessageBar } from "../../components/MessageBar";
+import { ReactNode, useEffect, useRef } from "react";
 import { Box, Grid, Paper, ThemeProvider } from "@mui/material";
-import { Theme, DarkButton } from "./Theme";
-import { ReactComponent } from "../engine/ReactComponent";
-import { Client } from "../client/Client";
-import { CardSmall } from "./components/CardSmall";
+import { Theme, DarkButton } from "../../Theme";
+import { ReactComponent } from "../../../engine/ReactComponent";
+import { Client } from "../../../client/Client";
+import { CardSmall } from "../../components/CardSmall";
 import gsap from "gsap";
-import { ActivityPanel } from "./Activity";
-import { AlertDialog } from "./components/AlertDialog";
-import { InkResetAnimation } from "./InkResetAnimation";
-import { EntryWindow } from "./scenes/entry/EntryWindow";
+import { ActivityPanel } from "../../Activity";
+import { AlertDialog } from "../../components/AlertDialog";
+import { InkResetAnimation } from "../../InkResetAnimation";
+import { EntryWindow } from "../entry/EntryWindow";
+import { CardSlot } from "./CardSlot";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
 
 type PartialMove = Omit<Omit<IPlayerMovement, "player">, "params">;
 
-interface GamePlayState {
+interface MatchState {
   player: IPlayerId;
   handMask: boolean[];
   handSpMask: boolean[];
 }
 
-interface GamePlayWindowUIProps {
+interface SlotState {
+  card: number;
+  discard: boolean;
+  show: boolean;
+  preview: boolean;
+  flip: boolean;
+}
+
+const emptySlots: SlotState[] = Array(2).fill({
+  card: -1,
+  discard: false,
+  show: false,
+  flip: false,
+  preview: true,
+});
+
+interface MatchWindowPanelProps {
   enable: boolean;
   cards: number[];
   mask: boolean[];
   selected: number;
   action: "discard" | "trivial" | "special";
-  state: GamePlayState;
+  state: MatchState;
+  slots: SlotState[];
   onUpdateMove: (move: PartialMove) => void;
   onClick: (hand: number) => void;
 }
 
-class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
+class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
   private cardsRef;
 
-  init(): GamePlayWindowUIProps {
+  init(): MatchWindowPanelProps {
     return {
       enable: true,
       cards: [],
@@ -60,6 +78,7 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
       selected: -1,
       action: "trivial",
       state: null,
+      slots: emptySlots,
       onUpdateMove: () => {},
       onClick: () => {},
     };
@@ -90,6 +109,7 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
         handMask,
         handSpMask,
       },
+      slots: emptySlots,
     });
     this.props.onUpdateMove({
       action,
@@ -121,6 +141,28 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
   }
 
   render(): ReactNode {
+    useEffect(() => {
+      if (this.props.enable) {
+        const card =
+          this.props.selected >= 0 ? this.props.cards[this.props.selected] : -1;
+        if (this.props.action != "discard" || card < 0) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.update({
+            slots: [
+              {
+                card,
+                discard: false,
+                show: card >= 0,
+                flip: true,
+                preview: true,
+              },
+              this.props.slots[1],
+            ],
+          });
+        }
+      }
+    }, [this.props.selected, this.props.enable, this.props.action]);
+
     this.cardsRef = useRef([]);
 
     const handleHandClick = async (selected: number) => {
@@ -255,22 +297,35 @@ class GamePlayWindowPanel extends ReactComponent<GamePlayWindowUIProps> {
         >
           Special Attack!
         </DarkButton>
+        <div style={{ position: "absolute", top: 315, left: 1585 }}>
+          {this.props.slots.map(({ card, discard, show, flip, preview }, i) => (
+            <div style={{ position: "absolute" }} key={i}>
+              <CardSlot
+                card={card}
+                discard={discard}
+                width={292}
+                player={i as IPlayerId}
+                dy={255 * (1 - 2 * i)}
+                preview={preview}
+                show={show}
+                flip={flip}
+              />
+            </div>
+          ))}
+        </div>
       </ThemeProvider>
     );
   }
 }
 
-class GamePlayWindow_0 extends Window {
+class MatchWindow_0 extends Window {
   public readonly board: BoardComponent;
-  // private readonly hand: HandComponent;
   private readonly szMeter: SzMeterComponent;
   private readonly turnMeter: TurnMeterComponent;
   private readonly spCutInAnim: SpCutInAnimation;
-  private readonly card1: GamePlayCardComponent;
-  private readonly card2: GamePlayCardComponent;
   private readonly spMeter1: SpMeterComponent;
   private readonly spMeter2: SpMeterComponent;
-  private readonly panel: GamePlayWindowPanel;
+  private readonly panel: MatchWindowPanel;
 
   private client: Client;
 
@@ -316,20 +371,6 @@ class GamePlayWindow_0 extends Window {
     turnMeter: {
       x: -280,
       y: -350,
-    },
-    card: {
-      x: 772,
-      y: -27,
-      p: [
-        {
-          x: 0,
-          y: 300,
-        },
-        {
-          x: 0,
-          y: -300,
-        },
-      ],
     },
     spMeter: {
       p: [
@@ -386,22 +427,6 @@ class GamePlayWindow_0 extends Window {
       }
     });
 
-    const cardRoot = this.addContainer({
-      parent: root,
-      x: this.layout.card.x,
-      y: this.layout.card.y,
-    });
-    cardRoot.scale.set(0.85);
-    [this.card1, this.card2] = this.layout.card.p.map((p) =>
-      this.addComponent(new GamePlayCardComponent(), {
-        parent: cardRoot,
-        anchor: 0.5,
-        x: p.x,
-        y: p.y,
-      })
-    );
-    this.card2.update({ turn: -1 });
-
     [this.spMeter1, this.spMeter2] = this.layout.spMeter.p.map((p) =>
       this.addComponent(new SpMeterComponent(), {
         parent: root,
@@ -422,7 +447,7 @@ class GamePlayWindow_0 extends Window {
     this.spCutInAnim.scaleToFit(this.layout.width, this.layout.height);
     this.addChild(this.spCutInAnim);
 
-    this.panel = new GamePlayWindowPanel();
+    this.panel = new MatchWindowPanel();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.panel.update({
       onUpdateMove: (move) => {
@@ -449,7 +474,6 @@ class GamePlayWindow_0 extends Window {
               pointer = { x: Math.floor(w / 2), y: Math.floor(h / 2) };
             }
           }
-          this.card1.update({ card });
         }
         if (move.action == "special" && card) {
           this.spMeter1.update({ spAttack: card.count.special });
@@ -479,14 +503,11 @@ class GamePlayWindow_0 extends Window {
 
   bind(client: Client) {
     this.client = client;
-    this.client.on("update", this._handleUpdate.bind(this));
+    this.client.on("update", this.handleStateUpdate.bind(this));
   }
 
   async uiReset(G: TableturfGameState) {
     const players = [this.client.playerId, 1 - this.client.playerId];
-
-    this.card1.update({ card: null });
-    this.card2.update({ card: null });
 
     // init board
     this.board.update({ playerId: this.client.playerId, acceptInput: false });
@@ -503,13 +524,14 @@ class GamePlayWindow_0 extends Window {
     this.turnMeter.update({ value: G.game.round });
   }
 
-  private _handleUpdate(
+  private handleStateUpdate(
     { G, ctx }: TableturfClientState,
     { G: G0, ctx: ctx0 }: TableturfClientState
   ) {
     this.game = G.game;
 
-    const sleep = async (t: number) => this.addAnimation().play(t);
+    const sleep = (t: number) =>
+      new Promise((resolve) => setTimeout(resolve, t * 1000));
     const enter = (phase: string) =>
       ctx.phase == phase && ctx0.phase != ctx.phase;
     const players = [this.client.playerId, 1 - this.client.playerId];
@@ -523,19 +545,34 @@ class GamePlayWindow_0 extends Window {
       }
     });
 
-    [this.card1, this.card2].forEach((ui, i) => {
+    let slotChange = false;
+    const slots = this.panel.props.slots.map((slot, i) => {
       const player = players[i];
-      if (!!G.moves[player] && !G0.moves[player]) {
-        this._uiThreadAppend(async () => {
-          await ui.uiSelectCard(getCardById(G.moves[player].card));
-        });
+      if (G.moves[player] && !G0.moves[player]) {
+        const { card, action } = G.moves[player];
+        slotChange = true;
+        return {
+          card,
+          discard: action == "discard",
+          show: true,
+          preview: false,
+          flip: false,
+        };
       }
+      return slot;
     });
+    if (slotChange) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.uiTask.then(async () => {
+        logger.log(slots);
+        await this.panel.update({ slots });
+      });
+    }
 
     // enter new round
     if (G.moveHistory.length == G0.moveHistory.length + 1) {
       const moves = G.moveHistory[G.moveHistory.length - 1];
-      this._uiThreadAppend(async () => {
+      this.uiThreadAppend(async () => {
         const dt = 0.8;
 
         // play sp animations
@@ -555,16 +592,19 @@ class GamePlayWindow_0 extends Window {
         }
 
         // show cards
-        await Promise.all(
-          [this.card1, this.card2].map((ui, i) => {
-            const player = players[i];
-            return ui.uiShowCard(
-              getCardById(moves[player].card),
-              // TODO: maybe special counts
-              moves[player].action == "discard"
-            );
-          })
-        );
+        let slots: SlotState[] = this.panel.props.slots.map((_, i) => {
+          const { card, action } = moves[players[i]];
+          return {
+            card,
+            discard: action == "discard",
+            show: true,
+            preview: false,
+            flip: true,
+          };
+        });
+        logger.log(slots);
+        await this.panel.update({ slots });
+        await sleep(0.3);
 
         // put cards
         for (const li of G.game.prevMoves) {
@@ -597,11 +637,18 @@ class GamePlayWindow_0 extends Window {
         }
 
         // draw card
+        slots = slots.map(({ card, discard }) => ({
+          card,
+          discard,
+          show: false,
+          preview: false,
+          flip: true,
+        }));
+        await this.panel.update({ slots });
         await Promise.all([
           this.panel.uiUpdateGameState(G),
           this.turnMeter.uiUpdate(G.game.round),
-          this.card1.uiHideCard(),
-          this.card2.uiHideCard(),
+          sleep(0.3),
         ]);
       });
     }
@@ -614,7 +661,7 @@ class GamePlayWindow_0 extends Window {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.uiTask.then(async () => {
         // will block state update
-        const move = await this._queryMovement();
+        const move = await this.queryMovement();
         if (move) {
           this.client.send("move", move);
         }
@@ -623,7 +670,7 @@ class GamePlayWindow_0 extends Window {
 
     // after match
     if (enter("prepare")) {
-      this._uiThreadAppend(async () => {
+      this.uiThreadAppend(async () => {
         const win =
           G.game.board.count.area[players[0]] >
           G.game.board.count.area[players[1]];
@@ -640,7 +687,7 @@ class GamePlayWindow_0 extends Window {
     }
   }
 
-  private async _queryMovement(): Promise<IPlayerMovement> {
+  private async queryMovement(): Promise<IPlayerMovement> {
     await this.panel.update({
       enable: true,
     });
@@ -696,9 +743,9 @@ class GamePlayWindow_0 extends Window {
     return move;
   }
 
-  private _uiThreadAppend(task: () => Promise<void>) {
+  private uiThreadAppend(task: () => Promise<void>) {
     this.uiTask = this.uiTask.then(task);
   }
 }
 
-export const GamePlayWindow = new GamePlayWindow_0();
+export const MatchWindow = new MatchWindow_0();

@@ -9,7 +9,7 @@ import { AlertDialog } from "../components/AlertDialog";
 import { P2PHost } from "../../client/P2P";
 import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
-import { GamePlayWindow } from "../GamePlayWindow";
+import { MatchWindow } from "../scenes/match/MatchWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
 import { EntryWindow } from "../scenes/entry/EntryWindow";
 import { getStages } from "../../core/Tableturf";
@@ -52,7 +52,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       await this.handleDisconnect();
       await this.props.parent().show();
     });
-    GamePlayWindow.bind(client);
+    MatchWindow.bind(client);
     await this.show();
   }
 
@@ -84,7 +84,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       });
     }
     await InkResetAnimation.play(async () => {
-      GamePlayWindow.send("cancel");
+      MatchWindow.send("cancel");
       await ActivityPanel.show();
       EntryWindow.show();
     });
@@ -113,10 +113,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     // init
     if (enter("init")) {
       await InkResetAnimation.play(async () => {
-        await GamePlayWindow.uiReset(G);
+        await MatchWindow.uiReset(G);
         this.props.client.send("sync");
         await ActivityPanel.hide();
-        GamePlayWindow.show();
+        MatchWindow.show();
       });
     }
 
