@@ -94,6 +94,7 @@ export function SquareTilemap({
   let url =
     "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
   if (item instanceof Promise) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     item.then((url) => {
       tilemapCache.set(id, url);
       setVersion(version + 1);
