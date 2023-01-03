@@ -144,7 +144,7 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
       logger.log(isSrc, isDst, activity.props.title);
       if (!this.props.previous) {
         if (isDst) {
-          extra = { visibility: "visible" };
+          extra = { visibility: "inherit" };
         }
       } else {
         const frontIn =
@@ -188,13 +188,13 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
 
     return (
       <Box
+        className={`activity ${
+          this.props.open ? "activity-open" : "activity-closed"
+        }`}
         sx={{
           position: "absolute",
-          left: this.props.open ? 0 : -600,
           width: 600,
           height: 1080,
-          transition: `left ${dt}ms cubic-bezier(0.65, 0, 0.35, 1)`,
-          pointerEvents: this.props.open ? "all" : "none",
         }}
       >
         <Paper

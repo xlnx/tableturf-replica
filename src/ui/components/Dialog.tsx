@@ -16,7 +16,7 @@ export function Dialog({ open, children }: DialogProps) {
         width: 1920,
         height: 1080,
         zIndex: 1e6,
-        visibility: open ? "visible" : "hidden",
+        visibility: open ? "inherit" : "hidden",
         opacity: open ? 1 : 0,
         backgroundColor: "#0000009f",
         pointerEvents: "all",

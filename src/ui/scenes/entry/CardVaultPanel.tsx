@@ -1,3 +1,5 @@
+import "./CardVaultPanel.less";
+
 import fuzzysort from "fuzzysort";
 import { useEffect, useState } from "react";
 import { Box, Grid, MenuItem, Paper, TextField } from "@mui/material";
@@ -125,129 +127,133 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
     const index = [];
     state.cards.forEach((id, i) => (index[id] = i));
 
-    const x1 = 1920 - 1300 - 32;
-    const dt = 300;
     return (
-      <Paper
-        className={this.props.open ? "card-vault-open" : "card-vault-closed"}
-        sx={{
-          position: "absolute",
-          width: 1300,
-          height: 1020,
-          left: this.props.open ? x1 : x1 + 64,
-          opacity: this.props.open ? 1 : 0,
-          top: 24,
-          p: 4,
-          boxSizing: "border-box",
-          boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-          transition: `all ${dt}ms cubic-bezier(0.65, 0, 0.35, 1)`,
-          pointerEvents: this.props.open ? "inherit" : "none",
-        }}
+      <Box
+        className={`card-vault ${
+          this.props.open ? "card-vault-open" : "card-vault-closed"
+        }`}
       >
-        <Box
+        <Paper
           sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
+            position: "absolute",
+            width: 1300,
+            height: 1020,
+            left: 1920 - 1300 - 32,
+            top: 24,
+            p: 4,
+            boxSizing: "border-box",
+            boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <Grid
-            container
-            spacing={2}
-            sx={{ width: "100%", pb: 2 }}
-            // justifyContent="center"
-            alignItems="flex-end"
-          >
-            <Grid item xs={4}>
-              <TextField
-                fullWidth
-                variant="standard"
-                label="Search..."
-                autoComplete="off"
-                onChange={(e) => setState({ ...state, query: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={3}>
-              <TextField
-                select
-                fullWidth
-                variant="standard"
-                label="Sort"
-                autoComplete="off"
-                value={state.sorter}
-                onChange={(e) =>
-                  setState({ ...state, sorter: +e.target.value })
-                }
-              >
-                {sortMenuItems}
-              </TextField>
-            </Grid>
-            <Grid item xs={1}>
-              <BasicButton
-                fullWidth
-                selected={state.reverse}
-                onClick={() => setState({ ...state, reverse: !state.reverse })}
-              >
-                Reverse
-              </BasicButton>
-            </Grid>
-            <Grid item xs={2}>
-              <BasicButton
-                fullWidth
-                onClick={() =>
-                  DeckSaveDialog.prompt(
-                    DeckPanel.props.deck,
-                    DeckPanel.props.cards.slice()
-                  )
-                }
-              >
-                Save As
-              </BasicButton>
-            </Grid>
-            <Grid item xs={2}>
-              <BasicButton fullWidth onClick={() => this.props.resolve()}>
-                Quit Edit
-              </BasicButton>
-            </Grid>
-          </Grid>
           <Box
             sx={{
-              position: "relative",
-              overflow: "auto",
-              height: 0,
-              flex: 1,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            {getCards().map((card) => {
-              const idx = index[card.id];
-              const visible = idx != null;
-              return (
-                <Box
-                  key={card.id}
-                  sx={{
-                    p: 1,
-                    position: "absolute",
-                    opacity: visible ? 1 : 0,
-                    transform: `translate(
-                      ${(idx % 6) * 100}%, 
-                      ${Math.floor(idx / 6) * 270}px
-                    )`,
-                    pointerEvents: visible ? "inherit" : "none",
-                  }}
+            <Grid
+              container
+              spacing={2}
+              sx={{ width: "100%", pb: 2 }}
+              // justifyContent="center"
+              alignItems="flex-end"
+            >
+              <Grid item xs={4}>
+                <TextField
+                  fullWidth
+                  variant="standard"
+                  label="Search..."
+                  autoComplete="off"
+                  onChange={(e) =>
+                    setState({ ...state, query: e.target.value })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  select
+                  fullWidth
+                  variant="standard"
+                  label="Sort"
+                  autoComplete="off"
+                  value={state.sorter}
+                  onChange={(e) =>
+                    setState({ ...state, sorter: +e.target.value })
+                  }
                 >
-                  <CardLarge
-                    width={180}
-                    card={card.id}
-                    active={this.props.excludeCards.indexOf(card.id) < 0}
-                    onClick={handleCardClick(card.id)}
-                  ></CardLarge>
-                </Box>
-              );
-            })}
+                  {sortMenuItems}
+                </TextField>
+              </Grid>
+              <Grid item xs={1}>
+                <BasicButton
+                  fullWidth
+                  selected={state.reverse}
+                  onClick={() =>
+                    setState({ ...state, reverse: !state.reverse })
+                  }
+                >
+                  Reverse
+                </BasicButton>
+              </Grid>
+              <Grid item xs={2}>
+                <BasicButton
+                  fullWidth
+                  onClick={() =>
+                    DeckSaveDialog.prompt(
+                      DeckPanel.props.deck,
+                      DeckPanel.props.cards.slice()
+                    )
+                  }
+                >
+                  Save As
+                </BasicButton>
+              </Grid>
+              <Grid item xs={2}>
+                <BasicButton fullWidth onClick={() => this.props.resolve()}>
+                  Quit Edit
+                </BasicButton>
+              </Grid>
+            </Grid>
+            <Box
+              sx={{
+                position: "relative",
+                overflow: "auto",
+                height: 0,
+                flex: 1,
+              }}
+            >
+              {getCards().map((card) => {
+                const idx = index[card.id];
+                const visible = idx != null;
+                return (
+                  <Box
+                    key={card.id}
+                    sx={{
+                      p: 1,
+                      position: "absolute",
+                      opacity: visible ? 1 : 0,
+                      pointerEvents: visible ? "inherit" : "none",
+                      transform: `translate(
+                        ${(idx % 6) * 100}%, 
+                        ${Math.floor(idx / 6) * 270}px
+                      )`,
+                    }}
+                  >
+                    <CardLarge
+                      width={180}
+                      card={card.id}
+                      active={this.props.excludeCards.indexOf(card.id) < 0}
+                      onClick={handleCardClick(card.id)}
+                    ></CardLarge>
+                  </Box>
+                );
+              })}
+            </Box>
           </Box>
-        </Box>
-      </Paper>
+        </Paper>
+      </Box>
     );
   }
 }
