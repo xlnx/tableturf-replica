@@ -33,6 +33,7 @@ import { rectToString } from "../../../core/Utils";
 import { CardVaultPanel } from "./CardVaultPanel";
 import { DeckPanel } from "./DeckPanel";
 import { DeckSaveDialog } from "./DeckSaveDialog";
+import { I18n } from "../../../i18n/I18n";
 
 const logger = getLogger("entry-window");
 logger.setLevel("info");
@@ -178,12 +179,11 @@ class Panel extends ReactComponent<Props> {
                         : Color.BLACK.hexSharp,
                     }}
                   >
-                    <Typography
-                      sx={{
-                        textShadow: "2px 2px black",
-                      }}
-                    >
-                      {getCardById(card).name}
+                    <Typography sx={{ textShadow: "2px 2px black" }}>
+                      {I18n.localize(
+                        "CommonMsg/MiniGame/MiniGameCardName",
+                        getCardById(card).name
+                      )}
                     </Typography>
                   </Paper>
                 </Box>
