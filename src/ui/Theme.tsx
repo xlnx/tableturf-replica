@@ -43,12 +43,6 @@ export const DarkButton = styled(BasicButton)(({ theme }) => ({
   },
 }));
 
-type PaperProps_0 = PaperTypeMap["props"];
-interface MyDialogProps extends PaperProps_0 {
-  open: boolean;
-  onClose: () => void;
-}
-
 // const aeroBoxStyle = {
 //   backgroundColor: "rgba(0, 0, 0, 0.65)",
 //   backdropFilter: "blur(8px)",

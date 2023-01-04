@@ -1,8 +1,9 @@
-import { Grid } from "@mui/material";
+import { Grid, Typography, Divider } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { BotListActivity } from "./BotListActivity";
 import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 class RootActivity_0 extends Activity {
   init() {
@@ -14,18 +15,67 @@ class RootActivity_0 extends Activity {
 
   render() {
     return (
-      <Grid container spacing={4} sx={{ p: 2 }}>
-        <Grid item xs={12}>
-          <BasicButton fullWidth onClick={() => OnlineLoungeActivity.show()}>
-            VS Player
-          </BasicButton>
+      <>
+        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+          <Grid item xs={12}>
+            <BasicButton fullWidth onClick={() => OnlineLoungeActivity.show()}>
+              VS Player
+            </BasicButton>
+          </Grid>
+          <Grid item xs={12}>
+            <BasicButton fullWidth onClick={() => BotListActivity.show()}>
+              VS Bot
+            </BasicButton>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <BasicButton fullWidth onClick={() => BotListActivity.show()}>
-            VS Bot
-          </BasicButton>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            // boxSizing: "border-box",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            p: 2,
+            pb: 0,
+            mb: -2,
+          }}
+        >
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <BasicButton
+              // sx={{ border: 0, borderRadius: 9999 }}
+              onClick={() =>
+                window.open("https://github.com/xlnx/tableturf-replica")
+              }
+            >
+              <GitHubIcon />
+            </BasicButton>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider sx={{ width: "100%" }} />
+          </Grid>
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+            <Typography
+              sx={{
+                color: "grey",
+                fontSize: 16,
+                fontFamily: "ui-sans-serif,system-ui",
+                textAlign: "center",
+              }}
+            >
+              This website is not affiliated with Nintendo. All product names,
+              logos, and brands are property of their respective owners.
+            </Typography>
+          </Grid>
         </Grid>
-      </Grid>
+      </>
     );
   }
 }
