@@ -24,6 +24,36 @@ const layout = {
   radius: 25,
 };
 
+const style = {
+  Common: {
+    cardBg: "/textures/MngCardBG_Cmn_00.webp",
+    innerFrameBg: "linear-gradient(#070707 0 0)",
+    costImg: "/textures/CardCost_00.webp",
+    nameBg: "linear-gradient(#5946ff 0 0)",
+  },
+  Rare: {
+    cardBg: "/textures/MngCardBG_Rre_00.webp",
+    innerFrameBg: "url(/textures/GrdFresh_01.webp)",
+    costImg: "/textures/CardCost_01.webp",
+    nameBg: "url(/textures/GrdFresh_01.webp)",
+  },
+  Fresh: {
+    cardBg: "/textures/MngCardBG_Frh_00.webp",
+    innerFrameBg: "url(/textures/GrdFresh_00.webp)",
+    costImg: "/textures/CardCost_02.webp",
+    nameBg: "url(/textures/GrdFresh_00.webp)",
+  },
+};
+
+const canvas = document.createElement("canvas");
+
+function getTextWidth(text: string, font: string) {
+  const ctx = canvas.getContext("2d");
+  ctx.font = font;
+  const metrics = ctx.measureText(text);
+  return metrics.width;
+}
+
 export function CardLarge({
   card: cardId,
   width,
@@ -36,12 +66,27 @@ export function CardLarge({
   const node = useMemo(() => {
     logger.log(`card-large re-render`);
     const card = getCardById(cardId);
-    const l0 = { Common: "Cmn", Rare: "Rre", Fresh: "Frh" }[card.rarity];
-    const l1 = ["Common", "Rare", "Fresh"].indexOf(card.rarity);
+    const { cardBg, innerFrameBg, costImg, nameBg } = style[card.rarity];
+    const spMeter = Array(10);
+    for (let i = 0; i < card.count.special - 5; ++i) {
+      spMeter[i] = 0;
+    }
+    for (let i = 0; i < Math.min(card.count.special, 5); ++i) {
+      spMeter[i + 5] = 0;
+    }
+    const cardName = I18n.localize(
+      "CommonMsg/MiniGame/MiniGameCardName",
+      card.name
+    );
+    const cardNameScaleX = Math.min(
+      1,
+      layout.width / getTextWidth(cardName, "40pt Splatoon1")
+    );
     return (
       <div style={{ width: layout.width, height: layout.height }}>
         <img
-          src={`/textures/MngCardBG_${l0}_00.webp`}
+          className="card-large-card-bg"
+          src={cardBg}
           style={{
             position: "absolute",
             left: 7,
@@ -51,6 +96,7 @@ export function CardLarge({
           }}
         />
         <img
+          className="card-large-ink"
           src={`/textures/Ink_03.webp`}
           style={{
             position: "absolute",
@@ -60,6 +106,47 @@ export function CardLarge({
           }}
         />
         <img
+          className="card-large-footer"
+          src={`/textures/CardFrame_01.webp`}
+          style={{
+            position: "absolute",
+            width: 324,
+            height: 86,
+            left: 10,
+            top: 389,
+            opacity: 0.9,
+          }}
+        />
+        <img
+          className="card-large-frame"
+          src={`/textures/CardFrame_00.webp`}
+          style={{
+            position: "absolute",
+            width: layout.width,
+            height: layout.height,
+          }}
+        />
+        <div
+          className="card-large-inner-frame"
+          style={{
+            position: "absolute",
+            left: 10,
+            top: 11,
+            width: 324,
+            height: 460,
+            padding: 4,
+            borderRadius: 16,
+            boxSizing: "border-box",
+            // backgroundClip: "border-box",
+            backgroundImage: innerFrameBg,
+            backgroundSize: "100% 100%",
+            WebkitMask:
+              "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "xor",
+          }}
+        />
+        <img
+          className="card-large-bg"
           src={`/textures/${card.render.bg}`}
           style={{
             position: "absolute",
@@ -68,25 +155,8 @@ export function CardLarge({
           }}
         />
         <img
-          src={`/textures/CardFrame_01.webp`}
-          style={{
-            position: "absolute",
-            width: 324,
-            height: 86,
-            left: 10,
-            top: 389,
-          }}
-        />
-        <img
-          src={`/textures/CardFrame_00.webp`}
-          style={{
-            position: "absolute",
-            width: layout.width,
-            height: layout.height,
-          }}
-        />
-        <img
-          src={`/textures/CardCost_0${l1}.webp`}
+          className="card-large-sz-count-base"
+          src={costImg}
           style={{
             position: "absolute",
             width: 64,
@@ -98,42 +168,38 @@ export function CardLarge({
         />
         {[{ WebkitTextStroke: "6px black" }, {}].map((style, i) => (
           <div
+            className="card-large-sz-count"
             key={i}
             style={{
               position: "absolute",
               width: 0,
               height: 0,
               left: 50,
-              top: 405,
+              top: 398,
+              display: "flex",
+              justifyContent: "center",
+              whiteSpace: "nowrap",
+              color: "#efefef",
+              fontFamily: "Splatoon1",
+              fontSize: 32,
             }}
           >
-            <span
-              style={{
-                ...style,
-                display: "flex",
-                justifyContent: "center",
-                color: "white",
-                fontFamily: "Splatoon1",
-                fontSize: 28,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {card.count.area}
-            </span>
+            <span style={{ ...style }}>{card.count.area}</span>
           </div>
         ))}
         <div
+          className="card-large-sp-meter"
           style={{
             position: "absolute",
-            left: 96,
-            top: 432,
+            left: 94,
+            top: 424,
           }}
         >
           <SquareTilemap
             id={`card-large-sp-${card.count.special}-${player}`}
             rect={{
               size: [5, 2],
-              values: Array(card.count.special).fill(0),
+              values: spMeter,
             }}
             values={[
               {
@@ -144,11 +210,12 @@ export function CardLarge({
             width={160 / 2}
             layout={{
               width: 40,
-              padding: { x: 9, y: 9 },
+              padding: { x: 8, y: 8 },
             }}
           />
         </div>
         <div
+          className="card-large-grid"
           style={{
             position: "absolute",
             left: 200,
@@ -181,28 +248,28 @@ export function CardLarge({
         </div>
         {[{ WebkitTextStroke: "8px black" }, {}].map((style, i) => (
           <div
+            className="card-large-name"
             key={i}
             style={{
               position: "absolute",
-              width: 0,
-              height: 0,
-              left: layout.width / 2,
-              top: 36,
+              width: `${100 / cardNameScaleX}%`,
+              height: "100%",
+              left: "50%",
+              transform: `translateX(-50%) scaleX(${cardNameScaleX * 100}%)`,
+              transformOrigin: "center",
+              display: "flex",
+              justifyContent: "center",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              backgroundImage: nameBg,
+              backgroundSize: "100% 100%",
+              whiteSpace: "nowrap",
+              color: "transparent",
+              fontFamily: "Splatoon1",
+              fontSize: 40,
             }}
           >
-            <span
-              style={{
-                ...style,
-                display: "flex",
-                justifyContent: "center",
-                color: "white",
-                fontFamily: "Splatoon1",
-                fontSize: 32,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {I18n.localize("CommonMsg/MiniGame/MiniGameCardName", card.name)}
-            </span>
+            <span style={{ ...style, paddingTop: 32 }}>{cardName}</span>
           </div>
         ))}
       </div>

@@ -305,7 +305,7 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
                 discard={discard}
                 width={292}
                 player={i as IPlayerId}
-                dy={255 * (1 - 2 * i)}
+                dy={220 * (1 - 2 * i)}
                 preview={preview}
                 show={show}
                 flip={flip}

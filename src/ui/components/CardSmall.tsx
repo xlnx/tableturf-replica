@@ -35,6 +35,7 @@ export function CardSmall({
     return (
       <div style={{ width: layout.width, height: layout.height }}>
         <img
+          className="card-small-bg"
           src={`/textures/${card.render.bg}`}
           style={{
             position: "absolute",
@@ -42,10 +43,20 @@ export function CardSmall({
             top: layout.padding,
             width: "100%",
             height: "100%",
-            filter: "brightness(0.7)",
           }}
-        ></img>
+        />
         <div
+          className="card-small-overlay"
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            background: "#3f4044",
+            opacity: 0.8,
+          }}
+        />
+        <div
+          className="card-small-grid"
           style={{
             position: "absolute",
             left: layout.padding,
@@ -96,7 +107,7 @@ export function CardSmall({
         <div
           style={{
             position: "absolute",
-            left: 60,
+            left: 58,
             top: 152,
           }}
         >
@@ -107,7 +118,7 @@ export function CardSmall({
               values: Array(card.count.special).fill(0),
             }}
             values={[{ image: "/textures/pure_orange.webp", value: 0 }]}
-            width={145 / 2}
+            width={64}
             layout={{
               width: 40,
               padding: { x: 8, y: 8 },

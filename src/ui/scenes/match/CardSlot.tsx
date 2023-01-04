@@ -54,7 +54,7 @@ export function CardSlot({
             width: layout.width,
             height: layout.height,
             borderRadius: layout.radius,
-            border: "5px solid #888888",
+            border: "3px solid #888",
             boxSizing: "border-box",
             backgroundColor: "rgba(0,0,0,0.7)",
             transform: `translateY(${dy}px)`,

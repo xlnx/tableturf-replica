@@ -86,7 +86,7 @@ export function Card({
             width: layout.width,
             height: layout.height,
             borderRadius: layout.radius,
-            backgroundColor: "#4f5055",
+            background: "#9ea28c",
             overflow: "hidden",
             transform: `scale(${width / layout.width})`,
             transformOrigin: "top left",

@@ -35,6 +35,11 @@ const sorters = [
     cmp: numberComparator,
   },
   {
+    label: "Rarity",
+    key: ({ rarity }: ICard) => ["Common", "Rare", "Fresh"].indexOf(rarity),
+    cmp: numberComparator,
+  },
+  {
     label: "Category",
     key: ({ category }: ICard) => category,
     cmp: stringComparator,

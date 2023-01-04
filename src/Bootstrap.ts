@@ -8,8 +8,8 @@ import Manifest from "./assets/manifest.json";
 Loader.registerPlugin(WebfontLoaderPlugin);
 const loader = Loader.shared;
 
-loader.add({ name: "Splatoon1", url: "fonts/Splatoon1.otf" });
-loader.add({ name: "Splatoon2", url: "fonts/Splatoon2.otf" });
+loader.add({ name: "Splatoon1", url: "fonts/Splatoon1-common.woff2" });
+loader.add({ name: "Splatoon2", url: "fonts/Splatoon2-common.woff2" });
 
 for (const [name, url] of Object.entries(Manifest)) {
   loader.add({
