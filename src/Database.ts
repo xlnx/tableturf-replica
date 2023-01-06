@@ -27,7 +27,7 @@ class Database {
     if (this.data.decks.length < maxDeckCount) {
       for (let i = this.data.decks.length; i < maxDeckCount; ++i) {
         this.data.decks.push({
-          name: `Deck ${i}`,
+          name: i == 0 ? "Starter Deck" : `Deck ${i}`,
           deck: StarterDeck.slice(),
         });
       }
