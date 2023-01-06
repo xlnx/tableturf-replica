@@ -1,5 +1,4 @@
-import { createTheme, PaperTypeMap } from "@mui/material";
-import { Box, styled } from "@mui/material";
+import { Box, styled, createTheme } from "@mui/material";
 import ToggleButton, { ToggleButtonTypeMap } from "@mui/material/ToggleButton";
 
 export const ResponsiveBox = styled(Box)(() => ({
@@ -7,29 +6,26 @@ export const ResponsiveBox = styled(Box)(() => ({
   height: "max-content",
 }));
 
+const buttonStyles = {
+  borderWidth: 3,
+  backgroundColor: "#ffffff00",
+  transition: "background-color 0.2s",
+  textShadow: "2px 2px black",
+  "&:hover :not(.Mui-selected)": {
+    backgroundColor: "#ffffff11",
+  },
+  "&.Mui-selected": {
+    backgroundColor: "#ffffff55",
+  },
+};
+
 export function BasicButton<T extends ToggleButtonTypeMap["props"]>({
   children,
   sx,
   ...rest
 }: Partial<T>) {
   return (
-    <ToggleButton
-      value=""
-      sx={{
-        borderWidth: 3,
-        backgroundColor: "#ffffff00",
-        transition: "background-color 0.2s",
-        textShadow: "2px 2px black",
-        "&:hover :not(.Mui-selected)": {
-          backgroundColor: "#ffffff11",
-        },
-        "&.Mui-selected": {
-          backgroundColor: "#ffffff55",
-        },
-        ...sx,
-      }}
-      {...rest}
-    >
+    <ToggleButton value="" sx={{ ...buttonStyles, ...sx }} {...rest}>
       {children}
     </ToggleButton>
   );
@@ -42,12 +38,6 @@ export const DarkButton = styled(BasicButton)(({ theme }) => ({
     backgroundColor: "#2f2f2fee",
   },
 }));
-
-// const aeroBoxStyle = {
-//   backgroundColor: "rgba(0, 0, 0, 0.65)",
-//   backdropFilter: "blur(8px)",
-//   boxShadow: "5px 5px 10px 5px rgba(0, 0, 0, 0.4)",
-// };
 
 const theme = createTheme({});
 

@@ -6,6 +6,7 @@ import {
 } from "boardgame.io/dist/types/src/client/transport/transport";
 import { getLogger } from "loglevel";
 import {
+  StarterDeck,
   TableturfClientState,
   TableturfGame,
   TableturfGameState,
@@ -199,10 +200,9 @@ export class Client {
   }
 
   protected getDefaultPlayerInfo(): TableturfPlayerInfo {
-    const db = DB.read();
     return {
-      name: db.playerName,
-      deck: db.decks[db.currDeck].deck.slice(),
+      name: DB.read().playerName,
+      deck: StarterDeck.slice(),
     };
   }
 

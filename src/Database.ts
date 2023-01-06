@@ -1,16 +1,16 @@
 import Cookies from "js-cookie";
 import { getLogger } from "loglevel";
 import { StarterDeck } from "./Game";
+import { calibrateDeck } from "./core/Tableturf";
 
 const logger = getLogger("database");
 logger.setLevel("debug");
 
+const maxDeckCount = 10;
+
 const defaultData: IRootData = {
   playerName: "Player",
-  decks: [...Array(10).keys()].map((i) => ({
-    name: i == 0 ? "Starter Deck" : `Deck ${i}`,
-    deck: StarterDeck.slice(),
-  })),
+  decks: [],
   currDeck: 0,
 };
 
@@ -21,6 +21,22 @@ class Database {
     ...defaultData,
     ...JSON.parse(Cookies.get("db") || "{}"),
   };
+
+  constructor() {
+    this.data.decks.splice(maxDeckCount);
+    if (this.data.decks.length < maxDeckCount) {
+      for (let i = this.data.decks.length; i < maxDeckCount; ++i) {
+        this.data.decks.push({
+          name: `Deck ${i}`,
+          deck: StarterDeck.slice(),
+        });
+      }
+    }
+    this.data.decks = this.data.decks.map(({ deck, ...rest }) => ({
+      deck: calibrateDeck(deck),
+      ...rest,
+    }));
+  }
 
   update(data: Partial<IRootData>) {
     this.data = { ...this.data, ...data };

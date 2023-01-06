@@ -3,7 +3,7 @@ import { Activity, ActivityPanel } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { getLogger } from "loglevel";
-import { TableturfClientState } from "../../Game";
+import { StarterDeck, TableturfClientState } from "../../Game";
 import { Client } from "../../client/Client";
 import { AlertDialog } from "../components/AlertDialog";
 import { P2PHost } from "../../client/P2P";
@@ -12,21 +12,36 @@ import { System } from "../../engine/System";
 import { MatchWindow } from "../scenes/match/MatchWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
 import { EntryWindow } from "../scenes/entry/EntryWindow";
-import { getStages } from "../../core/Tableturf";
+import { getStages, isValidDeck } from "../../core/Tableturf";
 import { I18n } from "../../i18n/I18n";
+import { DB } from "../../Database";
 
 const logger = getLogger("main-dialog");
 logger.setLevel("info");
+
+interface OperationInfo {
+  hostOnly?: boolean;
+  phase?: string;
+}
 
 interface MatchActivityProps {
   client: Client;
   player: IPlayerId;
   state: TableturfClientState;
+  deck: IDeckData;
   manualExit: boolean;
 }
 
 class MatchActivity_0 extends Activity<MatchActivityProps> {
   init() {
+    const { currDeck, decks } = DB.read();
+    let deck = { ...decks[currDeck] };
+    if (!isValidDeck(deck.deck)) {
+      deck = {
+        name: "Starter Deck",
+        deck: StarterDeck.slice(),
+      };
+    }
     return {
       zIndex: 10,
       title: "Match",
@@ -35,6 +50,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       client: null,
       player: 0 as IPlayerId,
       state: null,
+      deck,
       manualExit: false,
     };
   }
@@ -123,12 +139,21 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     await this.update({ state });
   }
 
-  isControlDisabled() {
-    return !(this.props.client && this.props.state.ctx.phase == "prepare");
+  isReady() {
+    return this.props.client && this.props.state.G.ready[this.props.player];
   }
 
-  isHostControlDisabled() {
-    return this.isControlDisabled() || !this.props.client.isHost();
+  isForbidden({ hostOnly = false, phase = "prepare" }: OperationInfo = {}) {
+    if (!this.props.client) {
+      return true;
+    }
+    if (phase && this.props.state.ctx.phase != phase) {
+      return true;
+    }
+    if (hostOnly && !this.props.client.isHost()) {
+      return true;
+    }
+    return false;
   }
 
   render() {
@@ -152,7 +177,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         <Grid item xs={6}>
           <BasicButton
             fullWidth
-            disabled={this.isHostControlDisabled()}
+            disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
             onClick={copyInviteLink}
           >
             Copy Invite Link
@@ -167,6 +192,13 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       </MenuItem>
     ));
 
+    const decks = DB.read().decks.slice();
+    const deckMenuItems = decks.map(({ name, deck }, i) => (
+      <MenuItem value={i} key={i} disabled={!isValidDeck(deck)}>
+        {name}
+      </MenuItem>
+    ));
+
     return (
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
@@ -176,15 +208,31 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               select
               variant="standard"
               label="Stage"
-              disabled={this.isHostControlDisabled()}
+              disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
               value={this.props.state.G.stage}
               onChange={({ target }) =>
-                this.props.client.send("updateState", {
-                  stage: Number(target.value),
-                })
+                this.props.client.send("updateState", { stage: +target.value })
               }
             >
               {stageMenuItems}
+            </TextField>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              select
+              variant="standard"
+              label="Deck"
+              disabled={this.isForbidden() || this.isReady()}
+              value={-1}
+              onChange={({ target }) =>
+                this.update({ deck: { ...decks[+target.value] } })
+              }
+            >
+              <MenuItem value={-1} sx={{ display: "none" }}>
+                {this.props.deck.name + " [Snapshot]"}
+              </MenuItem>
+              {deckMenuItems}
             </TextField>
           </Grid>
         </Grid>
@@ -204,8 +252,13 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               <BasicButton
                 fullWidth
                 selected={this.props.state.G.ready[this.props.player]}
-                disabled={this.isControlDisabled()}
-                onClick={() => this.props.client.send("toggleReady")}
+                disabled={this.isForbidden()}
+                onClick={() => {
+                  this.props.client.send("updatePlayerInfo", {
+                    deck: this.props.deck.deck,
+                  });
+                  this.props.client.send("toggleReady");
+                }}
               >
                 Ready!
               </BasicButton>
