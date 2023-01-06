@@ -2,7 +2,14 @@ import "./CardVaultPanel.less";
 
 import fuzzysort from "fuzzysort";
 import { useEffect, useState } from "react";
-import { Box, Grid, MenuItem, Paper, TextField } from "@mui/material";
+import {
+  Box,
+  Grid,
+  MenuItem,
+  Paper,
+  TextField,
+  IconButton,
+} from "@mui/material";
 import { CardLarge } from "../../components/CardLarge";
 import { getCardById, getCards } from "../../../core/Tableturf";
 import { I18n } from "../../../i18n/I18n";
@@ -11,6 +18,8 @@ import { ReactComponent } from "../../../engine/ReactComponent";
 import { DeckSaveDialog } from "./DeckSaveDialog";
 import { DeckPanel } from "./DeckPanel";
 import { MessageBar } from "../../components/MessageBar";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const allCards = getCards().map(({ id, name }) => ({
   id,
@@ -165,7 +174,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
               // justifyContent="center"
               alignItems="flex-end"
             >
-              <Grid item xs={4}>
+              <Grid item xs={5}>
                 <TextField
                   fullWidth
                   variant="standard"
@@ -187,20 +196,24 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                   onChange={(e) =>
                     setState({ ...state, sorter: +e.target.value })
                   }
+                  InputProps={{
+                    startAdornment: (
+                      <IconButton
+                        onClick={() =>
+                          setState({ ...state, reverse: !state.reverse })
+                        }
+                      >
+                        {state.reverse ? (
+                          <ExpandLessIcon />
+                        ) : (
+                          <ExpandMoreIcon />
+                        )}
+                      </IconButton>
+                    ),
+                  }}
                 >
                   {sortMenuItems}
                 </TextField>
-              </Grid>
-              <Grid item xs={1}>
-                <BasicButton
-                  fullWidth
-                  selected={state.reverse}
-                  onClick={() =>
-                    setState({ ...state, reverse: !state.reverse })
-                  }
-                >
-                  Reverse
-                </BasicButton>
               </Grid>
               <Grid item xs={2}>
                 <BasicButton

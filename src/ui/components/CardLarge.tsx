@@ -29,7 +29,7 @@ const style = {
     cardBg: "/textures/MngCardBG_Cmn_00.webp",
     innerFrameBg: "linear-gradient(#070707 0 0)",
     costImg: "/textures/CardCost_00.webp",
-    nameBg: "linear-gradient(#5946ff 0 0)",
+    nameBg: "linear-gradient(#8577ff 0 0)",
   },
   Rare: {
     cardBg: "/textures/MngCardBG_Rre_00.webp",

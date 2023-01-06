@@ -1,4 +1,4 @@
-import { Grid, Typography, Divider } from "@mui/material";
+import { Grid, Typography, Divider, IconButton } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { BotListActivity } from "./BotListActivity";
@@ -49,14 +49,13 @@ class RootActivity_0 extends Activity {
               justifyContent: "flex-end",
             }}
           >
-            <BasicButton
-              // sx={{ border: 0, borderRadius: 9999 }}
+            <IconButton
               onClick={() =>
                 window.open("https://github.com/xlnx/tableturf-replica")
               }
             >
               <GitHubIcon />
-            </BasicButton>
+            </IconButton>
           </Grid>
           <Grid item xs={12}>
             <Divider sx={{ width: "100%" }} />
