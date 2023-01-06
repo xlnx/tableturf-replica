@@ -18,7 +18,7 @@ result = [
 ]
 
 result = {
-  v: "textures/" + v \
+  v: "/textures/" + v \
   for v in result
 }
 
