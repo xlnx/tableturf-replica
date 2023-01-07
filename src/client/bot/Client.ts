@@ -89,7 +89,9 @@ class BotClientImpl extends Client {
           if (!decks.length) {
             deck = G.players[1 - this.playerId].deck.slice();
           } else {
-            deck = decks[0].deck.slice();
+            let idx = Math.floor(Math.random() * decks.length);
+            idx = Math.min(decks.length - 1, Math.max(0, idx));
+            deck = decks[idx].deck.slice();
           }
         }
       }
