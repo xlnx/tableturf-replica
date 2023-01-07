@@ -64,10 +64,10 @@ class BotEndpoint(Endpoint):
     deck = session.select_deck(params)
     session_id = str(uuid4())
     self._sessions[session_id] = session
-    return {
-      'session': session_id,
-      'deck': deck,
-    }
+    response = {'session': session_id}
+    if deck is not None:
+      response['deck'] = deck
+    return response
 
   def session_initialize(self, params):
     return self._sessions[params['session']].initialize(params['params'])

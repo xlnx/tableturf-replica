@@ -29,7 +29,9 @@ export class DummyBot extends Bot {
     return DummyBot.info;
   }
 
-  async createSession({}: IBotCreateSessionRequest): Promise<IBotCreateSessionResponse> {
+  async createSession(
+    _: IBotCreateSessionRequest
+  ): Promise<IBotCreateSessionResponse> {
     return { session: new DummyBotSession() };
   }
 }

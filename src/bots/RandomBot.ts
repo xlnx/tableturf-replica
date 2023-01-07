@@ -30,7 +30,9 @@ export class RandomBot extends Bot {
     return RandomBot.info;
   }
 
-  async createSession({}: IBotCreateSessionRequest): Promise<IBotCreateSessionResponse> {
+  async createSession(
+    _: IBotCreateSessionRequest
+  ): Promise<IBotCreateSessionResponse> {
     return { session: new RandomBotSession() };
   }
 }
