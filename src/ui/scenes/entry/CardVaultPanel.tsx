@@ -108,11 +108,15 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
       if (query == "") {
         cards = allCards.map(({ id }) => id);
       } else {
-        if (!isNaN(+query) && getCardById(+query)) {
-          cards.push(+query);
+        const id = +query;
+        if (!isNaN(id) && getCardById(id)) {
+          cards.push(id);
         }
         cards.push(
-          ...fuzzysort.go(query, allCards, { key: "name" }).map((e) => e.obj.id)
+          ...fuzzysort
+            .go(query, allCards, { key: "name" })
+            .map((e) => e.obj.id)
+            .filter((e) => e != id)
         );
       }
       cards = cards
