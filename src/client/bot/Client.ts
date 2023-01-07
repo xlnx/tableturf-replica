@@ -1,9 +1,5 @@
 import { getLogger } from "loglevel";
-import {
-  StarterDeck,
-  TableturfClientState,
-  TableturfPlayerInfo,
-} from "../../Game";
+import { TableturfClientState, TableturfPlayerInfo } from "../../Game";
 import { Bot, BotConnector, BotSession } from "./Bot";
 import { Client } from "../Client";
 import {
@@ -46,10 +42,14 @@ class BotClientImpl extends Client {
     super.stop();
   }
 
+  get botInfo(): IBotInfo {
+    return this.bot.info;
+  }
+
   protected getDefaultPlayerInfo(): TableturfPlayerInfo {
     return {
-      name: this.bot.info.name,
-      deck: StarterDeck.slice(),
+      name: this.botInfo.name,
+      deck: null,
     };
   }
 
@@ -74,11 +74,27 @@ class BotClientImpl extends Client {
     // botInitHook
     if (enter("botInitHook")) {
       console.assert(this.session == null);
-      const { session, deck } = await this.bot.createSession({
+      const requestDeck = G.players[this.playerId].deck;
+      // eslint-disable-next-line prefer-const
+      let { session, deck } = await this.bot.createSession({
         player: this.playerId,
         stage: G.stage,
-        deck: G.players[this.playerId].deck.slice(),
+        ...(requestDeck ? { deck: requestDeck } : {}),
       });
+      if (requestDeck) {
+        deck = requestDeck.slice();
+      } else {
+        if (!deck) {
+          const decks = this.botInfo.support.decks;
+          if (!decks.length) {
+            deck = G.players[1 - this.playerId].deck.slice();
+          } else {
+            let idx = Math.floor(Math.random() * decks.length);
+            idx = Math.min(decks.length - 1, Math.max(0, idx));
+            deck = decks[idx].deck.slice();
+          }
+        }
+      }
       logger.log("create session ->", { session, deck });
       session.onError(this._handleError.bind(this));
       this.session = session;
@@ -121,7 +137,7 @@ class BotClientImpl extends Client {
 export class BotClient extends Client {
   private readonly impl: BotClientImpl;
 
-  private constructor(bot: Bot) {
+  private constructor(private readonly bot: Bot) {
     super({
       playerId: 0,
       matchId,
@@ -143,6 +159,10 @@ export class BotClient extends Client {
     this.impl.stop();
     super.stop();
     master = null;
+  }
+
+  get botInfo(): IBotInfo {
+    return this.bot.info;
   }
 
   static async connect(connector: BotConnector) {

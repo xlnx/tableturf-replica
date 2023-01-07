@@ -1,6 +1,7 @@
 import { Bot, BotSession, IBotCreateSessionResponse } from "./Bot";
 import { Client as WsRpcClientImpl } from "rpc-websockets";
 import { validateSchema } from "../../Schema";
+import { isValidDeck } from "../../core/Tableturf";
 
 interface RpcOptions {
   method: string;
@@ -64,10 +65,22 @@ export class RemoteBot extends Bot {
       rpc.on("error", () => reject(`connection error: ${url}`));
       rpc.connect();
       await promise;
-      const info = await rpc.rpc<IBotInfo>({
+      let info = await rpc.rpc<IBotInfo>({
         method: "get_bot_info",
         returnType: "IBotInfo",
       });
+      if (info.support.decks.length) {
+        const decks = info.support.decks.filter(({ deck }) =>
+          isValidDeck(deck)
+        );
+        if (!decks.length) {
+          throw `Bot ${info.name} can't provide any valid deck candidate`;
+        }
+        info = {
+          ...info,
+          support: { ...info.support, decks },
+        };
+      }
       this._info = info;
       this._rpc = rpc;
       rpc.on("error", this.handleDisconnect.bind(this));

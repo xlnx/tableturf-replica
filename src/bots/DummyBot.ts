@@ -6,7 +6,6 @@ import {
   IBotCreateSessionResponse,
 } from "../client/bot/Bot";
 import { v4 } from "uuid";
-import { StarterDeck } from "../Game";
 
 const logger = getLogger("dummy-bot");
 logger.setLevel("info");
@@ -15,8 +14,8 @@ export class DummyBot extends Bot {
   static readonly info: IBotInfo = {
     name: "Dummy",
     support: {
-      stages: [],
-      anyDeck: true,
+      stages: [2],
+      decks: [],
     },
   };
 
@@ -30,13 +29,10 @@ export class DummyBot extends Bot {
     return DummyBot.info;
   }
 
-  async createSession({
-    deck,
-  }: IBotCreateSessionRequest): Promise<IBotCreateSessionResponse> {
-    return {
-      session: new DummyBotSession(),
-      deck: deck || StarterDeck.slice(),
-    };
+  async createSession(
+    _: IBotCreateSessionRequest
+  ): Promise<IBotCreateSessionResponse> {
+    return { session: new DummyBotSession() };
   }
 }
 

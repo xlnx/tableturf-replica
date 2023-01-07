@@ -7,7 +7,7 @@ class DummyBot:
     'name': 'PyDummy',
     'support': {
       'stages': [],
-      'anyDeck': True,
+      'decks': [],
     }
   }
 
@@ -16,11 +16,6 @@ class DummyBot:
       'action': 'discard',
       'hand': 0,
     }
-
-  @staticmethod
-  def select_deck(params):
-    print(params)
-    return params['deck']
 
 
 def main():

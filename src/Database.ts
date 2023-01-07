@@ -6,7 +6,7 @@ import { calibrateDeck } from "./core/Tableturf";
 const logger = getLogger("database");
 logger.setLevel("debug");
 
-const maxDeckCount = 10;
+const maxDeckCount = 8;
 
 const defaultData: IRootData = {
   playerName: "Player",
