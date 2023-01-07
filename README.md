@@ -6,7 +6,8 @@
 
 ## Try it Out!
 
-Visit [main page](https://tableturf.koishi.top)
+* Visit main page: [https://tableturf.koishi.top](https://tableturf.koishi.top)
+* Play with custom demo bot: [https://tableturf.koishi.top/?connect=bot&url=wss://api.koishi.top:5140](https://tableturf.koishi.top/?connect=bot&url=wss://api.koishi.top:5140)
 
 ## Preview
 
