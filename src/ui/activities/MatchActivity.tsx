@@ -125,9 +125,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     if (support.stages.length) {
       this.props.client.send("updateState", { stage: support.stages[0] });
     }
-    await this.update({
-      botDeck: support.decks.length ? support.decks[0] : autoDeck,
-    });
+    await this.update({ botDeck: autoDeck });
   }
 
   private async handleUpdate(
@@ -249,9 +247,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     const renderBotPanel = () => {
       const { botInfo } = this.props.client;
       const useCustomDeck = !botInfo.support.decks.length;
-      const decks = useCustomDeck
-        ? [autoDeck, ...DB.read().decks]
-        : botInfo.support.decks;
+      const decks = [
+        autoDeck,
+        ...(useCustomDeck ? DB.read().decks : botInfo.support.decks),
+      ];
       const deckMenuItems = decks.map(({ name, deck }, i) => (
         <MenuItem value={i} key={i} disabled={deck && !isValidDeck(deck)}>
           {name}
@@ -357,17 +356,19 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                 selected={this.props.state.G.ready[this.props.player]}
                 disabled={this.isForbidden()}
                 onClick={() => {
-                  this.props.client.send("updatePlayerInfo", {
-                    deck: this.props.deck.deck,
-                  });
                   if (this.isVsBot()) {
-                    const players = this.props.state.G.players.slice();
-                    const botPlayer = 1 - this.props.player;
-                    players[botPlayer] = {
-                      ...players[botPlayer],
-                      deck: this.props.botDeck.deck,
-                    };
-                    this.props.client.send("updateState", { players });
+                    const players = this.props.state.G.players;
+                    console.assert(this.props.player == 0);
+                    this.props.client.send("updateState", {
+                      players: [
+                        { ...players[0], deck: this.props.deck.deck },
+                        { ...players[1], deck: this.props.botDeck.deck },
+                      ],
+                    });
+                  } else {
+                    this.props.client.send("updatePlayerInfo", {
+                      deck: this.props.deck.deck,
+                    });
                   }
                   this.props.client.send("toggleReady");
                 }}

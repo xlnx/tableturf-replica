@@ -42,9 +42,13 @@ class BotClientImpl extends Client {
     super.stop();
   }
 
+  get botInfo(): IBotInfo {
+    return this.bot.info;
+  }
+
   protected getDefaultPlayerInfo(): TableturfPlayerInfo {
     return {
-      name: this.bot.info.name,
+      name: this.botInfo.name,
       deck: null,
     };
   }
@@ -81,7 +85,12 @@ class BotClientImpl extends Client {
         deck = requestDeck.slice();
       } else {
         if (!deck) {
-          deck = G.players[1 - this.playerId].deck.slice();
+          const decks = this.botInfo.support.decks;
+          if (!decks.length) {
+            deck = G.players[1 - this.playerId].deck.slice();
+          } else {
+            deck = decks[0].deck.slice();
+          }
         }
       }
       logger.log("create session ->", { session, deck });
