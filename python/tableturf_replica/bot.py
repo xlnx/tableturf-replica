@@ -46,9 +46,8 @@ class BotSession:
   def finalize(self, params) -> None:
     pass
 
-  @staticmethod
-  def select_deck(params) -> Optional[List[int]]:
-    raise NotImplementedError()
+  def select_deck(self, params) -> Optional[List[int]]:
+    return None
 
 
 class BotEndpoint(Endpoint):
@@ -61,12 +60,13 @@ class BotEndpoint(Endpoint):
     return self._bot.get_info()
 
   def create_session(self, params):
-    session, deck = self._bot.create_session(params)
+    session = self._bot.create_session()
+    deck = session.select_deck(params)
     session_id = str(uuid4())
     self._sessions[session_id] = session
     return {
       'session': session_id,
-      'deck': deck
+      'deck': deck,
     }
 
   def session_initialize(self, params):
@@ -91,8 +91,7 @@ def bot(cls):
     def get_info(self) -> Dict[str, Any]:
       return cls.meta
 
-    def create_session(self, params) -> Tuple[BotSession, Optional[List[int]]]:
-      deck = InnerSession.select_deck(params)
-      return InnerSession(), deck
+    def create_session(self) -> BotSession:
+      return InnerSession()
 
   return InnerBot

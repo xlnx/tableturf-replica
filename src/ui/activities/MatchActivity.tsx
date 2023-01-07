@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Box, Grid, MenuItem, TextField } from "@mui/material";
 import { Activity, ActivityPanel } from "../Activity";
 import { RootActivity } from "./RootActivity";
-import { BasicButton } from "../Theme";
+import { BasicButton, Collapsible } from "../Theme";
 import { getLogger } from "loglevel";
 import { StarterDeck, TableturfClientState } from "../../Game";
 import { Client } from "../../client/Client";
@@ -29,18 +30,26 @@ interface MatchActivityProps {
   player: IPlayerId;
   state: TableturfClientState;
   deck: IDeckData;
+  botDeck: IDeckData;
   manualExit: boolean;
 }
+
+const defaultDeck: IDeckData = {
+  name: "Starter Deck",
+  deck: StarterDeck.slice(),
+};
+
+const autoDeck: IDeckData = {
+  name: "[Auto]",
+  deck: null,
+};
 
 class MatchActivity_0 extends Activity<MatchActivityProps> {
   init() {
     const { currDeck, decks } = DB.read();
     let deck = { ...decks[currDeck] };
     if (!isValidDeck(deck.deck)) {
-      deck = {
-        name: "Starter Deck",
-        deck: StarterDeck.slice(),
-      };
+      deck = defaultDeck;
     }
     return {
       zIndex: 10,
@@ -51,6 +60,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       player: 0 as IPlayerId,
       state: null,
       deck,
+      botDeck: defaultDeck,
       manualExit: false,
     };
   }
@@ -63,6 +73,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       state: client.state,
       manualExit: false,
     });
+    await this.setupBot();
     client.on("update", this.handleUpdate.bind(this));
     client.on("disconnect", async () => {
       await this.handleDisconnect();
@@ -103,6 +114,19 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       MatchWindow.send("cancel");
       await ActivityPanel.show();
       EntryWindow.show();
+    });
+  }
+
+  private async setupBot() {
+    if (!this.isVsBot()) {
+      return;
+    }
+    const { support } = this.props.client.botInfo;
+    if (support.stages.length) {
+      this.props.client.send("updateState", { stage: support.stages[0] });
+    }
+    await this.update({
+      botDeck: support.decks.length ? support.decks[0] : autoDeck,
     });
   }
 
@@ -156,8 +180,23 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     return false;
   }
 
+  isVsBot() {
+    return this.props.client && this.props.client.botInfo;
+  }
+
+  isStageSupported(stage: number) {
+    if (!this.props.client) {
+      return false;
+    }
+    const { botInfo } = this.props.client;
+    if (!botInfo || !botInfo.support.stages.length) {
+      return true;
+    }
+    return botInfo.support.stages.indexOf(stage) >= 0;
+  }
+
   render() {
-    const copyInviteLink = async () => {
+    const shareInviteLink = async () => {
       const url = new URL(
         `?connect=player&match=${this.props.client.matchId}`,
         System.url.origin
@@ -177,17 +216,21 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         <Grid item xs={6}>
           <BasicButton
             fullWidth
-            disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
-            onClick={copyInviteLink}
+            disabled={this.isForbidden({ hostOnly: true })}
+            onClick={shareInviteLink}
           >
-            Copy Invite Link
+            Share Invite Link
           </BasicButton>
         </Grid>
       );
     }
 
-    const stageMenuItems = getStages().map((stage, i) => (
-      <MenuItem value={i} key={i}>
+    const stageMenuItems = getStages().map((stage) => (
+      <MenuItem
+        value={stage.id}
+        key={stage.id}
+        disabled={!this.isStageSupported(stage.id)}
+      >
         {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
       </MenuItem>
     ));
@@ -198,6 +241,61 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         {name}
       </MenuItem>
     ));
+
+    const [botPanelState, setBotPanelState] = useState({
+      open: false,
+    });
+
+    const renderBotPanel = () => {
+      const { botInfo } = this.props.client;
+      const useCustomDeck = !botInfo.support.decks.length;
+      const decks = useCustomDeck
+        ? [autoDeck, ...DB.read().decks]
+        : botInfo.support.decks;
+      const deckMenuItems = decks.map(({ name, deck }, i) => (
+        <MenuItem value={i} key={i} disabled={deck && !isValidDeck(deck)}>
+          {name}
+        </MenuItem>
+      ));
+      return (
+        <Collapsible
+          open={botPanelState.open}
+          onClick={() =>
+            setBotPanelState({
+              ...botPanelState,
+              open: !botPanelState.open,
+            })
+          }
+          maxBodyHeight={100}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                select
+                variant="standard"
+                label="Deck"
+                disabled={
+                  this.isForbidden({ hostOnly: true }) || this.isReady()
+                }
+                value={-1}
+                onChange={({ target }) =>
+                  this.update({ botDeck: decks[+target.value] })
+                }
+              >
+                <MenuItem value={-1} sx={{ display: "none" }}>
+                  {this.props.botDeck.name +
+                    (useCustomDeck && this.props.botDeck.deck
+                      ? " [Snapshot]"
+                      : "")}
+                </MenuItem>
+                {deckMenuItems}
+              </TextField>
+            </Grid>
+          </Grid>
+        </Collapsible>
+      );
+    };
 
     return (
       <>
@@ -235,6 +333,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               {deckMenuItems}
             </TextField>
           </Grid>
+          {!this.isVsBot() ? null : (
+            <Grid item xs={12} sx={{ p: 2 }}>
+              {renderBotPanel()}
+            </Grid>
+          )}
         </Grid>
         <Box
           sx={{
@@ -257,6 +360,15 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                   this.props.client.send("updatePlayerInfo", {
                     deck: this.props.deck.deck,
                   });
+                  if (this.isVsBot()) {
+                    const players = this.props.state.G.players.slice();
+                    const botPlayer = 1 - this.props.player;
+                    players[botPlayer] = {
+                      ...players[botPlayer],
+                      deck: this.props.botDeck.deck,
+                    };
+                    this.props.client.send("updateState", { players });
+                  }
                   this.props.client.send("toggleReady");
                 }}
               >

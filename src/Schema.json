@@ -73,8 +73,9 @@
                 },
                 "support": {
                     "properties": {
-                        "anyDeck": {
-                            "type": "boolean"
+                        "decks": {
+                            "items": {},
+                            "type": "array"
                         },
                         "stages": {
                             "items": {
@@ -84,7 +85,7 @@
                         }
                     },
                     "required": [
-                        "anyDeck",
+                        "decks",
                         "stages"
                     ],
                     "type": "object"
@@ -193,6 +194,9 @@
         },
         "ICard": {
             "properties": {
+                "category": {
+                    "type": "string"
+                },
                 "count": {
                     "properties": {
                         "area": {
@@ -233,6 +237,9 @@
                     ],
                     "type": "object"
                 },
+                "season": {
+                    "type": "number"
+                },
                 "size": {
                     "items": {
                         "type": "number"
@@ -247,11 +254,13 @@
                 }
             },
             "required": [
+                "category",
                 "count",
                 "id",
                 "name",
                 "rarity",
                 "render",
+                "season",
                 "size",
                 "values"
             ],

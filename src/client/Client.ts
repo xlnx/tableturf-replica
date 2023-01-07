@@ -199,6 +199,10 @@ export class Client {
     return this._prevState;
   }
 
+  get botInfo(): IBotInfo {
+    return null;
+  }
+
   protected getDefaultPlayerInfo(): TableturfPlayerInfo {
     return {
       name: DB.read().playerName,

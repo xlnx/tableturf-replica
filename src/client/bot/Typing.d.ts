@@ -9,8 +9,8 @@ interface IBotInfo extends IBotInfoBrief {
   support: {
     // the stages supported by this bot, [] for any
     stages: number[];
-    // does this bot support any deck
-    anyDeck: boolean;
+    // the stages supported by this bot, [] for any
+    decks: IDeckData[];
   };
 }
 

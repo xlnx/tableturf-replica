@@ -6,7 +6,6 @@ import {
   IBotCreateSessionResponse,
 } from "../client/bot/Bot";
 import { v4 } from "uuid";
-import { StarterDeck } from "../Game";
 import { enumerateGameMoves } from "../core/Tableturf";
 
 const logger = getLogger("random-bot");
@@ -17,7 +16,7 @@ export class RandomBot extends Bot {
     name: "Random",
     support: {
       stages: [],
-      anyDeck: true,
+      decks: [],
     },
   };
 
@@ -31,13 +30,8 @@ export class RandomBot extends Bot {
     return RandomBot.info;
   }
 
-  async createSession({
-    deck,
-  }: IBotCreateSessionRequest): Promise<IBotCreateSessionResponse> {
-    return {
-      session: new RandomBotSession(),
-      deck: deck || StarterDeck.slice(),
-    };
+  async createSession({}: IBotCreateSessionRequest): Promise<IBotCreateSessionResponse> {
+    return { session: new RandomBotSession() };
   }
 }
 
