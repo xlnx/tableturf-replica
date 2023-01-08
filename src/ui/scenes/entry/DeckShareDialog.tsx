@@ -18,8 +18,10 @@ import { DB } from "../../../Database";
 import { LoadingDialog } from "../../components/LoadingDialog";
 import { MessageBar } from "../../components/MessageBar";
 
-function formatUrl(deck: IDeckData): string {
-  return new URL(`?deck=${JSON.stringify(deck.deck)}`, System.url.origin).href;
+function formatUrl(deck: IDeckData) {
+  const url = new URL(System.url.origin);
+  url.searchParams.append("deck", JSON.stringify(deck.deck));
+  return url.href;
 }
 
 interface DeckShareDialogProps {
@@ -115,7 +117,7 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
               container
               alignItems="flex-end"
               xs={12}
-              sx={{ flexGrow: 1, p: 1 }}
+              sx={{ flexGrow: 1, p: 1, pb: 0 }}
             >
               <Grid item xs={8}>
                 <CardHeader

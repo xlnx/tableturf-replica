@@ -195,15 +195,14 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
   render() {
     const shareInviteLink = async () => {
-      const url = new URL(
-        `?connect=player&match=${this.props.client.matchId}`,
-        System.url.origin
-      ).href;
+      const url = new URL(System.url.origin);
+      url.searchParams.append("connect", "player");
+      url.searchParams.append("match", this.props.client.matchId);
       if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(url.href);
         MessageBar.success(`successfully copied invite link to clipboard`);
       } else {
-        console.log(url);
+        console.log(url.href);
         MessageBar.warning(`logged to console since context is not secure`);
       }
     };
