@@ -146,14 +146,16 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
     const handleShare = async () => {
       const renderPoster = async () => {
         const { default: domtoimage } = await import("dom-to-image-more");
-        const img = await domtoimage.toPng(rootRef.current);
+        const url = await domtoimage.toPng(rootRef.current);
         if (navigator.clipboard) {
+          const data = await fetch(url);
+          const blob = await data.blob();
           await navigator.clipboard.write([
-            new ClipboardItem({ "image/png": img }),
+            new ClipboardItem({ "image/png": blob }),
           ]);
           MessageBar.success(`successfully copied poster to clipboard`);
         } else {
-          console.log(img);
+          console.log(url);
           MessageBar.warning(
             `logged data url to console since context is not secure`
           );
