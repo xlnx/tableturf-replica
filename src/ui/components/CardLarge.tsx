@@ -5,6 +5,7 @@ import { I18n } from "../../i18n/I18n";
 import { Card } from "./Card";
 import { SquareTilemap } from "./SquareTilemap";
 import { v4 } from "uuid";
+import { measureTextWidth } from "../../engine/Utils";
 
 const logger = getLogger("card-large");
 logger.setLevel("info");
@@ -65,15 +66,6 @@ const style = {
   },
 };
 
-const canvas = document.createElement("canvas");
-
-function getTextWidth(text: string, font: string) {
-  const ctx = canvas.getContext("2d");
-  ctx.font = font;
-  const metrics = ctx.measureText(text);
-  return metrics.width;
-}
-
 export function CardLarge({
   card: cardId,
   width,
@@ -99,7 +91,7 @@ export function CardLarge({
     );
     const cardNameScaleX = Math.min(
       1,
-      layout.width / getTextWidth(cardName, "40pt Splatoon1")
+      layout.width / measureTextWidth(cardName, "40pt Splatoon1")
     );
     const id = v4();
     return (

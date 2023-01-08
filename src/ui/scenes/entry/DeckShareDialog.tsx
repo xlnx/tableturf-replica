@@ -11,12 +11,14 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { System } from "../../../engine/System";
-import { renderQrCode } from "../../../engine/QrCode";
+import { measureTextWidth, renderQrCode } from "../../../engine/Utils";
 import { CardSmall } from "../../components/CardSmall";
 import { BasicButton } from "../../Theme";
 import { DB } from "../../../Database";
 import { LoadingDialog } from "../../components/LoadingDialog";
 import { MessageBar } from "../../components/MessageBar";
+import { getDeckTotalArea } from "../../../core/Tableturf";
+import Typography from "@mui/material/Typography";
 
 function formatUrl(deck: IDeckData) {
   const url = new URL(System.url.origin);
@@ -106,6 +108,7 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
             height: 600,
             background: state.dark ? "#0f0f0f" : "#efefef",
             p: 2,
+            overflow: "hidden",
           }}
         >
           <Grid container sx={{ width: "100%", height: "100%" }}>
@@ -115,22 +118,17 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
             <Grid
               item
               container
+              flexDirection={"row-reverse"}
               alignItems="flex-end"
               xs={12}
               sx={{ flexGrow: 1, p: 1, pb: 0 }}
             >
-              <Grid item xs={8}>
-                <CardHeader
-                  title={this.props.deck.name}
-                  subheader={`by: ${DB.read().playerName}`}
-                />
-              </Grid>
               <Grid
                 item
                 container
                 alignItems="flex-end"
                 justifyContent="flex-end"
-                xs={4}
+                sx={{ width: 130 }}
               >
                 <Grid item>
                   <img
@@ -138,6 +136,58 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
                     style={{ width: 130, height: 130 }}
                   />
                 </Grid>
+              </Grid>
+              <Grid item sx={{ width: 450 }}>
+                <CardHeader
+                  title={
+                    <Typography noWrap gutterBottom variant="h6" component="h4">
+                      {this.props.deck.name}
+                    </Typography>
+                  }
+                  subheader={`by: ${DB.read().playerName}`}
+                  sx={{
+                    width: 340,
+                    pl: 0,
+                    pr: 0,
+                    display: "block",
+                    overflow: "hidden",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    left: Math.min(
+                      370,
+                      measureTextWidth(this.props.deck.name, "Splatoon2") / 1.45
+                    ),
+                    top: 458,
+                  }}
+                >
+                  <div style={{ position: "relative" }}>
+                    <img
+                      src="/textures/InkNormal_00.webp"
+                      style={{
+                        position: "absolute",
+                        width: 100,
+                        filter: "brightness(0.3)",
+                      }}
+                    ></img>
+                    <span
+                      style={{
+                        position: "absolute",
+                        textAnchor: "middle",
+                        color: "#bfbfbf",
+                        fontFamily: "Splatoon1",
+                        fontSize: "0.9rem",
+                        textShadow: "1px 1px black",
+                        left: 25,
+                        top: 20,
+                      }}
+                    >
+                      {getDeckTotalArea(this.props.deck.deck)}
+                    </span>
+                  </div>
+                </div>
               </Grid>
             </Grid>
           </Grid>
