@@ -3,6 +3,7 @@ import { Dialog } from "../../components/Dialog";
 import {
   Button,
   CardHeader,
+  Divider,
   FormHelperText,
   Grid,
   MenuItem,
@@ -76,12 +77,13 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
 
     return (
       <Dialog open={this.props.open}>
-        <CardHeader title={"Save As"}></CardHeader>
+        <CardHeader title={"Save As"} />
+        <Divider sx={{ pt: 2 }} />
         <Grid
           container
           spacing={2}
           justifyContent="flex-end"
-          sx={{ width: 540 }}
+          sx={{ width: 540, pt: 2 }}
         >
           <Grid item xs={12}>
             <TextField

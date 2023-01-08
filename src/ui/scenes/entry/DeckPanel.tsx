@@ -10,7 +10,7 @@ import { CardSmall } from "../../components/CardSmall";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { DB } from "../../../Database";
 import { useEffect, useMemo } from "react";
-import { getCardById, getCards } from "../../../core/Tableturf";
+import { getCards, getDeckTotalArea } from "../../../core/Tableturf";
 import { CardVaultPanel } from "./CardVaultPanel";
 
 interface DeckPanelProps {
@@ -63,33 +63,33 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
       }
     }, [this.props.cards, this.props.editing]);
 
-    const area = this.props.cards
-      .map((card) => getCardById(card).count.area)
-      .reduce((a, b) => a + b, 0);
-
     const deckMenuItems = this.props.decks.map(({ name }, i) => (
       <MenuItem value={i} key={i}>
         {name}
       </MenuItem>
     ));
 
-    const ctrlPanel = useMemo(
-      () => (
+    const ctrlPanel = useMemo(() => {
+      const deck = this.props.decks[this.props.deck];
+      const area = getDeckTotalArea(this.props.cards);
+      const isModified =
+        JSON.stringify(this.props.cards) != JSON.stringify(deck.deck);
+      return (
         <Grid
           container
-          spacing={2}
-          sx={{ width: "100%", pb: 2 }}
+          spacing={1}
+          sx={{ width: "100%", p: 2, pt: 0 }}
           justifyContent="flex-end"
           alignItems="flex-end"
         >
-          <Grid item xs={7}>
+          <Grid item xs={9}>
             <TextField
               select
               fullWidth
               variant="standard"
               label="Deck"
               autoComplete="off"
-              value={this.props.deck}
+              value={-1}
               onChange={async (e) => {
                 const deck = +e.target.value;
                 await this.update({
@@ -98,16 +98,18 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
                 });
               }}
             >
+              <MenuItem value={-1} sx={{ display: "none" }}>
+                {deck.name + (isModified ? " [*]" : "")}
+              </MenuItem>
               {deckMenuItems}
             </TextField>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={1}>
             <Typography>{area}</Typography>
           </Grid>
         </Grid>
-      ),
-      [this.props.deck, this.props.cards]
-    );
+      );
+    }, [this.props.deck, this.props.cards]);
 
     const handleCardClick = useMemo(
       () =>

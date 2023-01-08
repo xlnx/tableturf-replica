@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "lint": "eslint --ignore-path .gitignore src",
+    "update_manifest": "python src/assets/gen_manifest.py",
     "update_schema": "typescript-json-schema tsconfig.json * --include src/client/bot/Typing.d.ts src/core/Typing.d.ts --out src/Schema.json --required",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -23,6 +24,7 @@
     "bezier-easing": "^2.1.0",
     "boardgame.io": "^0.50.2",
     "buffer": "^6.0.3",
+    "dom-to-image-more": "^2.13.1",
     "fuzzysort": "^2.0.4",
     "gsap": "^3.11.3",
     "js-cookie": "^3.0.1",
@@ -40,6 +42,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/dom-to-image": "^2.6.4",
     "@types/js-cookie": "^3.0.2",
     "@types/qrcode": "^1.5.0",
     "@types/react": "^18.0.24",

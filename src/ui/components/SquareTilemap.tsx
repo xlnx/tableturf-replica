@@ -78,21 +78,19 @@ export function SquareTilemap({
   }
 
   return (
-    <div style={{ width, height: (h / w) * width }}>
-      <div
+    <svg width={width * 2} height={(h / w) * width * 2}>
+      <image
+        className={`tilemap-${id}`}
+        width={w * dx}
+        height={h * dy}
+        xlinkHref={url}
+        preserveAspectRatio="none"
         style={{
-          position: "relative",
-          transform: `scale(${width / (wi * w)})`,
+          transformBox: "fill-box",
           transformOrigin: "top left",
+          transform: `scale(${width / (wi * w)})`,
         }}
-      >
-        <img
-          className={`tilemap-${id}`}
-          src={url}
-          width={w * dx}
-          height={h * dy}
-        />
-      </div>
-    </div>
+      ></image>
+    </svg>
   );
 }

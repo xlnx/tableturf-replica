@@ -328,6 +328,12 @@ export function calibrateDeck(deck: number[]) {
   return deck.filter(getCardById);
 }
 
+export function getDeckTotalArea(deck: number[]) {
+  return deck
+    .map((card) => getCardById(card).count.area)
+    .reduce((a, b) => a + b, 0);
+}
+
 /* game apis */
 export function initGame(stage: number, decks: number[][]): IGameState {
   assert(decks.length == 2);

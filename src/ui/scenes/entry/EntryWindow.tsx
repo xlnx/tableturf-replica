@@ -34,6 +34,7 @@ import { CardVaultPanel } from "./CardVaultPanel";
 import { DeckPanel } from "./DeckPanel";
 import { DeckSaveDialog } from "./DeckSaveDialog";
 import { I18n } from "../../../i18n/I18n";
+import { DeckShareDialog } from "./DeckShareDialog";
 
 const logger = getLogger("entry-window");
 logger.setLevel("info");
@@ -256,6 +257,7 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
         {DeckPanel.node}
         {CardVaultPanel.node}
         {DeckSaveDialog.node}
+        {DeckShareDialog.node}
       </ThemeProvider>
     );
   }

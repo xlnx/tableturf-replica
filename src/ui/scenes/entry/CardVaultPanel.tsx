@@ -9,17 +9,21 @@ import {
   Paper,
   TextField,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import { CardLarge } from "../../components/CardLarge";
 import { getCardById, getCards } from "../../../core/Tableturf";
 import { I18n } from "../../../i18n/I18n";
-import { BasicButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { DeckSaveDialog } from "./DeckSaveDialog";
 import { DeckPanel } from "./DeckPanel";
 import { MessageBar } from "../../components/MessageBar";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ShareIcon from "@mui/icons-material/Share";
+import SaveIcon from "@mui/icons-material/Save";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { DeckShareDialog } from "./DeckShareDialog";
 
 const allCards = getCards().map(({ id, name }) => ({
   id,
@@ -178,7 +182,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
               // justifyContent="center"
               alignItems="flex-end"
             >
-              <Grid item xs={5}>
+              <Grid item sx={{ flexGrow: 1 }}>
                 <TextField
                   fullWidth
                   variant="standard"
@@ -219,23 +223,36 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                   {sortMenuItems}
                 </TextField>
               </Grid>
-              <Grid item xs={2}>
-                <BasicButton
-                  fullWidth
-                  onClick={() =>
-                    DeckSaveDialog.prompt(
-                      DeckPanel.props.deck,
-                      DeckPanel.props.cards.slice()
-                    )
-                  }
-                >
-                  Save As
-                </BasicButton>
-              </Grid>
-              <Grid item xs={2}>
-                <BasicButton fullWidth onClick={() => this.props.resolve()}>
-                  Quit Edit
-                </BasicButton>
+              <Grid item>
+                <Tooltip title="Share">
+                  <IconButton
+                    onClick={() =>
+                      DeckShareDialog.prompt({
+                        ...DeckPanel.props.decks[DeckPanel.props.deck],
+                        deck: DeckPanel.props.cards.slice(),
+                      })
+                    }
+                  >
+                    <ShareIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Save As">
+                  <IconButton
+                    onClick={() =>
+                      DeckSaveDialog.prompt(
+                        DeckPanel.props.deck,
+                        DeckPanel.props.cards.slice()
+                      )
+                    }
+                  >
+                    <SaveIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Quit Edit">
+                  <IconButton onClick={() => this.props.resolve()}>
+                    <ExitToAppIcon />
+                  </IconButton>
+                </Tooltip>
               </Grid>
             </Grid>
             <Box

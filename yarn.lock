@@ -991,6 +991,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/dom-to-image@^2.6.4":
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/@types/dom-to-image/-/dom-to-image-2.6.4.tgz#008411e23903cb0ee9e51a42ab8358c609541ee8"
+  integrity sha512-UddUdGF1qulrSDulkz3K2Ypq527MR6ixlgAzqLbxSiQ0icx0XDlIV+h4+edmjq/1dqn0KgN0xGSe1kI9t+vGuw==
+
 "@types/earcut@^2.1.0":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@types/earcut/-/earcut-2.1.1.tgz#573a0af609f17005c751f6f4ffec49cfe358ea51"
@@ -2022,6 +2027,11 @@ dom-helpers@^5.0.1:
   dependencies:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
+
+dom-to-image-more@^2.13.1:
+  version "2.13.1"
+  resolved "https://registry.yarnpkg.com/dom-to-image-more/-/dom-to-image-more-2.13.1.tgz#de4dd3eab1b457eac30e23615b54003d55390a46"
+  integrity sha512-ApVHqdGkwSMNcHFoJD/3BNfSTEq0a+GaVU8JNO29n+RZnwOUVtK8zznn4onXHJJlJT63dxQ2n5bwPgENlDZbnA==
 
 earcut@^2.2.4:
   version "2.2.4"
