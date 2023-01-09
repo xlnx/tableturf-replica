@@ -12,6 +12,7 @@ import {
 import { DB } from "../../../Database";
 import { ReactNode } from "react";
 import { MessageBar } from "../../components/MessageBar";
+import { DeckPanel } from "./DeckPanel";
 
 interface DeckSaveDialogProps {
   open: boolean;
@@ -32,9 +33,11 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
     };
   }
 
-  async prompt(deck: number, cards: number[]): Promise<boolean> {
+  async prompt(): Promise<boolean> {
     let resolve;
     const promise = new Promise<boolean>((_) => (resolve = _));
+    const deck = DeckPanel.props.deck < 0 ? 0 : DeckPanel.props.deck;
+    const cards = DeckPanel.props.cards.slice();
     await this.update({
       open: true,
       deck,
@@ -62,7 +65,7 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
       }
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
       if (nameError) {
         return;
       }
@@ -72,6 +75,7 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
       decks[this.props.deck] = { name, deck };
       DB.update({ decks });
       MessageBar.success(`saved deck [${name}]`);
+      await DeckPanel.update({ deck: this.props.deck, cards: deck });
       this.props.resolve(true);
     };
 

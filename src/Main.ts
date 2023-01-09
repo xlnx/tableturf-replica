@@ -12,6 +12,8 @@ import { MessageBar } from "./ui/components/MessageBar";
 import { OnlineViaInviteLinkActivity } from "./ui/activities/OnlineViaInviteLinkActivity";
 import { BotViaNetworkActivity } from "./ui/activities/BotViaNetworkActivity";
 import { ActivityPanel } from "./ui/Activity";
+import { getCardById } from "./core/Tableturf";
+import { DeckPanel } from "./ui/scenes/entry/DeckPanel";
 
 const logger = getLogger("main");
 logger.setLevel("debug");
@@ -40,9 +42,22 @@ EntryWindow.show();
 ControlPanel.show();
 
 async function main() {
+  const deck = System.args.get("deck");
   const connect = System.args.get("connect");
   const url = System.args.get("url");
   const match = System.args.get("match");
+
+  if (deck) {
+    const cards: number[] = JSON.parse(deck);
+    if (!cards.every((card) => getCardById(card))) {
+      MessageBar.error(`invalid deck: ${cards}`);
+      return;
+    }
+    await DeckPanel.update({ deck: -1, cards });
+    MessageBar.success(`imported deck: ${cards}`);
+    await DeckPanel.edit();
+    return;
+  }
 
   switch (connect) {
     case "bot":

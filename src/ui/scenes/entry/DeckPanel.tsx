@@ -12,6 +12,7 @@ import { DB } from "../../../Database";
 import { useEffect, useMemo } from "react";
 import { getCards, getDeckTotalArea } from "../../../core/Tableturf";
 import { CardVaultPanel } from "./CardVaultPanel";
+import { AlertDialog } from "../../components/AlertDialog";
 
 interface DeckPanelProps {
   excludeCards: number[];
@@ -39,20 +40,38 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
   async edit() {
     await this.update({ editing: true });
     await CardVaultPanel.prompt();
-    await this.update({
-      editing: false,
-      cards: this.props.decks[this.props.deck].deck.slice(),
-    });
+    const deck = this.props.deck < 0 ? 0 : this.props.deck;
+    const cards = this.props.decks[deck].deck;
+    await this.update({ editing: false, deck, cards });
+  }
+
+  listCards(decks?: IDeckData[]) {
+    return this.props.deck < 0
+      ? this.props.cards
+      : (decks || this.props.decks)[this.props.deck].deck;
+  }
+
+  async confirmUpdateDeck(): Promise<boolean> {
+    const original = this.listCards();
+    const isModified =
+      this.props.deck < 0 ||
+      JSON.stringify(this.props.cards) != JSON.stringify(original);
+    if (isModified) {
+      const ok = await AlertDialog.prompt({
+        msg: "Changes to current deck will be lost, are you sure?",
+        okMsg: "Ok",
+        cancelMsg: "Cancel",
+      });
+      return ok;
+    }
+    return true;
   }
 
   render() {
     useEffect(() => {
       DB.subscribe(async () => {
         const decks = DB.read().decks;
-        await this.update({
-          decks,
-          cards: decks[this.props.deck].deck,
-        });
+        await this.update({ decks, cards: this.listCards(decks) });
       });
     }, []);
 
@@ -70,10 +89,24 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
     ));
 
     const ctrlPanel = useMemo(() => {
-      const deck = this.props.decks[this.props.deck];
+      const original = this.listCards();
       const area = getDeckTotalArea(this.props.cards);
       const isModified =
-        JSON.stringify(this.props.cards) != JSON.stringify(deck.deck);
+        this.props.deck < 0 ||
+        JSON.stringify(this.props.cards) != JSON.stringify(original);
+
+      const handleChange = async (e) => {
+        const ok = await this.confirmUpdateDeck();
+        if (!ok) {
+          return;
+        }
+        const deck = +e.target.value;
+        await this.update({
+          deck,
+          cards: this.props.decks[deck].deck,
+        });
+      };
+
       return (
         <Grid
           container
@@ -90,16 +123,13 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
               label="Deck"
               autoComplete="off"
               value={-1}
-              onChange={async (e) => {
-                const deck = +e.target.value;
-                await this.update({
-                  deck,
-                  cards: this.props.decks[deck].deck,
-                });
-              }}
+              onChange={handleChange}
             >
               <MenuItem value={-1} sx={{ display: "none" }}>
-                {deck.name + (isModified ? " [*]" : "")}
+                {(this.props.deck < 0
+                  ? "[Untitled]"
+                  : this.props.decks[this.props.deck].name) +
+                  (isModified ? " [*]" : "")}
               </MenuItem>
               {deckMenuItems}
             </TextField>

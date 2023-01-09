@@ -146,6 +146,14 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
       await DeckPanel.update({ cards: [...cards, card] });
     };
 
+    const handleQuitEdit = async () => {
+      const ok = await DeckPanel.confirmUpdateDeck();
+      if (!ok) {
+        return;
+      }
+      this.props.resolve();
+    };
+
     const index = [];
     state.cards.forEach((id, i) => (index[id] = i));
 
@@ -237,19 +245,12 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Save As">
-                  <IconButton
-                    onClick={() =>
-                      DeckSaveDialog.prompt(
-                        DeckPanel.props.deck,
-                        DeckPanel.props.cards.slice()
-                      )
-                    }
-                  >
+                  <IconButton onClick={() => DeckSaveDialog.prompt()}>
                     <SaveIcon sx={{ fontSize: "2rem" }} />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Quit Edit">
-                  <IconButton onClick={() => this.props.resolve()}>
+                  <IconButton onClick={handleQuitEdit}>
                     <ExitToAppIcon sx={{ fontSize: "2rem" }} />
                   </IconButton>
                 </Tooltip>
