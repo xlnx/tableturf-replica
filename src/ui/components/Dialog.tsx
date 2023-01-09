@@ -19,7 +19,7 @@ export function Dialog({ open, children }: DialogProps) {
         visibility: open ? "inherit" : "hidden",
         opacity: open ? 1 : 0,
         backgroundColor: "#0000009f",
-        pointerEvents: "all",
+        pointerEvents: open ? "inherit" : "none",
         transition: `all ${200}ms ease-in-out`,
       }}
     >
