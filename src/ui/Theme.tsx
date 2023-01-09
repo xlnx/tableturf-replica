@@ -1,5 +1,18 @@
-import { ReactNode } from "react";
-import { Box, styled, createTheme, Grid, Typography } from "@mui/material";
+import { ReactNode, useRef, useState } from "react";
+import {
+  Box,
+  styled,
+  createTheme,
+  Grid,
+  Typography,
+  Popper,
+  Grow,
+  Paper,
+  ClickAwayListener,
+  MenuList,
+  MenuItem,
+  ToggleButtonGroup,
+} from "@mui/material";
 import ToggleButton, { ToggleButtonTypeMap } from "@mui/material/ToggleButton";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
@@ -41,6 +54,78 @@ export const DarkButton = styled(BasicButton)(({ theme }) => ({
     backgroundColor: "#2f2f2fee",
   },
 }));
+
+interface SplitButtonProps {
+  items: {
+    text: string;
+    onClick: () => void;
+  }[];
+  defaultItem: number;
+  children: string;
+  sx?: any;
+}
+
+export function SplitButton({
+  children,
+  items,
+  defaultItem,
+  sx,
+}: SplitButtonProps) {
+  const anchorRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <ToggleButtonGroup ref={anchorRef} sx={{ ...sx }}>
+        <BasicButton onClick={items[defaultItem].onClick}>
+          {children}
+        </BasicButton>
+        <BasicButton
+          onClick={() => setOpen((open) => !open)}
+          sx={{ width: 50 }}
+        >
+          <ArrowDropDownIcon />
+        </BasicButton>
+      </ToggleButtonGroup>
+      <Popper
+        sx={{ zIndex: 1 }}
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+        disablePortal
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === "bottom" ? "center top" : "center bottom",
+            }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={() => setOpen(false)}>
+                <MenuList autoFocusItem>
+                  {items.map(({ text, onClick }, i) => (
+                    <MenuItem
+                      key={i}
+                      onClick={() => {
+                        onClick();
+                        setOpen(false);
+                      }}
+                      sx={{ fontSize: "0.8rem" }}
+                    >
+                      {text}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+    </>
+  );
+}
 
 interface CollapsibleProps {
   children: ReactNode;

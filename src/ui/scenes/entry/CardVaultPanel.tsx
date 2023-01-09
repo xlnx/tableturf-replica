@@ -233,7 +233,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                       })
                     }
                   >
-                    <ShareIcon />
+                    <ShareIcon sx={{ fontSize: "2rem" }} />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Save As">
@@ -245,12 +245,12 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
                       )
                     }
                   >
-                    <SaveIcon />
+                    <SaveIcon sx={{ fontSize: "2rem" }} />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Quit Edit">
                   <IconButton onClick={() => this.props.resolve()}>
-                    <ExitToAppIcon />
+                    <ExitToAppIcon sx={{ fontSize: "2rem" }} />
                   </IconButton>
                 </Tooltip>
               </Grid>

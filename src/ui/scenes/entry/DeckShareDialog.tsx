@@ -13,7 +13,7 @@ import {
 import { System } from "../../../engine/System";
 import { measureTextWidth, renderQrCode } from "../../../engine/Utils";
 import { CardSmall } from "../../components/CardSmall";
-import { BasicButton } from "../../Theme";
+import { BasicButton, SplitButton } from "../../Theme";
 import { DB } from "../../../Database";
 import { LoadingDialog } from "../../components/LoadingDialog";
 import { MessageBar } from "../../components/MessageBar";
@@ -65,16 +65,22 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
     const rootRef = useRef(null);
 
     useEffect(() => {
-      if (!this.props.url) {
+      const { url } = this.props;
+      if (!url) {
         return;
       }
-      renderQrCode(this.props.url, {
-        margin: 2,
+      renderQrCode(url, {
+        errorCorrectionLevel: "L",
+        margin: 0,
         color: {
           light: "#0f0f0f",
-          dark: "#efefef",
+          dark: "#ffffff",
         },
-      }).then((qrcode) => this.update({ qrcode }));
+      }).then((qrcode) => {
+        if (this.props.url == url) {
+          this.update({ qrcode });
+        }
+      });
     }, [this.props.url, this.props.resolve]);
 
     const [state, setState] = useState({
@@ -195,7 +201,17 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
       );
     };
 
-    const handleShare = async () => {
+    const handleCopyLink = async () => {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(this.props.url);
+        MessageBar.success(`successfully copied link to clipboard`);
+      } else {
+        console.log(this.props.url);
+        MessageBar.warning(`logged to console since context is not secure`);
+      }
+    };
+
+    const handleCopyPoster = async () => {
       const renderPoster = async () => {
         const { default: domtoimage } = await import("dom-to-image-more");
         const url = await domtoimage.toPng(rootRef.current);
@@ -228,15 +244,10 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
           <Grid item sx={{ p: 2 }}>
             <Divider orientation="vertical"></Divider>
           </Grid>
-          <Grid item sx={{ flexGrow: 1, width: 500 }}>
-            <CardHeader title={"Share Deck Poster"} />
+          <Grid item sx={{ position: "relative", flexGrow: 1, width: 400 }}>
+            <CardHeader title={"Share Deck"} />
             <Divider sx={{ pt: 2 }} />
-            <Grid
-              container
-              spacing={2}
-              justifyContent="flex-end"
-              sx={{ pt: 2 }}
-            >
+            <Grid container spacing={2} sx={{ pt: 2 }}>
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
@@ -264,17 +275,37 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
                   label="Use dark background"
                 />
               </Grid>
-              <Grid item xs={4}>
-                <BasicButton fullWidth onClick={handleShare}>
-                  Share
-                </BasicButton>
-              </Grid>
-              <Grid item xs={4}>
-                <BasicButton fullWidth onClick={() => this.props.resolve()}>
-                  Close
-                </BasicButton>
-              </Grid>
             </Grid>
+            <Box
+              sx={{
+                boxSizing: "border-box",
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                width: "100%",
+                p: 2,
+              }}
+            >
+              <Grid container spacing={2} justifyContent="flex-end">
+                <Grid item xs={5}>
+                  <SplitButton
+                    items={[
+                      { text: "Copy Poster", onClick: handleCopyPoster },
+                      { text: "Copy Link", onClick: handleCopyLink },
+                    ]}
+                    defaultItem={0}
+                    sx={{ width: "100%" }}
+                  >
+                    Copy
+                  </SplitButton>
+                </Grid>
+                <Grid item xs={4}>
+                  <BasicButton fullWidth onClick={() => this.props.resolve()}>
+                    Close
+                  </BasicButton>
+                </Grid>
+              </Grid>
+            </Box>
           </Grid>
         </Grid>
       </Dialog>
