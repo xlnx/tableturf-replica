@@ -9,8 +9,21 @@ import { MatchActivity } from "./MatchActivity";
 import { BotClient } from "../../client/bot/Client";
 import { BotConnector } from "../../client/bot/Bot";
 import { RandomBot } from "../../bots/RandomBot";
+import { RemoteBot } from "../../client/bot/Remote";
+import { MessageBar } from "../components/MessageBar";
 
-const bots = [DummyBot.connector, RandomBot.connector];
+const bots = [
+  DummyBot.connector,
+  RandomBot.connector,
+  {
+    id: "[fga401]",
+    info: {
+      name: "[fga401]",
+    },
+    connect: async (timeout) =>
+      await RemoteBot.connect({ url: "wss://api.koishi.top:5140", timeout }),
+  },
+];
 
 class BotListActivity_0 extends Activity {
   init() {
@@ -27,6 +40,7 @@ class BotListActivity_0 extends Activity {
         message: "Connecting...",
         task: BotClient.connect(connector),
       });
+      MessageBar.success(`connected to ${connector.info.name}`);
       await MatchActivity.start(client);
     };
 
