@@ -4,6 +4,7 @@ import { BasicButton } from "../Theme";
 import { BotListActivity } from "./BotListActivity";
 import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import { SocialIcon } from "react-social-icons";
 
 class RootActivity_0 extends Activity {
   init() {
@@ -49,6 +50,14 @@ class RootActivity_0 extends Activity {
               justifyContent: "flex-end",
             }}
           >
+            <IconButton
+              onClick={() => window.open("https://discord.gg/fRT8ydhhxT")}
+            >
+              <SocialIcon
+                url="https://discord.gg/fRT8ydhhxT"
+                style={{ pointerEvents: "none" }}
+              />
+            </IconButton>
             <IconButton
               onClick={() =>
                 window.open("https://github.com/xlnx/tableturf-replica")
