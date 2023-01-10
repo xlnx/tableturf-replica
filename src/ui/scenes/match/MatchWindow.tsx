@@ -671,13 +671,22 @@ class MatchWindow_0 extends Window {
     // after match
     if (enter("prepare")) {
       this.uiThreadAppend(async () => {
-        const win =
-          G.game.board.count.area[players[0]] >
-          G.game.board.count.area[players[1]];
-        await AlertDialog.prompt({
-          msg: `You ${win ? "win" : "lose"}`,
-          cancelMsg: "",
-        });
+        if (G.game.round == 0) {
+          const li = G.game.board.count.area;
+          const e = li[players[0]] - li[players[1]];
+          let msg = "Draw";
+          if (e > 0) {
+            msg = "You win";
+          }
+          if (e < 0) {
+            msg = "You lose";
+          }
+          await AlertDialog.prompt({
+            msg,
+            cancelMsg: "",
+          });
+        }
+        // FIXME: do we need animation here?
         await InkResetAnimation.play(async () => {
           this.send("cancel");
           await ActivityPanel.show();
