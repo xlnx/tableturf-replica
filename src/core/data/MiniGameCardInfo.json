@@ -73,6 +73,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Anaaki"
   },
   {
@@ -149,6 +150,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Aori"
   },
   {
@@ -225,6 +227,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Arome"
   },
   {
@@ -301,6 +304,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Atarime"
   },
   {
@@ -377,6 +381,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BaiTakoTrooper"
   },
   {
@@ -453,6 +458,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Bakudan"
   },
   {
@@ -529,6 +535,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Barazushi"
   },
   {
@@ -605,6 +612,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BarrierTakopter"
   },
   {
@@ -681,6 +689,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Batoroika"
   },
   {
@@ -757,6 +766,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Beacon"
   },
   {
@@ -833,6 +843,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BlasterLight00"
   },
   {
@@ -909,6 +920,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BlasterLightLong00"
   },
   {
@@ -985,6 +997,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BlasterLightShort00"
   },
   {
@@ -1061,6 +1074,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BlasterLong00"
   },
   {
@@ -1137,6 +1151,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BlasterMiddle00"
   },
   {
@@ -1213,7 +1228,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BlasterShort00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "BlasterShort01",
+    "NameHash": 4004556122,
+    "Number": 168,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1559,
+    "__RowId": "MiniGame_BlasterShort01"
   },
   {
     "Category": "WeaponSub",
@@ -1289,6 +1382,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombCurling"
   },
   {
@@ -1365,6 +1459,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombFizzy"
   },
   {
@@ -1441,6 +1536,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombQuick"
   },
   {
@@ -1517,6 +1613,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombRobot"
   },
   {
@@ -1593,6 +1690,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombSplash"
   },
   {
@@ -1669,6 +1767,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombSuction"
   },
   {
@@ -1745,6 +1844,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombTako"
   },
   {
@@ -1821,6 +1921,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BombTakopter"
   },
   {
@@ -1897,7 +1998,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BrushMini00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "BrushMini01",
+    "NameHash": 1518960466,
+    "Number": 171,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Special",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1459,
+    "__RowId": "MiniGame_BrushMini01"
   },
   {
     "Category": "WeaponMain",
@@ -1973,6 +2152,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_BrushNormal00"
   },
   {
@@ -2049,6 +2229,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Bukichi"
   },
   {
@@ -2125,6 +2306,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Buranko"
   },
   {
@@ -2201,6 +2383,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerKeeper00"
   },
   {
@@ -2277,6 +2460,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerLight00"
   },
   {
@@ -2353,6 +2537,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerLong00"
   },
   {
@@ -2429,6 +2614,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerLongScope00"
   },
   {
@@ -2505,6 +2691,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerNormal00"
   },
   {
@@ -2581,7 +2768,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerNormalScope00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ChargerPencil00",
+    "NameHash": 2439514355,
+    "Number": 172,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 4,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Special",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": 0,
+    "__RowId": "MiniGame_ChargerPencil00"
   },
   {
     "Category": "WeaponMain",
@@ -2657,6 +2922,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ChargerQuick00"
   },
   {
@@ -2733,6 +2999,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Chidori"
   },
   {
@@ -2809,6 +3076,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Denchinamazu"
   },
   {
@@ -2885,6 +3153,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Dosukoi"
   },
   {
@@ -2961,6 +3230,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_EnergyStand"
   },
   {
@@ -3037,6 +3307,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Enperii"
   },
   {
@@ -3113,6 +3384,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Ezokko"
   },
   {
@@ -3189,6 +3461,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Forima"
   },
   {
@@ -3265,6 +3538,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Fuka"
   },
   {
@@ -3341,6 +3615,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_GachiAsari"
   },
   {
@@ -3417,6 +3692,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_GachiHoko"
   },
   {
@@ -3493,6 +3769,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_GachiYagura"
   },
   {
@@ -3569,6 +3846,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Grill"
   },
   {
@@ -3645,6 +3923,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Hakobiya"
   },
   {
@@ -3721,6 +4000,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Hanagasa"
   },
   {
@@ -3797,6 +4077,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Hebi"
   },
   {
@@ -3873,6 +4154,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_HeroShooter"
   },
   {
@@ -3949,6 +4231,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Hokkorii"
   },
   {
@@ -4025,6 +4308,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Hotakkusu"
   },
   {
@@ -4101,6 +4385,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Hotaru"
   },
   {
@@ -4177,6 +4462,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Incleaner"
   },
   {
@@ -4253,6 +4539,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Ironic"
   },
   {
@@ -4329,6 +4616,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Iruka"
   },
   {
@@ -4405,6 +4693,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Jetpack"
   },
   {
@@ -4481,6 +4770,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Jimon"
   },
   {
@@ -4557,6 +4847,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Judgekun"
   },
   {
@@ -4633,6 +4924,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Kanitank"
   },
   {
@@ -4709,6 +5001,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Katapaddo"
   },
   {
@@ -4785,6 +5078,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Kinshake"
   },
   {
@@ -4861,6 +5155,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_KoJudgekun"
   },
   {
@@ -4937,6 +5232,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Kojake"
   },
   {
@@ -5013,6 +5309,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Koumori"
   },
   {
@@ -5089,6 +5386,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Kumasan"
   },
   {
@@ -5165,6 +5463,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Kuraagesu"
   },
   {
@@ -5241,6 +5540,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Kyuinki"
   },
   {
@@ -5317,6 +5617,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_LineMarker"
   },
   {
@@ -5393,6 +5694,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ManeuverDual00"
   },
   {
@@ -5469,6 +5771,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ManeuverGallon00"
   },
   {
@@ -5545,6 +5848,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ManeuverNormal00"
   },
   {
@@ -5621,7 +5925,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ManeuverShort00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ManeuverShort01",
+    "NameHash": 2850844738,
+    "Number": 175,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1309,
+    "__RowId": "MiniGame_ManeuverShort01"
   },
   {
     "Category": "WeaponMain",
@@ -5697,6 +6079,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ManeuverStepper00"
   },
   {
@@ -5773,6 +6156,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Mantaro"
   },
   {
@@ -5849,6 +6233,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Mogura"
   },
   {
@@ -5925,6 +6310,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Mother"
   },
   {
@@ -6001,6 +6387,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Nabebuta"
   },
   {
@@ -6077,6 +6464,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Omura"
   },
   {
@@ -6153,6 +6541,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Paruko"
   },
   {
@@ -6229,6 +6618,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_PointSensor"
   },
   {
@@ -6305,6 +6695,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_PoisonMist"
   },
   {
@@ -6381,6 +6772,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Rokkenberugu"
   },
   {
@@ -6457,7 +6849,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_RollerCompact00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "RollerCompact01",
+    "NameHash": 3506324657,
+    "Number": 169,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1479,
+    "__RowId": "MiniGame_RollerCompact01"
   },
   {
     "Category": "WeaponMain",
@@ -6533,6 +7003,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_RollerHeavy00"
   },
   {
@@ -6609,6 +7080,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_RollerHunter00"
   },
   {
@@ -6685,7 +7157,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_RollerNormal00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "RollerWide00",
+    "NameHash": 2392107355,
+    "Number": 170,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 4,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Special",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": 0,
+    "__RowId": "MiniGame_RollerWide00"
   },
   {
     "Category": "WeaponMain",
@@ -6761,6 +7311,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SaberLight00"
   },
   {
@@ -6837,6 +7388,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SaberNormal00"
   },
   {
@@ -6913,6 +7465,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Shake"
   },
   {
@@ -6989,6 +7542,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShelterCompact00"
   },
   {
@@ -7065,6 +7619,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShelterNormal00"
   },
   {
@@ -7141,6 +7696,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShelterWide00"
   },
   {
@@ -7217,6 +7773,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Shichirin"
   },
   {
@@ -7293,6 +7850,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Shield"
   },
   {
@@ -7369,6 +7927,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Shigureni"
   },
   {
@@ -7445,6 +8004,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Shirei"
   },
   {
@@ -7521,6 +8081,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShockSonar"
   },
   {
@@ -7597,7 +8158,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterBlaze00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ShooterBlaze01",
+    "NameHash": 2843307992,
+    "Number": 164,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1589,
+    "__RowId": "MiniGame_ShooterBlaze01"
   },
   {
     "Category": "WeaponMain",
@@ -7673,7 +8312,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterExpert00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ShooterExpert01",
+    "NameHash": 587255098,
+    "Number": 166,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 4,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1569,
+    "__RowId": "MiniGame_ShooterExpert01"
   },
   {
     "Category": "WeaponMain",
@@ -7749,7 +8466,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterFirst00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ShooterFirst01",
+    "NameHash": 2904406166,
+    "Number": 163,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 2,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Special",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1599,
+    "__RowId": "MiniGame_ShooterFirst01"
   },
   {
     "Category": "WeaponMain",
@@ -7825,6 +8620,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterFlash00"
   },
   {
@@ -7901,6 +8697,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterGravity00"
   },
   {
@@ -7977,6 +8774,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterHeavy00"
   },
   {
@@ -8053,6 +8851,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterLong00"
   },
   {
@@ -8129,7 +8928,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterNormal00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ShooterNormal01",
+    "NameHash": 3761716986,
+    "Number": 165,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1589,
+    "__RowId": "MiniGame_ShooterNormal01"
   },
   {
     "Category": "WeaponMain",
@@ -8205,7 +9082,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterPrecision00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "ShooterQuickLong00",
+    "NameHash": 1016208543,
+    "Number": 167,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 4,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Special",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": 0,
+    "__RowId": "MiniGame_ShooterQuickLong00"
   },
   {
     "Category": "WeaponMain",
@@ -8281,6 +9236,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterQuickMiddle00"
   },
   {
@@ -8357,6 +9313,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterShort00"
   },
   {
@@ -8433,6 +9390,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterTripleMiddle00"
   },
   {
@@ -8509,6 +9467,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_ShooterTripleQuick00"
   },
   {
@@ -8585,6 +9544,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SlosherBathtub00"
   },
   {
@@ -8661,6 +9621,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SlosherDiffusion00"
   },
   {
@@ -8737,6 +9698,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SlosherLauncher00"
   },
   {
@@ -8813,7 +9775,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SlosherStrong00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "SlosherStrong01",
+    "NameHash": 1463551750,
+    "Number": 173,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Special",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1389,
+    "__RowId": "MiniGame_SlosherStrong01"
   },
   {
     "Category": "WeaponMain",
@@ -8889,6 +9929,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SlosherWashtub00"
   },
   {
@@ -8965,6 +10006,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpGreatBarrier"
   },
   {
@@ -9041,6 +10083,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpInkStorm"
   },
   {
@@ -9117,6 +10160,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpMegaphoneLaser51"
   },
   {
@@ -9193,6 +10237,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpMultiMissile"
   },
   {
@@ -9269,6 +10314,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpNiceBall"
   },
   {
@@ -9345,6 +10391,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpSuperHook"
   },
   {
@@ -9421,6 +10468,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpUltraShot"
   },
   {
@@ -9497,6 +10545,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpUltraStamp"
   },
   {
@@ -9573,6 +10622,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Spiky"
   },
   {
@@ -9649,6 +10699,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpinnerDownpour00"
   },
   {
@@ -9725,6 +10776,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpinnerHyper00"
   },
   {
@@ -9801,7 +10853,85 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpinnerQuick00"
+  },
+  {
+    "Category": "WeaponMain",
+    "Name": "SpinnerQuick01",
+    "NameHash": 2542219423,
+    "Number": 174,
+    "Rarity": "Common",
+    "Season": 2,
+    "SpecialCost": 3,
+    "Square": [
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Special",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Fill",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty",
+      "Empty"
+    ],
+    "SquareSortOffset": -1349,
+    "__RowId": "MiniGame_SpinnerQuick01"
   },
   {
     "Category": "WeaponMain",
@@ -9877,6 +11007,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpinnerSerein00"
   },
   {
@@ -9953,6 +11084,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_SpinnerStandard00"
   },
   {
@@ -10029,6 +11161,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Sprinkler"
   },
   {
@@ -10105,6 +11238,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_StampWave"
   },
   {
@@ -10181,6 +11315,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_StringerNormal00"
   },
   {
@@ -10257,6 +11392,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_StringerShort00"
   },
   {
@@ -10333,6 +11469,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Sutakoraa"
   },
   {
@@ -10409,6 +11546,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Taihou"
   },
   {
@@ -10485,6 +11623,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoCommander"
   },
   {
@@ -10561,6 +11700,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoDozer"
   },
   {
@@ -10637,6 +11777,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoHopper"
   },
   {
@@ -10713,6 +11854,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoMissile"
   },
   {
@@ -10789,6 +11931,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoPod"
   },
   {
@@ -10865,6 +12008,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoSniper"
   },
   {
@@ -10941,6 +12085,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoStamp"
   },
   {
@@ -11017,6 +12162,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoStrike"
   },
   {
@@ -11093,6 +12239,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoTrooper"
   },
   {
@@ -11169,6 +12316,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakoZonesu"
   },
   {
@@ -11245,6 +12393,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakopodDEV"
   },
   {
@@ -11321,6 +12470,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakopperinGo"
   },
   {
@@ -11397,6 +12547,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Takopter"
   },
   {
@@ -11473,6 +12624,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TakowasaShogun"
   },
   {
@@ -11549,6 +12701,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Tamahiroi"
   },
   {
@@ -11625,6 +12778,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Tamaire"
   },
   {
@@ -11701,6 +12855,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Tatakikensaki"
   },
   {
@@ -11777,6 +12932,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TateTakoTrooper"
   },
   {
@@ -11853,6 +13009,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Teppan"
   },
   {
@@ -11929,6 +13086,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Tower"
   },
   {
@@ -12005,6 +13163,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Trap"
   },
   {
@@ -12081,6 +13240,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_TripleTornado"
   },
   {
@@ -12157,6 +13317,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Utsuho"
   },
   {
@@ -12233,6 +13394,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Yako"
   },
   {
@@ -12309,6 +13471,7 @@
       "Empty",
       "Empty"
     ],
+    "SquareSortOffset": 0,
     "__RowId": "MiniGame_Yashiganisan"
   }
 ]
