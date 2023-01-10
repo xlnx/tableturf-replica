@@ -129,6 +129,7 @@ export function SplitButton({
 
 interface CollapsibleProps {
   children: ReactNode;
+  label: string;
   open: boolean;
   maxBodyHeight: number;
   onClick?: () => void;
@@ -136,6 +137,7 @@ interface CollapsibleProps {
 
 export function Collapsible({
   children,
+  label,
   open,
   maxBodyHeight,
   onClick = () => {},
@@ -174,7 +176,7 @@ export function Collapsible({
             }}
             onClick={onClick}
           >
-            Bot Settings
+            {label}
             {open ? (
               <ArrowDropUpIcon sx={{ fontSize: "1rem" }} />
             ) : (

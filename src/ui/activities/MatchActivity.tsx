@@ -257,6 +257,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       ));
       return (
         <Collapsible
+          label="Bot Settings"
           open={botPanelState.open}
           onClick={() =>
             setBotPanelState({
@@ -289,6 +290,49 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                 </MenuItem>
                 {deckMenuItems}
               </TextField>
+            </Grid>
+          </Grid>
+        </Collapsible>
+      );
+    };
+
+    const [advancedPanelState, setAdvancedPanelState] = useState({
+      open: false,
+    });
+
+    const renderAdvancedPanel = () => {
+      return (
+        <Collapsible
+          label="Advanced"
+          open={advancedPanelState.open}
+          onClick={() =>
+            setAdvancedPanelState({
+              ...advancedPanelState,
+              open: !advancedPanelState.open,
+            })
+          }
+          maxBodyHeight={100}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                variant="standard"
+                type="number"
+                label="Redraw Quota"
+                disabled={
+                  this.isForbidden({ hostOnly: true }) || this.isReady()
+                }
+                value={this.props.state.G.redrawQuota}
+                onChange={({ target }) => {
+                  const quota = +target.value;
+                  if (0 <= quota && quota < 10) {
+                    this.props.client.send("updateState", {
+                      redrawQuota: quota,
+                    });
+                  }
+                }}
+              ></TextField>
             </Grid>
           </Grid>
         </Collapsible>
@@ -330,6 +374,9 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               </MenuItem>
               {deckMenuItems}
             </TextField>
+          </Grid>
+          <Grid item xs={12} sx={{ p: 2 }}>
+            {renderAdvancedPanel()}
           </Grid>
           {!this.isVsBot() ? null : (
             <Grid item xs={12} sx={{ p: 2 }}>

@@ -17,8 +17,10 @@ export interface TableturfGameState {
   players: (TableturfPlayerInfo | null)[];
   ready: boolean[];
   stage: number;
+  redrawQuota: number;
   // game phase
   game: IGameState | null;
+  redrawQuotaLeft: number[];
   moveHistory: (IPlayerMovement & { card: number })[][];
   moves: (IPlayerMovement & { card: number })[];
   // notifications
@@ -57,10 +59,6 @@ const barrier = ({
 export const StarterDeck = [
   6, 13, 22, 28, 40, 34, 45, 52, 55, 56, 159, 137, 141, 103, 92,
 ];
-// don't use my deck
-// [
-//   33, 159, 92, 25, 30, 52, 65, 50, 66, 64, 53, 58, 28, 74, 69,
-// ];
 
 const toggleReady = {
   move: ({ G, playerID }, ready?: boolean) => {
@@ -96,10 +94,12 @@ export const TableturfGame: Game<TableturfGameState> = {
     players: Array(2).fill(null),
     ready: Array(2).fill(false),
     stage: 1,
+    redrawQuota: 1,
     // game phase
     game: null,
     moveHistory: [],
     moves: [null, null],
+    redrawQuotaLeft: [],
     // notifications
     sync: [false, false],
   }),
@@ -138,13 +138,16 @@ export const TableturfGame: Game<TableturfGameState> = {
 
     init: barrier({
       onBegin: ({ G, random }) => {
-        // TODO: shuffle cards here
-        G.game = initGame(
-          G.stage,
-          G.players.map((e) => random.Shuffle(e.deck))
-        );
-        G.moves = Array(2).fill(null);
-        // G.game.round = 0;
+        return {
+          ...G,
+          game: initGame(
+            G.stage,
+            G.players.map((e) => random.Shuffle(e.deck))
+          ),
+          moveHistory: [],
+          moves: Array(2).fill(null),
+          redrawQuotaLeft: Array(2).fill(G.redrawQuota),
+        };
       },
       next: "game",
     }),
@@ -152,6 +155,26 @@ export const TableturfGame: Game<TableturfGameState> = {
     game: {
       onBegin: () => logger.debug(`game.begin`),
       moves: {
+        redraw: {
+          move: ({ G, random, playerID }) => {
+            const player = <IPlayerId>parseInt(playerID);
+            // one can only redraw at the beginning of a match
+            if (G.game.round != 12) {
+              return INVALID_MOVE;
+            }
+            if (G.redrawQuotaLeft[player] <= 0) {
+              return INVALID_MOVE;
+            }
+            const players = G.game.players.slice();
+            const { hand, deck, ...rest } = players[player];
+            const newDeck = random.Shuffle(hand.concat(deck));
+            const newHand = newDeck.splice(0, 4);
+            players[player] = { ...rest, hand: newHand, deck: newDeck };
+            G.game = { ...G.game, players };
+            G.redrawQuotaLeft[player] -= 1;
+          },
+          ignoreStaleStateID: true,
+        },
         move: {
           move: ({ G, playerID }, _move: Omit<IPlayerMovement, "player">) => {
             const player = <IPlayerId>parseInt(playerID);
@@ -165,6 +188,7 @@ export const TableturfGame: Game<TableturfGameState> = {
             if (!isGameMoveValid(G.game, move)) {
               return INVALID_MOVE;
             }
+            G.redrawQuotaLeft[player] = 0;
             G.moves[player] = {
               ...move,
               card: G.game.players[player].hand[move.hand],
