@@ -303,7 +303,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     const renderAdvancedPanel = () => {
       return (
         <Collapsible
-          label="Advanced"
+          label="Advanced Settings"
           open={advancedPanelState.open}
           onClick={() =>
             setAdvancedPanelState({

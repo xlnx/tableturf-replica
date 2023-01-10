@@ -46,7 +46,7 @@ const svgStyle = {
     NameBg: ({ ...props }) => (
       <feImage
         preserveAspectRatio="none"
-        xlinkHref="/textures/GrdFresh_01.webp"
+        xlinkHref="/textures/GrdFreshText_01.webp"
         {...props}
       />
     ),
@@ -60,7 +60,7 @@ const svgStyle = {
     NameBg: ({ ...props }) => (
       <feImage
         preserveAspectRatio="none"
-        xlinkHref="/textures/GrdFresh_00.webp"
+        xlinkHref="/textures/GrdFreshText_00.webp"
         {...props}
       />
     ),
@@ -279,13 +279,13 @@ const webkitStyle = {
     cardBg: "/textures/MngCardBG_Rre_00.webp",
     innerFrameBg: "url(/textures/GrdFresh_01.webp)",
     costImg: "/textures/CardCost_01.webp",
-    nameBg: "url(/textures/GrdFresh_01.webp)",
+    nameBg: "url(/textures/GrdFreshText_01.webp)",
   },
   Fresh: {
     cardBg: "/textures/MngCardBG_Frh_00.webp",
     innerFrameBg: "url(/textures/GrdFresh_00.webp)",
     costImg: "/textures/CardCost_02.webp",
-    nameBg: "url(/textures/GrdFresh_00.webp)",
+    nameBg: "url(/textures/GrdFreshText_00.webp)",
   },
 };
 
@@ -476,8 +476,8 @@ function renderWebKit(card: ICard, player: IPlayerId) {
           key={i}
           style={{
             position: "absolute",
-            width: `${100 / cardNameScaleX}%`,
-            height: "100%",
+            width: `${80 / cardNameScaleX}%`,
+            height: "30%",
             left: "50%",
             transform: `translateX(-50%) scaleX(${cardNameScaleX * 100}%)`,
             transformOrigin: "center",

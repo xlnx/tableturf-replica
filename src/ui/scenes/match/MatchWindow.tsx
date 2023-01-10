@@ -301,7 +301,14 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
         >
           Special Attack!
         </DarkButton>
-        <div style={{ position: "absolute", top: 315, left: 1585 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 315,
+            left: 1585,
+            pointerEvents: "none",
+          }}
+        >
           {this.props.slots.map(({ card, discard, show, flip, preview }, i) => (
             <div style={{ position: "absolute" }} key={i}>
               <CardSlot
