@@ -19,6 +19,7 @@ import { LoadingDialog } from "../../components/LoadingDialog";
 import { MessageBar } from "../../components/MessageBar";
 import { getDeckTotalArea } from "../../../core/Tableturf";
 import Typography from "@mui/material/Typography";
+import { DeckPanel } from "./DeckPanel";
 
 function formatUrl(deck: IDeckData) {
   const url = new URL(System.url.origin);
@@ -45,7 +46,12 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
     };
   }
 
-  async prompt(deck: IDeckData): Promise<void> {
+  async prompt(): Promise<void> {
+    const deck = {
+      name: "Untitled",
+      ...DB.read().decks[DeckPanel.props.deck],
+      deck: DeckPanel.props.cards.slice(),
+    };
     let resolve;
     const promise = new Promise<void>((_) => (resolve = _));
     await this.update({

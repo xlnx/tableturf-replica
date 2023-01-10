@@ -683,7 +683,7 @@ class MatchWindow_0 extends Window {
         return;
       }
       const ok = await AlertDialog.prompt({
-        msg: `Redraw cards? ${quota} chance(s) left.`,
+        msg: `Redraw cards? (${quota} left)`,
         okMsg: "Redraw",
         cancelMsg: "Cancel",
       });
@@ -699,7 +699,7 @@ class MatchWindow_0 extends Window {
     // redraw
     const quota = G.redrawQuotaLeft[this.client.playerId];
     const quota0 = G0.redrawQuotaLeft[this.client.playerId];
-    if (quota == quota0 - 1) {
+    if (G.game && G.game.round == 12 && quota == quota0 - 1) {
       this.uiThreadAppend(async () => {
         await this.panel.uiUpdateCards(G, true);
       });

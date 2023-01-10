@@ -32,6 +32,7 @@ interface MatchActivityProps {
   deck: IDeckData;
   botDeck: IDeckData;
   manualExit: boolean;
+  version: number;
 }
 
 const defaultDeck: IDeckData = {
@@ -62,7 +63,13 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       deck,
       botDeck: defaultDeck,
       manualExit: false,
+      // version for force re-render
+      version: 0,
     };
+  }
+
+  componentDidMount(): void {
+    DB.subscribe(() => this.update({ version: this.props.version + 1 }));
   }
 
   async start(client: Client) {

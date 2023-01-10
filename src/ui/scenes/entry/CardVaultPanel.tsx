@@ -233,14 +233,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
               </Grid>
               <Grid item>
                 <Tooltip title="Share">
-                  <IconButton
-                    onClick={() =>
-                      DeckShareDialog.prompt({
-                        ...DeckPanel.props.decks[DeckPanel.props.deck],
-                        deck: DeckPanel.props.cards.slice(),
-                      })
-                    }
-                  >
+                  <IconButton onClick={() => DeckShareDialog.prompt()}>
                     <ShareIcon sx={{ fontSize: "2rem" }} />
                   </IconButton>
                 </Tooltip>

@@ -16,43 +16,51 @@ import { AlertDialog } from "../../components/AlertDialog";
 
 interface DeckPanelProps {
   excludeCards: number[];
-  decks: IDeckData[];
   deck: number;
   cards: number[];
   card: number;
   editing: boolean;
   onClickCard: (card: number) => void;
+  version: number;
 }
 
 class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
   init(): DeckPanelProps {
     return {
       excludeCards: [],
-      decks: DB.read().decks.slice(),
       deck: 0,
-      cards: [],
+      cards: DB.read().decks[0].deck.slice(),
       card: -1,
       editing: false,
       onClickCard: () => {},
+      version: 0,
     };
+  }
+
+  componentDidMount(): void {
+    DB.subscribe(() => this.update({ version: this.props.version + 1 }));
   }
 
   async edit() {
     await this.update({ editing: true });
     await CardVaultPanel.prompt();
-    const deck = this.props.deck < 0 ? 0 : this.props.deck;
-    const cards = this.props.decks[deck].deck;
-    await this.update({ editing: false, deck, cards });
+    // must point to some certain deck after edit
+    const deck = Math.max(0, this.props.deck);
+    await this.update({
+      editing: false,
+      deck,
+      cards: DB.read().decks[deck].deck,
+    });
   }
 
-  listCards(decks?: IDeckData[]) {
+  listOriginalCards() {
     return this.props.deck < 0
       ? this.props.cards
-      : (decks || this.props.decks)[this.props.deck].deck;
+      : DB.read().decks[this.props.deck].deck;
   }
 
   async confirmUpdateDeck(): Promise<boolean> {
-    const original = this.listCards();
+    const original = this.listOriginalCards();
     const isModified =
       this.props.deck < 0 ||
       JSON.stringify(this.props.cards) != JSON.stringify(original);
@@ -69,27 +77,21 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
 
   render() {
     useEffect(() => {
-      DB.subscribe(async () => {
-        const decks = DB.read().decks;
-        await this.update({ decks, cards: this.listCards(decks) });
-      });
-    }, []);
-
-    useEffect(() => {
       if (this.props.editing) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         CardVaultPanel.update({ excludeCards: DeckPanel.props.cards });
       }
     }, [this.props.cards, this.props.editing]);
 
-    const deckMenuItems = this.props.decks.map(({ name }, i) => (
+    const { decks } = DB.read();
+    const deckMenuItems = decks.map(({ name }, i) => (
       <MenuItem value={i} key={i}>
         {name}
       </MenuItem>
     ));
 
     const ctrlPanel = useMemo(() => {
-      const original = this.listCards();
+      const original = this.listOriginalCards();
       const area = getDeckTotalArea(this.props.cards);
       const isModified =
         this.props.deck < 0 ||
@@ -103,7 +105,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
         const deck = +e.target.value;
         await this.update({
           deck,
-          cards: this.props.decks[deck].deck,
+          cards: decks[deck].deck,
         });
       };
 
@@ -128,8 +130,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
               <MenuItem value={-1} sx={{ display: "none" }}>
                 {(this.props.deck < 0
                   ? "[Untitled]"
-                  : this.props.decks[this.props.deck].name) +
-                  (isModified ? " [*]" : "")}
+                  : decks[this.props.deck].name) + (isModified ? " [*]" : "")}
               </MenuItem>
               {deckMenuItems}
             </TextField>
