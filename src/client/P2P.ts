@@ -8,6 +8,7 @@ import { P2P } from "@boardgame.io/p2p";
 import { Client, TransportData } from "./Client";
 import { getLogger } from "loglevel";
 import { TableturfClientState } from "../Game";
+import { MessageBar } from "../ui/components/MessageBar";
 
 const logger = getLogger("p2p");
 logger.setLevel("info");
@@ -38,6 +39,7 @@ export class P2PHost extends Client {
             !this._cleanUp
           ) {
             this._peer = conn;
+            MessageBar.success("${player} entered room");
             return true;
           }
           logger.warn(`rejected incoming connection:`, conn);
