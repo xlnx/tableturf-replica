@@ -1,7 +1,7 @@
 import { Bot, BotSession, IBotCreateSessionResponse } from "./Bot";
 import { Client as WsRpcClientImpl } from "rpc-websockets";
 import { validateSchema } from "../../Schema";
-import { isValidDeck } from "../../core/Tableturf";
+import { isDeckValid } from "../../Terms";
 
 interface RpcOptions {
   method: string;
@@ -71,7 +71,7 @@ export class RemoteBot extends Bot {
       });
       if (info.support.decks.length) {
         const decks = info.support.decks.filter(({ deck }) =>
-          isValidDeck(deck)
+          isDeckValid(deck)
         );
         if (!decks.length) {
           throw `Bot ${info.name} can't provide any valid deck candidate`;

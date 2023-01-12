@@ -3,8 +3,9 @@ import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { BotListActivity } from "./BotListActivity";
 import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import { SettingsActivity } from "./SettingsActivity";
 import { SocialIcon } from "react-social-icons";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 class RootActivity_0 extends Activity {
   init() {
@@ -26,6 +27,11 @@ class RootActivity_0 extends Activity {
           <Grid item xs={12}>
             <BasicButton fullWidth onClick={() => BotListActivity.show()}>
               VS Bot
+            </BasicButton>
+          </Grid>
+          <Grid item xs={12}>
+            <BasicButton fullWidth onClick={() => SettingsActivity.show()}>
+              Settings
             </BasicButton>
           </Grid>
         </Grid>

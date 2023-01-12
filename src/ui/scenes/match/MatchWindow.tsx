@@ -699,7 +699,12 @@ class MatchWindow_0 extends Window {
     // redraw
     const quota = G.redrawQuotaLeft[this.client.playerId];
     const quota0 = G0.redrawQuotaLeft[this.client.playerId];
-    if (G.game && G.game.round == 12 && quota == quota0 - 1) {
+    if (
+      G.game &&
+      G.game.round == 12 &&
+      G.moves[this.client.playerId] == null &&
+      quota == quota0 - 1
+    ) {
       this.uiThreadAppend(async () => {
         await this.panel.uiUpdateCards(G, true);
       });

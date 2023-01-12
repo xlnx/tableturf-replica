@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { getLogger } from "loglevel";
 import { StarterDeck } from "./Game";
-import { calibrateDeck } from "./core/Tableturf";
+import { calibrateDeck } from "./Terms";
 
 const logger = getLogger("database");
 logger.setLevel("debug");

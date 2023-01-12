@@ -13,7 +13,8 @@ import { System } from "../../engine/System";
 import { MatchWindow } from "../scenes/match/MatchWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
 import { EntryWindow } from "../scenes/entry/EntryWindow";
-import { getStages, isValidDeck } from "../../core/Tableturf";
+import { getStages } from "../../core/Tableturf";
+import { isDeckValid } from "../../Terms";
 import { I18n } from "../../i18n/I18n";
 import { DB } from "../../Database";
 
@@ -49,7 +50,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
   init() {
     const { currDeck, decks } = DB.read();
     let deck = { ...decks[currDeck] };
-    if (!isValidDeck(deck.deck)) {
+    if (!isDeckValid(deck.deck)) {
       deck = defaultDeck;
     }
     return {
@@ -241,7 +242,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     const decks = DB.read().decks.slice();
     const deckMenuItems = decks.map(({ name, deck }, i) => (
-      <MenuItem value={i} key={i} disabled={!isValidDeck(deck)}>
+      <MenuItem value={i} key={i} disabled={!isDeckValid(deck)}>
         {name}
       </MenuItem>
     ));
@@ -258,7 +259,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         ...(useCustomDeck ? DB.read().decks : botInfo.support.decks),
       ];
       const deckMenuItems = decks.map(({ name, deck }, i) => (
-        <MenuItem value={i} key={i} disabled={deck && !isValidDeck(deck)}>
+        <MenuItem value={i} key={i} disabled={deck && !isDeckValid(deck)}>
           {name}
         </MenuItem>
       ));

@@ -10,9 +10,10 @@ import { CardSmall } from "../../components/CardSmall";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { DB } from "../../../Database";
 import { useEffect, useMemo } from "react";
-import { getCards, getDeckTotalArea } from "../../../core/Tableturf";
+import { getCards } from "../../../core/Tableturf";
 import { CardVaultPanel } from "./CardVaultPanel";
 import { AlertDialog } from "../../components/AlertDialog";
+import { getDeckTotalArea } from "../../../Terms";
 
 interface DeckPanelProps {
   excludeCards: number[];

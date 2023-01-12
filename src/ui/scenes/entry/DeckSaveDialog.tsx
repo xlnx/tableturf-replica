@@ -13,6 +13,7 @@ import { DB } from "../../../Database";
 import { ReactNode } from "react";
 import { MessageBar } from "../../components/MessageBar";
 import { DeckPanel } from "./DeckPanel";
+import { getNameError } from "../../../Terms";
 
 interface DeckSaveDialogProps {
   open: boolean;
@@ -58,13 +59,8 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
       </MenuItem>
     ));
 
-    let nameError = "";
-    if (this.props.name != "") {
-      if (this.props.name.trim() != this.props.name) {
-        nameError = "leading/trailing space is not allowed";
-      }
-    }
-
+    const nameError =
+      this.props.name != "" ? getNameError(this.props.name) : "";
     const handleSave = async () => {
       if (nameError) {
         return;
@@ -111,7 +107,7 @@ class DeckSaveDialog_0 extends ReactComponent<DeckSaveDialogProps> {
               color={!nameError ? "primary" : "error"}
               placeholder={DB.read().decks[this.props.deck].name}
               inputProps={{
-                maxLength: 32,
+                maxLength: 24,
                 "aria-describedby": nameError
                   ? "deck-save-name-error-text"
                   : "",
