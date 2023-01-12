@@ -6,11 +6,9 @@ import {
 } from "boardgame.io/dist/types/src/client/transport/transport";
 import { getLogger } from "loglevel";
 import {
-  StarterDeck,
   TableturfClientState,
   TableturfGame,
   TableturfGameState,
-  TableturfPlayerInfo,
 } from "../Game";
 import { DB } from "../Database";
 
@@ -203,11 +201,8 @@ export class Client {
     return null;
   }
 
-  protected getDefaultPlayerInfo(): TableturfPlayerInfo {
-    return {
-      name: DB.read().playerName,
-      deck: StarterDeck.slice(),
-    };
+  get playerName() {
+    return DB.read().playerName;
   }
 
   protected handleTransportData(data: TransportData) {
@@ -238,7 +233,7 @@ export class Client {
 
     if (!prevState) {
       setTimeout(() => {
-        this.send("updatePlayerInfo", this.getDefaultPlayerInfo());
+        this.send("updatePlayerInfo", { name: this.playerName });
       });
     }
 

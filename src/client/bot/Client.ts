@@ -1,5 +1,5 @@
 import { getLogger } from "loglevel";
-import { TableturfClientState, TableturfPlayerInfo } from "../../Game";
+import { TableturfClientState } from "../../Game";
 import { Bot, BotConnector, BotSession } from "./Bot";
 import { Client } from "../Client";
 import {
@@ -46,11 +46,8 @@ class BotClientImpl extends Client {
     return this.bot.info;
   }
 
-  protected getDefaultPlayerInfo(): TableturfPlayerInfo {
-    return {
-      name: this.botInfo.name,
-      deck: null,
-    };
+  get playerName() {
+    return this.botInfo.name;
   }
 
   private _handleError(err) {
