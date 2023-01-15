@@ -1,0 +1,23 @@
+{
+  "name": "tableturf-game",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "axios": "^1.2.2",
+    "boardgame.io": "^0.50.2",
+    "loglevel": "^1.8.1",
+    "tableturf-core": "../core",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.4",
+    "typescript": "^4.9.4",
+    "vitest": "^0.27.1"
+  }
+}
