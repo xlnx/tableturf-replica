@@ -5,7 +5,7 @@ import koaBody from "koa-body";
 import Router from "@koa/router";
 import { Origins, Server } from "boardgame.io/server";
 import { LobbyClient } from "boardgame.io/client";
-import { TableturfGame } from "./Game";
+import { MatchController } from "./MatchController";
 import { Daemon } from "./Daemon";
 
 const origins = {
@@ -35,12 +35,13 @@ function isOriginAllowed(
 
 export class Gateway {
   private server = Server({
-    games: [TableturfGame],
+    games: [MatchController],
     origins: origins.public,
     apiOrigins: origins.internal,
   });
   private serverInstance: any;
   private gatewayInstance: any;
+  private matches = new Map<string, MatchInfo>();
 
   async run(opts: {
     port: number;
@@ -66,12 +67,14 @@ export class Gateway {
   kill() {
     if (this.serverInstance) {
       this.server.kill(this.serverInstance);
-      this.serverInstance = null;
     }
     if (this.gatewayInstance) {
       this.gatewayInstance.close();
-      this.gatewayInstance = null;
     }
+  }
+
+  getDaemon(matchID: string) {
+    return this.matches.get(matchID).daemon;
   }
 
   private async configureGateway(
@@ -100,19 +103,19 @@ export class Gateway {
   }
 
   private configureRouter(addr: string, gateway: Koa, lobby: LobbyClient) {
-    const gameName = TableturfGame.name;
+    const gameName = MatchController.name;
     const router = new Router();
-
-    const li = new Map<string, MatchInfo>();
 
     router.get("/match/list", koaBody(), async (ctx) => {
       const { matches } = await lobby.listMatches(gameName);
-      ctx.body = { matches: matches.filter((match) => li.has(match.matchID)) };
+      ctx.body = {
+        matches: matches.filter((match) => this.matches.has(match.matchID)),
+      };
     });
 
     router.get("/match/:id", koaBody(), async (ctx) => {
       const matchID = ctx.params.id;
-      if (!li.has(matchID)) {
+      if (!this.matches.has(matchID)) {
         ctx.throw(404, "Match " + matchID + " not found");
       }
       ctx.body = await lobby.getMatch(gameName, matchID);
@@ -120,7 +123,7 @@ export class Gateway {
 
     router.post("/match/create", koaBody(), async (ctx) => {
       const { playerName } = ctx.request.body as ICreateMatchBody;
-      const { matchID } = await lobby.createMatch(gameName, { numPlayers: 4 });
+      const { matchID } = await lobby.createMatch(gameName, { numPlayers: 5 });
       const { playerID, playerCredentials } = await lobby.joinMatch(
         gameName,
         matchID,
@@ -147,20 +150,20 @@ export class Gateway {
       const { ...join } = await lobby.joinMatch(gameName, matchID, {
         playerName,
       });
-      li.set(matchID, { daemon, refcnt: 1 });
+      this.matches.set(matchID, { daemon, refcnt: 1 });
       ctx.body = { matchID, ...join };
     });
 
     router.post("/match/:id/join", koaBody(), async (ctx) => {
       const matchID = ctx.params.id;
       const { playerName } = ctx.request.body as IJoinMatchBody;
-      if (!li.has(matchID)) {
+      if (!this.matches.has(matchID)) {
         ctx.throw(404, "Match " + matchID + " not found");
       }
       const { ...join } = await lobby.joinMatch(gameName, matchID, {
         playerName,
       });
-      ++li.get(matchID).refcnt;
+      ++this.matches.get(matchID).refcnt;
       ctx.body = { ...join };
     });
 
@@ -168,13 +171,13 @@ export class Gateway {
     router.post("/match/:id/leave", koaBody(), async (ctx) => {
       const matchID = ctx.params.id;
       const { ...body } = ctx.request.body;
-      if (!li.has(matchID)) {
+      if (!this.matches.has(matchID)) {
         ctx.throw(404, "Match " + matchID + " not found");
       }
       await lobby.leaveMatch(gameName, matchID, { ...body });
-      if (!--li.get(matchID).refcnt) {
-        const { daemon } = li.get(matchID);
-        li.delete(matchID);
+      if (!--this.matches.get(matchID).refcnt) {
+        const { daemon } = this.matches.get(matchID);
+        this.matches.delete(matchID);
         await daemon.stop();
       }
       ctx.body = {};

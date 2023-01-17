@@ -1,12 +1,12 @@
 import { Server as createServer, Origins } from "boardgame.io/server";
-import { TableturfGame } from "./Game";
+import { MatchController } from "./MatchController";
 
 export class Server {
   private server: ReturnType<typeof createServer>;
 
   constructor() {
     this.server = createServer({
-      games: [TableturfGame],
+      games: [MatchController],
     });
   }
 

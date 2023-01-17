@@ -35,3 +35,6 @@ dist/
 
 *.egg-info/
 *.egg
+
+
+coverage

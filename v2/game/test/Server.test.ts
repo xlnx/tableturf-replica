@@ -2,8 +2,10 @@ import { expect, test, vi } from "vitest";
 import { Client, LobbyClient } from "boardgame.io/client";
 import { Origins, Server } from "boardgame.io/server";
 import { SocketIO } from "boardgame.io/multiplayer";
-import { TableturfGame } from "../src/Game";
+import { MatchController } from "../src/MatchController";
 import { v4 } from "uuid";
+
+const PORT = 5010;
 
 const mock = {
   generateCredentials: () => {
@@ -24,13 +26,13 @@ const spy = {
 
 test("test_server_usage", async () => {
   const server = Server({
-    games: [TableturfGame],
+    games: [MatchController],
     origins: [Origins.LOCALHOST_IN_DEVELOPMENT],
     generateCredentials: mock.generateCredentials,
     authenticateCredentials: mock.authenticateCredentials,
   });
-  const serverInstance = await server.run({ port: 32401 });
-  const lobby = new LobbyClient({ server: "http://localhost:32401" });
+  const serverInstance = await server.run({ port: PORT });
+  const lobby = new LobbyClient({ server: `http://localhost:${PORT}` });
 
   // list games
   const games = await lobby.listGames();
@@ -70,8 +72,8 @@ test("test_server_usage", async () => {
   ]);
 
   const client = Client({
-    game: TableturfGame,
-    multiplayer: SocketIO({ server: "localhost:32401" }),
+    game: MatchController,
+    multiplayer: SocketIO({ server: `localhost:${PORT}` }),
     playerID,
     matchID,
     credentials: playerCredentials,

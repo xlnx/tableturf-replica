@@ -2,18 +2,20 @@ import { expect, test } from "vitest";
 import { Gateway } from "../src/Gateway";
 import { GatewayClient } from "../src/GatewayClient";
 
+const PORT = 5000;
+
 test("test_simple", async () => {
   const gateway = new Gateway();
   await gateway.run({
-    port: 5140,
-    gatewayPort: 5141,
-    internalPortRange: [32300, 32400],
+    port: PORT,
+    gatewayPort: PORT + 1,
+    internalPortRange: [PORT + 2, PORT + 3],
   });
 
   const client = new GatewayClient({
     origin: "localhost",
-    port: 5140,
-    gatewayPort: 5141,
+    port: PORT,
+    gatewayPort: PORT + 1,
   });
 
   let response = await client.listMatches();
