@@ -24,7 +24,7 @@ const spy = {
   authenticateCredentials: vi.spyOn(mock, "authenticateCredentials"),
 };
 
-test("test_server_usage", async () => {
+test("test_socketio_usage", async () => {
   const server = Server({
     games: [MatchController],
     origins: [Origins.LOCALHOST_IN_DEVELOPMENT],

@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "serve": "node dist/Server.js",
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },

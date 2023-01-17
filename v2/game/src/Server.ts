@@ -1,23 +1,13 @@
-import { Server as createServer, Origins } from "boardgame.io/server";
-import { MatchController } from "./MatchController";
+import { Gateway } from "./Gateway";
 
-export class Server {
-  private server: ReturnType<typeof createServer>;
-
-  constructor() {
-    this.server = createServer({
-      games: [MatchController],
-    });
-  }
-
-  async run(options: { port: number; lobbyApiPort: number }) {
-    await this.server.run({
-      port: options.port,
-      lobbyConfig: {
-        apiPort: options.lobbyApiPort,
-      },
-    });
-  }
-
-  async createMatch(): Promise<> {}
+async function main() {
+  const gateway = new Gateway();
+  await gateway.run({
+    port: 5140,
+    gatewayPort: 5141,
+    internalPortRange: [32400, 32410],
+  });
+  await new Promise(() => {});
 }
+
+main();

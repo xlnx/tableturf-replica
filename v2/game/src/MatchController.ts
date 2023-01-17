@@ -1,11 +1,11 @@
-import { Game, Move, PhaseConfig } from "boardgame.io";
-import { ActivePlayers, INVALID_MOVE, Stage } from "boardgame.io/core";
-import { initGame, isGameMoveValid, moveGame } from "tableturf-core/src/Api";
+import { Game, Move } from "boardgame.io";
+import { ActivePlayers, INVALID_MOVE } from "boardgame.io/core";
 import {
-  IGameState,
-  IPlayerId,
-  IPlayerMovement,
-} from "tableturf-core/src/Types";
+  initGame,
+  isGameMoveValid,
+  moveGame,
+} from "tableturf-core/dist/src/Api";
+import { IPlayerId, IPlayerMovement } from "tableturf-core/dist/src/Types";
 import { IMatchMeta, IMatchState } from "./Types";
 
 const N = 4;

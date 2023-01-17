@@ -1,4 +1,4 @@
-import { IGameState, IPlayerMovement } from "tableturf-core/src/Types";
+import { IGameState, IPlayerMovement } from "tableturf-core/dist/src/Types";
 import { ClientState } from "boardgame.io/dist/types/src/client/client";
 
 // daemon state

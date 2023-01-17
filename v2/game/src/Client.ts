@@ -82,6 +82,9 @@ export class Client {
   }
 
   send(method: string, ...args: any[]) {
+    if (!(this.client as any).transport.socket) {
+      return;
+    }
     try {
       logger.log(method, args);
       this.client.moves[method](...args);

@@ -105,7 +105,7 @@ test("test_game_flow", async () => {
     }
   }
 
-  p1.stop();
+  await p1.stop();
   await sleep();
 
   expect(daemon.client.getState()?.G).toEqual(
@@ -120,13 +120,15 @@ test("test_game_flow", async () => {
     })
   );
 
-  p2.stop();
+  await p2.stop();
 });
 
 test("test_transfer_host", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  p1.send("UpdateMeta", { stage: 3 });
   const daemon = gateway.getDaemon(p1.matchID);
+  await sleep();
+
+  p1.send("UpdateMeta", { stage: 3 });
   const p2 = await client.joinMatch(p1.matchID, { playerName: "p2" });
   await sleep();
 
@@ -164,4 +166,6 @@ test("test_transfer_host", async () => {
       stage: 2,
     })
   );
+  await p1.stop();
+  await p2.stop();
 });

@@ -29,6 +29,7 @@ test("test_simple", async () => {
     expect.objectContaining({ name: "p1" }),
     { id: 2 },
     { id: 3 },
+    { id: 4 },
   ]);
 
   const match2 = await client.joinMatch(matchID, { playerName: "p2" });
@@ -38,6 +39,7 @@ test("test_simple", async () => {
     expect.objectContaining({ name: "p1" }),
     expect.objectContaining({ name: "p2" }),
     { id: 3 },
+    { id: 4 },
   ]);
 
   await match1.stop();
@@ -47,6 +49,7 @@ test("test_simple", async () => {
     { id: 1, isConnected: false },
     expect.objectContaining({ name: "p2" }),
     { id: 3 },
+    { id: 4 },
   ]);
 
   await match2.stop();
