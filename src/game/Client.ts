@@ -77,7 +77,11 @@ export class Client {
   }
 
   stop() {
-    this.client.stop();
+    try {
+      this.client.stop();
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   send(method: string, ...args: any[]) {
