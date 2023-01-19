@@ -160,7 +160,7 @@ export const MatchController: Game<IMatchState> = {
       },
       endIf: ({ G }) =>
         G.meta.players.length == 2 &&
-        G.daemon?.players.every((playerID) => G.buffer.ready[playerID]),
+        G.daemon.players.every((playerID) => G.buffer.ready[playerID]),
       next: "beforePlay",
     },
 

@@ -30,7 +30,7 @@ test("test_game_flow", async () => {
   const daemon = gateway.matches.get(p1.matchID);
   await sleep();
 
-  expect(daemon.client.getState()?.G).toEqual(
+  expect(daemon.client.getState().G).toEqual(
     expect.objectContaining({
       daemon: expect.objectContaining({
         players: ["1"],
@@ -44,7 +44,7 @@ test("test_game_flow", async () => {
   await sleep();
 
   for (let j = 0; j < 2; ++j) {
-    expect(daemon.client.getState()?.G).toEqual(
+    expect(daemon.client.getState().G).toEqual(
       expect.objectContaining({
         daemon: expect.objectContaining({
           players: ["1", "2"],
@@ -55,14 +55,14 @@ test("test_game_flow", async () => {
         }),
       })
     );
-    expect(daemon.client.getState()?.ctx.phase).toEqual("prepare");
+    expect(daemon.client.getState().ctx.phase).toEqual("prepare");
     p1.send("ToggleReady");
     p2.send("ToggleReady");
     await sleep();
 
     for (let i = 0; i < 12; ++i) {
       let state = daemon.client.getState();
-      expect(state?.ctx.phase).toEqual("play");
+      expect(state.ctx.phase).toEqual("play");
       if (i == 0) {
         p1.send("Redraw");
       }
@@ -72,12 +72,12 @@ test("test_game_flow", async () => {
 
       state = daemon.client.getState();
       if (i == 0) {
-        const [p1, p2] = state?.G.game?.players!;
+        const [p1, p2] = state.G.game.players;
         expect(p1.hand.concat(p1.deck)).not.toEqual(p2.hand.concat(p2.deck));
       }
-      expect(state?.ctx.phase).toEqual(i == 11 ? "prepare" : "play");
-      expect(state?.G.game?.round).toEqual(11 - i);
-      expect(state?.G.buffer).toEqual(
+      expect(state.ctx.phase).toEqual(i == 11 ? "prepare" : "play");
+      expect(state.G.game.round).toEqual(11 - i);
+      expect(state.G.buffer).toEqual(
         expect.objectContaining({
           moves: Array(2).fill(null),
           history: Array.from(Array(i + 1).keys()).map((j) => [
@@ -96,7 +96,7 @@ test("test_game_flow", async () => {
       );
 
       if (i != 11) {
-        const [s1, s2] = p1.client.getState()?.G.game?.players!;
+        const [s1, s2] = p1.client.getState().G.game.players!;
         expect(s1.deck).toEqual([]);
         expect(s2.deck).toEqual([]);
         expect(s1.hand).not.toEqual(Array(4).fill(-1));
@@ -108,7 +108,7 @@ test("test_game_flow", async () => {
   p1.stop();
   await sleep();
 
-  expect(daemon.client.getState()?.G).toEqual(
+  expect(daemon.client.getState().G).toEqual(
     expect.objectContaining({
       daemon: expect.objectContaining({
         players: ["2"],
@@ -132,7 +132,7 @@ test("test_transfer_host", async () => {
   const p2 = await client.joinMatch(p1.matchID, { playerName: "p2" });
   await sleep();
 
-  expect(daemon.client.getState()?.G.meta).toEqual(
+  expect(daemon.client.getState().G.meta).toEqual(
     expect.objectContaining({
       host: "1",
       stage: 3,
@@ -141,7 +141,7 @@ test("test_transfer_host", async () => {
   p2.send("UpdateMeta", { stage: 5 });
   await sleep();
 
-  expect(daemon.client.getState()?.G.meta).toEqual(
+  expect(daemon.client.getState().G.meta).toEqual(
     expect.objectContaining({
       host: "1",
       stage: 3,
@@ -151,7 +151,7 @@ test("test_transfer_host", async () => {
   p1.send("UpdateMeta", { stage: 4 });
   await sleep();
 
-  expect(daemon.client.getState()?.G.meta).toEqual(
+  expect(daemon.client.getState().G.meta).toEqual(
     expect.objectContaining({
       host: "2",
       stage: 3,
@@ -160,7 +160,7 @@ test("test_transfer_host", async () => {
   p2.send("UpdateMeta", { stage: 2 });
   await sleep();
 
-  expect(daemon.client.getState()?.G.meta).toEqual(
+  expect(daemon.client.getState().G.meta).toEqual(
     expect.objectContaining({
       host: "2",
       stage: 2,

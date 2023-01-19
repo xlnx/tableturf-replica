@@ -40,7 +40,7 @@ export class Daemon extends Client {
 
   async stop(): Promise<void> {
     this.stopped = true;
-    await super.stop();
+    super.stop();
     await this.lobby.leaveMatch(TableturfGame.name, this.matchID, {
       playerID: this.client.playerID,
       credentials: this.client.credentials,
