@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, expect, test } from "vitest";
-import { Gateway } from "../src/Gateway";
-import { GatewayClient } from "../src/GatewayClient";
+import { Gateway } from "../Gateway";
+import { GatewayClient } from "../GatewayClient";
 
 const PORT = 5020;
 const DT = 50;
@@ -10,7 +10,7 @@ const sleep = async (time: number = DT) =>
 
 const gateway = new Gateway();
 const client = new GatewayClient({
-  origin: "localhost",
+  hostname: "localhost",
   port: PORT,
   gatewayPort: PORT + 1,
 });
@@ -27,7 +27,7 @@ afterAll(() => gateway.kill());
 
 test("test_game_flow", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  const daemon = gateway.getDaemon(p1.matchID);
+  const daemon = gateway.matches.get(p1.matchID);
   await sleep();
 
   expect(daemon.client.getState()?.G).toEqual(
@@ -105,7 +105,7 @@ test("test_game_flow", async () => {
     }
   }
 
-  await p1.stop();
+  p1.stop();
   await sleep();
 
   expect(daemon.client.getState()?.G).toEqual(
@@ -120,12 +120,12 @@ test("test_game_flow", async () => {
     })
   );
 
-  await p2.stop();
+  p2.stop();
 });
 
 test("test_transfer_host", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  const daemon = gateway.getDaemon(p1.matchID);
+  const daemon = gateway.matches.get(p1.matchID);
   await sleep();
 
   p1.send("UpdateMeta", { stage: 3 });
@@ -166,6 +166,6 @@ test("test_transfer_host", async () => {
       stage: 2,
     })
   );
-  await p1.stop();
-  await p2.stop();
+  p1.stop();
+  p2.stop();
 });

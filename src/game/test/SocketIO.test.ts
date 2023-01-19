@@ -2,7 +2,7 @@ import { expect, test, vi } from "vitest";
 import { Client, LobbyClient } from "boardgame.io/client";
 import { Origins, Server } from "boardgame.io/server";
 import { SocketIO } from "boardgame.io/multiplayer";
-import { MatchController } from "../src/MatchController";
+import { MatchController } from "../MatchController";
 import { v4 } from "uuid";
 
 const PORT = 5010;

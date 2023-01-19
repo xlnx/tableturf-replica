@@ -9,6 +9,7 @@
     "update_manifest": "python src/assets/gen_manifest.py",
     "update_schema": "typescript-json-schema tsconfig.json * --include src/client/bot/Typing.d.ts src/core/Typing.d.ts --out src/Schema.json --required",
     "build": "tsc && vite build",
+    "build:server": "tsc -p server.tsconfig.json",
     "preview": "vite preview",
     "test": "vitest",
     "coverage": "vitest run --coverage"
@@ -20,6 +21,7 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.10.10",
     "@pixi/tilemap": "^3.2.2",
+    "axios": "^1.2.3",
     "base64url": "^3.0.1",
     "bezier-easing": "^2.1.0",
     "boardgame.io": "^0.50.2",

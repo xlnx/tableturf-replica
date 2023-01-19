@@ -6,10 +6,10 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "outDir": "dist",
-    "declaration": true
+    "outDir": "dist/server",
+    "paths": {
+      "*": ["./*.d.ts"]
+    }
   },
-  "include": [
-    "src/**/*",
-  ],
+  "include": ["src/game", "src/core"]
 }

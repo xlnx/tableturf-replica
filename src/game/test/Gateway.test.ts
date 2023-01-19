@@ -1,8 +1,8 @@
 import { expect, test } from "vitest";
-import { Gateway } from "../src/Gateway";
-import { GatewayClient } from "../src/GatewayClient";
+import { Gateway } from "../Gateway";
+import { GatewayClient } from "../GatewayClient";
 
-const PORT = 5000;
+const PORT = 5030;
 
 test("test_simple", async () => {
   const gateway = new Gateway();
@@ -13,7 +13,7 @@ test("test_simple", async () => {
   });
 
   const client = new GatewayClient({
-    origin: "localhost",
+    hostname: "localhost",
     port: PORT,
     gatewayPort: PORT + 1,
   });
@@ -25,8 +25,8 @@ test("test_simple", async () => {
   const { matchID } = match1;
   let match = await client.getMatch(matchID);
   expect(match.players).toEqual([
-    expect.objectContaining({ name: "$daemon" }),
-    expect.objectContaining({ name: "p1" }),
+    expect.objectContaining({ name: "$daemon", isConnected: true }),
+    expect.objectContaining({ name: "p1", isConnected: true }),
     { id: 2 },
     { id: 3 },
     { id: 4 },
@@ -35,24 +35,27 @@ test("test_simple", async () => {
   const match2 = await client.joinMatch(matchID, { playerName: "p2" });
   match = await client.getMatch(match2.matchID);
   expect(match.players).toEqual([
-    expect.objectContaining({ name: "$daemon" }),
-    expect.objectContaining({ name: "p1" }),
-    expect.objectContaining({ name: "p2" }),
+    expect.objectContaining({ name: "$daemon", isConnected: true }),
+    expect.objectContaining({ name: "p1", isConnected: true }),
+    expect.objectContaining({ name: "p2", isConnected: true }),
     { id: 3 },
     { id: 4 },
   ]);
 
-  await match1.stop();
+  match1.stop();
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   match = await client.getMatch(matchID);
   expect(match.players).toEqual([
-    expect.objectContaining({ name: "$daemon" }),
-    { id: 1, isConnected: false },
-    expect.objectContaining({ name: "p2" }),
+    expect.objectContaining({ name: "$daemon", isConnected: true }),
+    expect.objectContaining({ isConnected: false }),
+    expect.objectContaining({ name: "p2", isConnected: true }),
     { id: 3 },
     { id: 4 },
   ]);
 
-  await match2.stop();
+  match2.client.stop();
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   response = await client.listMatches();
   expect(response.matches).toHaveLength(0);

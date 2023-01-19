@@ -2,7 +2,6 @@ import { _ClientImpl } from "boardgame.io/dist/types/src/client/client";
 import { Client as BoardGameIOClient } from "boardgame.io/client";
 import { SocketIO } from "boardgame.io/multiplayer";
 import { MatchController } from "./MatchController";
-import { IMatchState } from "./Types";
 import loglevel from "loglevel";
 
 const logger = loglevel.getLogger("client");
@@ -28,11 +27,12 @@ export class Client {
       credentials,
       timeout = 15000,
     }: ClientConnectOptions,
-    private readonly onStop: () => Promise<void>
+    // private readonly onStop: () => Promise<void>
   ) {
     let resolve;
     const task = new Promise<void>((_) => (resolve = _));
     this.client = BoardGameIOClient({
+      debug: false,
       game: MatchController,
       multiplayer: ({ transportDataCallback, ...transportOpts }) =>
         SocketIO({ server, socketOpts: { timeout } })({
@@ -76,9 +76,8 @@ export class Client {
     await this._start();
   }
 
-  async stop() {
+  stop() {
     this.client.stop();
-    await this.onStop();
   }
 
   send(method: string, ...args: any[]) {

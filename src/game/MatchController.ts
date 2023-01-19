@@ -4,9 +4,7 @@ import {
   initGame,
   isGameMoveValid,
   moveGame,
-} from "tableturf-core/dist/src/Api";
-import { IPlayerId, IPlayerMovement } from "tableturf-core/dist/src/Types";
-import { IMatchMeta, IMatchState } from "./Types";
+} from "../core/Tableturf";
 
 const N = 4;
 

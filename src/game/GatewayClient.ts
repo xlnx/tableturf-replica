@@ -2,7 +2,7 @@ import { LobbyAPI } from "boardgame.io";
 import { Match } from "./Match";
 
 interface GatewayClientOptions {
-  origin: string;
+  hostname: string;
   port: number;
   gatewayPort: number;
   https?: boolean;
@@ -13,13 +13,13 @@ export class GatewayClient {
   readonly gatewayAddr: string;
 
   constructor({
-    origin,
+    hostname,
     port,
     gatewayPort,
     https = false,
   }: GatewayClientOptions) {
-    this.addr = `${origin}:${port}`;
-    this.gatewayAddr = `${https ? "https" : "http"}://${origin}:${gatewayPort}`;
+    this.addr = `${hostname}:${port}`;
+    this.gatewayAddr = `${https ? "https" : "http"}://${hostname}:${gatewayPort}`;
   }
 
   async listMatches(): Promise<LobbyAPI.MatchList> {
@@ -40,32 +40,17 @@ export class GatewayClient {
     return await this.joinMatchByToken(matchID, response);
   }
 
-  private async leaveMatch(
-    matchID: string,
-    body: ILeaveMatchBody
-  ): Promise<void> {
-    return await this.post(`/match/${matchID}/leave`, { body });
-  }
-
   private async joinMatchByToken(
     matchID: string,
     token: LobbyAPI.JoinedMatch
   ): Promise<Match> {
     const { playerID, playerCredentials } = token;
-    const match = new Match(
-      {
-        server: this.addr,
-        matchID,
-        playerID,
-        credentials: playerCredentials,
-      },
-      async () => {
-        await this.leaveMatch(matchID, {
-          playerID,
-          credentials: playerCredentials,
-        });
-      }
-    );
+    const match = new Match({
+      server: this.addr,
+      matchID,
+      playerID,
+      credentials: playerCredentials,
+    });
     await match.start();
     return match;
   }

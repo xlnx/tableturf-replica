@@ -41,7 +41,8 @@ export class Gateway {
   });
   private serverInstance: any;
   private gatewayInstance: any;
-  private matches = new Map<string, MatchInfo>();
+
+  readonly matches = new Map<string, Daemon>();
 
   async run(opts: {
     port: number;
@@ -73,17 +74,13 @@ export class Gateway {
     }
   }
 
-  getDaemon(matchID: string) {
-    return this.matches.get(matchID).daemon;
-  }
-
   private async configureGateway(
     port: number,
     gatewayPort: number,
     apiPort: number
   ) {
-    const gateway = new Koa();
-    gateway.use(
+    const app = new Koa();
+    app.use(
       cors({
         // Set Access-Control-Allow-Origin header for allowed origins.
         origin: (ctx) => {
@@ -93,18 +90,33 @@ export class Gateway {
       })
     );
 
-    const lobby = new LobbyClient({ server: `http://localhost:${apiPort}` });
-    const addr = `localhost:${port}`;
-    this.configureRouter(addr, gateway, lobby);
-
-    await new Promise<void>((resolve) => {
-      this.gatewayInstance = gateway.listen(gatewayPort, resolve);
-    });
-  }
-
-  private configureRouter(addr: string, gateway: Koa, lobby: LobbyClient) {
     const gameName = MatchController.name;
+    const lobby = new LobbyClient({ server: `http://localhost:${apiPort}` });
+
     const router = new Router();
+
+    const createDaemon = async (matchID: string) => {
+      const { playerID, playerCredentials } = await lobby.joinMatch(
+        gameName,
+        matchID,
+        {
+          playerID: "0",
+          playerName: "$daemon",
+        }
+      );
+      const daemon = new Daemon(
+        lobby,
+        {
+          server: `localhost:${port}`,
+          matchID,
+          playerID,
+          credentials: playerCredentials,
+        }
+      );
+      await daemon.start();
+      this.matches.set(matchID, daemon);
+      return daemon;
+    }
 
     router.get("/match/list", koaBody(), async (ctx) => {
       const { matches } = await lobby.listMatches(gameName);
@@ -122,72 +134,29 @@ export class Gateway {
     });
 
     router.post("/match/create", koaBody(), async (ctx) => {
-      const { playerName } = ctx.request.body as ICreateMatchBody;
       const { matchID } = await lobby.createMatch(gameName, { numPlayers: 5 });
-      const { playerID, playerCredentials } = await lobby.joinMatch(
-        gameName,
-        matchID,
-        {
-          playerID: "0",
-          playerName: "$daemon",
-        }
-      );
-      const daemon = new Daemon(
-        {
-          server: addr,
-          matchID,
-          playerID,
-          credentials: playerCredentials,
-        },
-        async () => {
-          await lobby.leaveMatch(gameName, matchID, {
-            playerID,
-            credentials: playerCredentials,
-          });
-        }
-      );
-      await daemon.start();
-      const { ...join } = await lobby.joinMatch(gameName, matchID, {
-        playerName,
-      });
-      this.matches.set(matchID, { daemon, refcnt: 1 });
-      ctx.body = { matchID, ...join };
+      const daemon = await createDaemon(matchID);
+      const body = await daemon.joinMatch(matchID, ctx.request.body as ICreateMatchBody);
+      ctx.body = { matchID, ...body };
     });
 
     router.post("/match/:id/join", koaBody(), async (ctx) => {
       const matchID = ctx.params.id;
-      const { playerName } = ctx.request.body as IJoinMatchBody;
-      if (!this.matches.has(matchID)) {
+      const daemon = this.matches.get(matchID);
+      if (!daemon) {
         ctx.throw(404, "Match " + matchID + " not found");
       }
-      const { ...join } = await lobby.joinMatch(gameName, matchID, {
-        playerName,
-      });
-      ++this.matches.get(matchID).refcnt;
-      ctx.body = { ...join };
+      if (!daemon.isJoinable()) {
+        ctx.throw(404, "Match " + matchID + " is not joinable");
+      }
+      const body = await daemon.joinMatch(matchID, ctx.request.body as IJoinMatchBody);
+      ctx.body = { ...body };
     });
 
-    // authed
-    router.post("/match/:id/leave", koaBody(), async (ctx) => {
-      const matchID = ctx.params.id;
-      const { ...body } = ctx.request.body;
-      if (!this.matches.has(matchID)) {
-        ctx.throw(404, "Match " + matchID + " not found");
-      }
-      await lobby.leaveMatch(gameName, matchID, { ...body });
-      if (!--this.matches.get(matchID).refcnt) {
-        const { daemon } = this.matches.get(matchID);
-        this.matches.delete(matchID);
-        await daemon.stop();
-      }
-      ctx.body = {};
-    });
+    app.use(router.routes()).use(router.allowedMethods());
 
-    gateway.use(router.routes()).use(router.allowedMethods());
+    await new Promise<void>((resolve) => {
+      this.gatewayInstance = app.listen(gatewayPort, resolve);
+    });
   }
-}
-
-interface MatchInfo {
-  daemon: Daemon;
-  refcnt: number;
 }
