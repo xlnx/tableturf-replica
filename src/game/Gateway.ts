@@ -8,11 +8,6 @@ import { LobbyClient } from "boardgame.io/client";
 import { MatchController } from "./MatchController";
 import { Daemon } from "./Daemon";
 
-const origins = {
-  public: [Origins.LOCALHOST_IN_DEVELOPMENT],
-  internal: [Origins.LOCALHOST],
-};
-
 function isOriginAllowed(
   origin: string,
   allowedOrigin: CorsOptions["origin"]
@@ -33,16 +28,30 @@ function isOriginAllowed(
   }
 }
 
+interface GatewayOptions {
+  hostnames?: string[];
+}
+
 export class Gateway {
-  private server = Server({
-    games: [MatchController],
-    origins: origins.public,
-    apiOrigins: origins.internal,
-  });
+  private server;
+  private readonly origins = [Origins.LOCALHOST_IN_DEVELOPMENT];
   private serverInstance: any;
   private gatewayInstance: any;
 
   readonly matches = new Map<string, Daemon>();
+
+  constructor({ hostnames }: GatewayOptions = {}) {
+    if (hostnames) {
+      for (const hostname of hostnames) {
+        this.origins.push(new RegExp(`${hostname}:\\d+`));
+      }
+    }
+    this.server = Server({
+      games: [MatchController],
+      origins: this.origins,
+      apiOrigins: [Origins.LOCALHOST],
+    })
+  }
 
   async run(opts: {
     port: number;
@@ -85,7 +94,7 @@ export class Gateway {
         // Set Access-Control-Allow-Origin header for allowed origins.
         origin: (ctx) => {
           const origin = ctx.get("Origin");
-          return isOriginAllowed(origin, origins.public) ? origin : "";
+          return isOriginAllowed(origin, this.origins) ? origin : "";
         },
       })
     );
@@ -134,10 +143,14 @@ export class Gateway {
     });
 
     router.post("/match/create", koaBody(), async (ctx) => {
-      const { matchID } = await lobby.createMatch(gameName, { numPlayers: 5 });
+      const { matchName = "match", ...body } = ctx.request.body as ICreateMatchBody;
+      const { matchID } = await lobby.createMatch(gameName, {
+        numPlayers: 5,
+        setupData: { matchName }
+      });
       const daemon = await createDaemon(matchID);
-      const body = await daemon.joinMatch(matchID, ctx.request.body as ICreateMatchBody);
-      ctx.body = { matchID, ...body };
+      const join = await daemon.joinMatch(matchID, body);
+      ctx.body = { matchID, ...join };
     });
 
     router.post("/match/:id/join", koaBody(), async (ctx) => {
@@ -149,8 +162,8 @@ export class Gateway {
       if (!daemon.isJoinable()) {
         ctx.throw(404, "Match " + matchID + " is not joinable");
       }
-      const body = await daemon.joinMatch(matchID, ctx.request.body as IJoinMatchBody);
-      ctx.body = { ...body };
+      const join = await daemon.joinMatch(matchID, ctx.request.body as IJoinMatchBody);
+      ctx.body = { ...join };
     });
 
     app.use(router.routes()).use(router.allowedMethods());

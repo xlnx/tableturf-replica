@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, expect, test } from "vitest";
 import { Gateway } from "../Gateway";
 import { GatewayClient } from "../GatewayClient";
+import { MatchDriver } from "../MatchDriver";
+import { Match } from "../Match";
 
 const PORT = 5020;
 const DT = 50;
@@ -43,6 +45,9 @@ test("test_game_flow", async () => {
   const p2 = await client.joinMatch(p1.matchID, { playerName: "p2" });
   await sleep();
 
+  const d1 = new MockMatchDriver(p1);
+  const d2 = new MockMatchDriver(p1);
+
   for (let j = 0; j < 2; ++j) {
     expect(daemon.client.getState().G).toEqual(
       expect.objectContaining({
@@ -63,10 +68,14 @@ test("test_game_flow", async () => {
     for (let i = 0; i < 12; ++i) {
       let state = daemon.client.getState();
       expect(state.ctx.phase).toEqual("play");
-      if (i == 0) {
-        p1.send("Redraw");
-      }
+
       p1.send("PlayerMove", { action: "discard", hand: i % 4 });
+      await sleep();
+
+      if (i == 0) {
+        p2.send("Redraw");
+      }
+
       p2.send("PlayerMove", { action: "discard", hand: (i + 1) % 4 });
       await sleep();
 
@@ -103,6 +112,34 @@ test("test_game_flow", async () => {
         expect(s2.hand).toEqual(Array(4).fill(-1));
       }
     }
+
+    const li = [expect.objectContaining({ event: "start" })];
+    for (let i = 0; i < 12; ++i) {
+      li.push(expect.objectContaining({ event: "round", args: [12 - i] }));
+      li.push(
+        expect.objectContaining({
+          event: "move",
+          args: [p1.playerID, expect.anything()],
+        })
+      );
+      if (i == 0) {
+        li.push(
+          expect.objectContaining({ event: "redraw", args: [p2.playerID] })
+        );
+      }
+      li.push(
+        expect.objectContaining({
+          event: "move",
+          args: [p2.playerID, expect.anything()],
+        })
+      );
+    }
+    li.push(expect.objectContaining({ event: "finish" }));
+
+    expect(d1.events).toEqual(li);
+    expect(d2.events).toEqual(li);
+
+    [d1, d2].forEach((driver) => driver.events.splice(0, driver.events.length));
   }
 
   p1.stop();
@@ -169,3 +206,18 @@ test("test_transfer_host", async () => {
   p1.stop();
   p2.stop();
 });
+
+class MockMatchDriver extends MatchDriver {
+  readonly events: any[] = [];
+
+  constructor(match: Match) {
+    super(match);
+    for (const event of ["start", "round", "redraw", "move", "finish"]) {
+      this.on(event as any, this.emitEvent.bind(this, event));
+    }
+  }
+
+  private emitEvent(event: string, ...args: any[]) {
+    this.events.push({ event, args });
+  }
+}

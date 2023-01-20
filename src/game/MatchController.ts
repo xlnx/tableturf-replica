@@ -1,10 +1,6 @@
 import { Game, Move } from "boardgame.io";
 import { ActivePlayers, INVALID_MOVE } from "boardgame.io/core";
-import {
-  initGame,
-  isGameMoveValid,
-  moveGame,
-} from "../core/Tableturf";
+import { initGame, isGameMoveValid, moveGame } from "../core/Tableturf";
 
 const N = 4;
 
@@ -91,6 +87,30 @@ const UpdateMeta: Move<IMatchState> = {
   ignoreStaleStateID: true,
 };
 
+const ToggleRole: Move<IMatchState> = {
+  move: ({ G, playerID }, dstPlayerID) => {
+    if (playerID != G.meta.host) {
+      return INVALID_MOVE;
+    }
+    if (G.daemon.players.indexOf(dstPlayerID) < 0) {
+      return INVALID_MOVE;
+    }
+    const idx = G.meta.players.indexOf(dstPlayerID);
+    if (idx < 0) {
+      if (G.meta.players.length >= 2) {
+        return INVALID_MOVE;
+      }
+      // spectator -> player, give him some time to prepare
+      G.meta.players.push(dstPlayerID);
+      G.buffer.ready[dstPlayerID] = false;
+    } else {
+      G.meta.players.splice(idx, 1);
+    }
+  },
+  client: false,
+  ignoreStaleStateID: true,
+};
+
 export const MatchController: Game<IMatchState> = {
   name: "tableturf",
 
@@ -117,6 +137,11 @@ export const MatchController: Game<IMatchState> = {
   }),
 
   playerView: ({ G, ctx, playerID }) => {
+    if (+playerID == 0) {
+      return G;
+    }
+    G = { ...G };
+    delete G.daemon;
     if (ctx.phase != "play") {
       return G;
     }
@@ -124,7 +149,7 @@ export const MatchController: Game<IMatchState> = {
     if (player == -1) {
       return G;
     }
-    let { game } = G;
+    let { game, buffer } = G;
     if (game) {
       const players = game.players.map((info, i) =>
         i == player
@@ -134,11 +159,12 @@ export const MatchController: Game<IMatchState> = {
       game = { ...game, players };
     }
     return {
+      ...G,
       game,
-      meta: G.meta,
       buffer: {
-        moves: G.buffer.moves.map((e) => (e ? {} : null)),
-        history: G.buffer.history.slice(-1),
+        ...buffer,
+        moves: buffer.moves.map((e) => (e ? {} : null)),
+        history: buffer.history.slice(-1),
       },
     };
   },
@@ -154,7 +180,7 @@ export const MatchController: Game<IMatchState> = {
     },
 
     prepare: {
-      moves: { UpdateState, UpdateMeta, ToggleReady },
+      moves: { UpdateState, UpdateMeta, ToggleRole, ToggleReady },
       turn: {
         activePlayers: ActivePlayers.ALL,
       },

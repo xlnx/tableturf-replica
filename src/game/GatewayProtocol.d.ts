@@ -1,4 +1,7 @@
-declare type ICreateMatchBody = IJoinMatchBody & {};
+declare type ICreateMatchBody = IJoinMatchBody & {
+  matchName?: string;
+  // password?: string;
+};
 
 declare interface IJoinMatchBody {
   playerName: string;
