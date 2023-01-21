@@ -3,6 +3,7 @@ import { Gateway } from "../Gateway";
 import { GatewayClient } from "../GatewayClient";
 import { MatchDriver } from "../MatchDriver";
 import { Match } from "../Match";
+import { StarterDeck } from "../MatchController";
 
 const PORT = 5020;
 const DT = 50;
@@ -63,6 +64,12 @@ test("test_game_flow", async () => {
     expect(daemon.client.getState().ctx.phase).toEqual("prepare");
     p1.send("ToggleReady");
     p2.send("ToggleReady");
+    await sleep();
+
+    const state = daemon.client.getState();
+    expect(state.ctx.phase).toEqual("handshake");
+    p1.send("Handshake", { deck: StarterDeck.slice() });
+    p2.send("Handshake", { deck: StarterDeck.slice() });
     await sleep();
 
     for (let i = 0; i < 12; ++i) {

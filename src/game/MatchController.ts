@@ -1,6 +1,11 @@
 import { Game, Move } from "boardgame.io";
 import { ActivePlayers, INVALID_MOVE } from "boardgame.io/core";
-import { initGame, isGameMoveValid, moveGame } from "../core/Tableturf";
+import {
+  initGame,
+  isDeckValid,
+  isGameMoveValid,
+  moveGame,
+} from "../core/Tableturf";
 
 const N = 4;
 
@@ -87,6 +92,20 @@ const UpdateMeta: Move<IMatchState> = {
   ignoreStaleStateID: true,
 };
 
+const Handshake: Move<IMatchState> = {
+  move: ({ G, playerID }, { deck }: IHandshake) => {
+    const player = G.meta.players.indexOf(playerID);
+    if (player < 0) {
+      return INVALID_MOVE;
+    }
+    const decks = G.daemon.decks.slice();
+    decks[player] = deck.slice();
+    Object.assign(G.daemon, { decks });
+  },
+  client: false,
+  ignoreStaleStateID: true,
+};
+
 const ToggleRole: Move<IMatchState> = {
   move: ({ G, playerID }, dstPlayerID) => {
     if (playerID != G.meta.host) {
@@ -119,6 +138,7 @@ export const MatchController: Game<IMatchState> = {
   setup: () => ({
     daemon: {
       players: [],
+      decks: [],
     },
     game: null,
     meta: {
@@ -188,16 +208,30 @@ export const MatchController: Game<IMatchState> = {
       endIf: ({ G }) =>
         G.meta.players.length == 2 &&
         G.daemon.players.every((playerID) => G.buffer.ready[playerID]),
+      next: "beforeHandshake",
+    },
+
+    beforeHandshake: {
+      endIf: () => true,
+      onEnd: ({ G }) => {
+        G.daemon.decks = Array(2).fill([]);
+      },
+      next: "handshake",
+    },
+
+    handshake: {
+      endIf: ({ G }) => G.daemon.decks.every(isDeckValid),
+      moves: { UpdateState, Handshake },
+      turn: {
+        activePlayers: ActivePlayers.ALL,
+      },
       next: "beforePlay",
     },
 
     beforePlay: {
       endIf: () => true,
       onEnd: ({ G, random }) => {
-        G.game = initGame(
-          G.meta.stage,
-          [StarterDeck, StarterDeck].map((e) => random.Shuffle(e))
-        );
+        G.game = initGame(G.meta.stage, G.daemon.decks.map(random.Shuffle));
         G.buffer = {
           ready: Array(N + 1).fill(false),
           redrawQuota: Array(2).fill(G.meta.redrawQuota),

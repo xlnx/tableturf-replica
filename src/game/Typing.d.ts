@@ -4,6 +4,7 @@
 // write = {daemon}
 interface IDaemonState {
   players: string[]; // playerID[]
+  decks: number[][];
 }
 
 // match metadata
@@ -36,6 +37,10 @@ interface IMatchState {
   game?: IGameState;
   meta: IMatchMeta;
   buffer: IBufferState;
+}
+
+interface IHandshake {
+  deck: number[];
 }
 
 // declare type IMatchControllerState = Exclude<ClientState<IMatchState>, null>;
