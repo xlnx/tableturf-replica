@@ -144,8 +144,8 @@ export class Client extends EventDispatcher<Event> {
     const { matchData } = this.client;
     // skip daemon
     for (let i = 1; i < this.prevMatchData.length; ++i) {
-      const c0 = this.prevMatchData[i].isConnected;
-      const c1 = matchData[i].isConnected;
+      const c0 = this.prevMatchData[i] && this.prevMatchData[i].isConnected;
+      const c1 = matchData[i] && matchData[i].isConnected;
       if (!c0 && c1) {
         // player[i] joined the match
         this.dispatchEvent("player-join", i.toString());

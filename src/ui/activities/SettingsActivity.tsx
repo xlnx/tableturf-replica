@@ -70,7 +70,8 @@ class SettingsActivity_0 extends Activity<SettingsActivityProps> {
                 fullWidth
                 onClick={() => {
                   DB.update({ playerName: this.props.name });
-                  MessageBar.success("your settings has been saved.");
+                  MessageBar.success("your settings has been saved");
+                  this.props.parent().show();
                 }}
               >
                 Save

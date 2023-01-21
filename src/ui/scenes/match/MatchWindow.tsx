@@ -8,7 +8,6 @@ import { SpMeterComponent } from "../../SpMeterComponent";
 import { System } from "../../../engine/System";
 import { getLogger } from "loglevel";
 import { enumerateBoardMoves } from "../../../core/Tableturf";
-import { TableturfClientState, TableturfGameState } from "../../../Game";
 import {
   getCardById,
   moveBoard,
@@ -19,14 +18,16 @@ import { ReactNode, useEffect, useRef } from "react";
 import { Box, Grid, Paper, ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
-import { Client } from "../../../client/Client";
 import { CardSmall } from "../../components/CardSmall";
-import gsap from "gsap";
 import { ActivityPanel } from "../../Activity";
 import { AlertDialog } from "../../components/AlertDialog";
 import { InkResetAnimation } from "../../InkResetAnimation";
 import { EntryWindow } from "../entry/EntryWindow";
 import { CardSlot } from "./CardSlot";
+import gsap from "gsap";
+import { Match } from "../../../game/Match";
+import { ClientState } from "boardgame.io/dist/types/src/client/client";
+import { MatchDriver } from "../../../game/MatchDriver";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
@@ -116,10 +117,10 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
     });
   }
 
-  async uiUpdateCards(G: TableturfGameState, isRedraw: boolean) {
+  async uiUpdateHand(G: IMatchState, isRedraw: boolean) {
     const idxs = isRedraw
       ? [0, 1, 2, 3]
-      : [G.moveHistory[G.moveHistory.length - 1][this.props.state.player].hand];
+      : [G.buffer.history.slice(-1)[0][this.props.state.player].hand];
     await Promise.all(
       idxs.map((idx) =>
         gsap.to(this.cardsRef.current[idx], {
@@ -338,9 +339,12 @@ class MatchWindow_0 extends Window {
   private readonly spMeter2: SpMeterComponent;
   private readonly panel: MatchWindowPanel;
 
-  private client: Client;
+  private player: IPlayerId;
+  private players: IPlayerId[];
+  private match: Match;
+  private driver: MatchDriver;
 
-  private game: IGameState;
+  // private game: IGameState;
   private uiTask = new Promise<void>((resolve) => resolve());
 
   private move: PartialMove;
@@ -428,12 +432,13 @@ class MatchWindow_0 extends Window {
       if (!ok) {
         this.szMeter.update({ preview: false });
       } else {
-        const { board } = this.game;
-        const { count } = moveBoard(board, [e]);
+        const { G } = this.match.client.getState();
+        const player = G.meta.players.indexOf(this.match.playerID);
+        const { count } = moveBoard(G.game.board, [e]);
         this.szMeter.update({
           preview: true,
-          preview1: count.area[this.client.playerId],
-          preview2: count.area[1 - this.client.playerId],
+          preview1: count.area[player],
+          preview2: count.area[1 - player],
         });
       }
     });
@@ -464,10 +469,12 @@ class MatchWindow_0 extends Window {
       onUpdateMove: (move) => {
         logger.log(move);
         this.move = move;
+        const { G } = this.match.client.getState();
+        const player = G.meta.players.indexOf(this.match.playerID) as IPlayerId;
         const { hand, action } = move;
         if (action == "discard" && hand >= 0) {
           const move: IPlayerMovement = {
-            player: this.client.playerId,
+            player,
             action: "discard",
             hand: hand,
           };
@@ -476,12 +483,12 @@ class MatchWindow_0 extends Window {
         const card =
           hand < 0 || action == "discard"
             ? null
-            : getCardById(this.game.players[this.client.playerId].hand[hand]);
+            : getCardById(G.game.players[player].hand[hand]);
         let pointer = this.board.props.input.value.pointer;
         if (card != this.board.props.input.value.card) {
           if (System.isMobile) {
             if (pointer == null) {
-              const [w, h] = this.game.board.size;
+              const [w, h] = G.game.board.size;
               pointer = { x: Math.floor(w / 2), y: Math.floor(h / 2) };
             }
           }
@@ -512,243 +519,241 @@ class MatchWindow_0 extends Window {
     return this.panel.node;
   }
 
-  bind(client: Client) {
-    this.client = client;
-    this.client.on("update", this.handleStateUpdate.bind(this));
-  }
-
-  async uiReset(G: TableturfGameState) {
-    const players = [this.client.playerId, 1 - this.client.playerId];
-
-    // init board
-    this.board.update({ playerId: this.client.playerId, acceptInput: false });
-    this.board.uiReset(G.game.board);
-
-    // init hand
-    await this.panel.updateGameSate(this.client.playerId, G.game);
-    await this.panel.update({ slots: emptySlots });
-
-    // init counters
-    const count = players.map((player) => G.game.players[player].count);
-    this.szMeter.update({ value1: count[0].area, value2: count[1].area });
-    this.spMeter1.update({ value: count[0].special });
-    this.spMeter2.update({ value: count[1].special });
-    this.turnMeter.update({ value: G.game.round });
-  }
-
-  private handleStateUpdate(
-    { G, ctx }: TableturfClientState,
-    { G: G0, ctx: ctx0 }: TableturfClientState
-  ) {
-    this.game = G.game;
-
-    logger.log(G);
+  bind(match: Match) {
+    this.match = match;
+    this.driver = new MatchDriver(match);
 
     const sleep = (t: number) =>
       new Promise((resolve) => setTimeout(resolve, t * 1000));
-    const enter = (phase: string) =>
-      ctx.phase == phase && ctx0.phase != ctx.phase;
-    const players = [this.client.playerId, 1 - this.client.playerId];
 
-    [this.spMeter1, this.spMeter2].forEach((e, i) => {
-      const player = players[i];
-      if (G.players[player]) {
-        e.update({
-          name: G.players[player].name,
+    let G0 = this.match.client.getState().G;
+
+    this.driver.on("start", () => {
+      if (this.player < 0) return;
+      const { G } = match.client.getState();
+      G0 = G;
+      this.player = G.meta.players.indexOf(match.playerID) as IPlayerId;
+      this.players = [this.player, (1 - this.player) as IPlayerId];
+      const reset = async () => {
+        this.board.update({
+          playerId: this.player,
+          acceptInput: false,
         });
-      }
+        this.board.uiReset(G.game.board);
+        await this.panel.updateGameSate(this.player, G.game);
+        await this.panel.update({ slots: emptySlots });
+        const count = this.players.map((i) => G.game.players[i].count);
+        this.szMeter.update({ value1: count[0].area, value2: count[1].area });
+        this.spMeter1.update({ value: count[0].special });
+        this.spMeter2.update({ value: count[1].special });
+        this.turnMeter.update({ value: G.game.round });
+      };
+      this.uiThreadAppend(async () => {
+        await InkResetAnimation.play(async () => {
+          await ActivityPanel.hide();
+          await reset();
+          MatchWindow.show();
+        });
+      });
     });
 
-    let slotChange = false;
-    const slots = this.panel.props.slots.map((slot, i) => {
-      const player = players[i];
-      if (G.moves[player] && !G0.moves[player]) {
-        slotChange = true;
-        // prevent ui information leak
-        return {
+    this.driver.on("move", (playerID) => {
+      if (this.player < 0) return;
+      this.uiTask.then(() => {
+        const slots = this.panel.props.slots.slice();
+        slots[+(playerID != match.playerID)] = {
           card: -1,
           discard: false,
           show: true,
           preview: false,
           flip: false,
         };
-      }
-      return slot;
-    });
-    if (slotChange) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.uiTask.then(async () => {
-        logger.log(slots);
-        await this.panel.update({ slots });
+        return this.panel.update({ slots });
       });
-    }
+    });
 
-    // enter new round
-    if (G.moveHistory.length == G0.moveHistory.length + 1) {
-      const moves = G.moveHistory[G.moveHistory.length - 1];
-      this.uiThreadAppend(async () => {
-        const dt = 0.8;
+    const handleNewRound = async (
+      round: number,
+      { G }: ClientState<IMatchState>
+    ) => {
+      const dt = 0.8;
+      const moves = G.buffer.history.slice(-1)[0];
+      const cards = G.buffer.cards.slice(-1)[0];
 
-        // play sp animations
-        if (moves.some((e) => e.action == "special")) {
-          await this.spCutInAnim.uiPlay(
-            ...players.map((player) =>
-              moves[player].action == "special"
-                ? getCardById(moves[player].card)
-                : null
-            )
-          );
-          [this.spMeter1, this.spMeter2].forEach((ui, i) => {
-            const player = players[i];
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            ui.uiUpdate(G.game.players[player].count.special);
-          });
-        }
-
-        // show cards
-        let slots: SlotState[] = this.panel.props.slots.map((_, i) => {
-          const { card, action } = moves[players[i]];
-          return {
-            card,
-            discard: action == "discard",
-            show: true,
-            preview: false,
-            flip: true,
-          };
-        });
-        logger.log(slots);
-        await this.panel.update({ slots });
-        await sleep(0.3);
-
-        // put cards
-        for (const li of G.game.prevMoves) {
-          await sleep(dt);
-          await this.board.uiPlaceCards(li);
-        }
-
-        // update sp fire
-        if (
-          G.game.board.count.special.some(
-            (v, i) => v != G0.game.board.count.special[i]
+      // play sp animations
+      if (moves.some((e) => e.action == "special")) {
+        await this.spCutInAnim.uiPlay(
+          ...this.players.map((i) =>
+            moves[i].action == "special" ? getCardById(cards[i]) : null
           )
-        ) {
-          await sleep(dt);
-          this.board.uiUpdateFire();
-        }
+        );
+        [this.spMeter1, this.spMeter2].forEach((ui, i) => {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          ui.uiUpdate(G.game.players[this.players[i]].count.special);
+        });
+      }
 
-        // update counters
-        const count = players.map((player) => G.game.players[player].count);
-        await sleep(dt);
-        await Promise.all([
-          this.szMeter.uiUpdate(count[0].area, count[1].area),
-          this.spMeter1.uiUpdate(count[0].special),
-          this.spMeter2.uiUpdate(count[1].special),
-        ]);
-
-        // game may terminate here
-        if (ctx.phase != "game") {
-          return;
-        }
-
-        // draw card
-        slots = slots.map(({ card, discard }) => ({
-          card,
-          discard,
-          show: false,
+      // show cards
+      let slots: SlotState[] = this.panel.props.slots.map((_, i) => {
+        return {
+          card: cards[this.players[i]],
+          discard: moves[this.players[i]].action == "discard",
+          show: true,
           preview: false,
           flip: true,
-        }));
-        await this.panel.update({ slots });
-        await Promise.all([
-          this.panel.uiUpdateCards(G, false),
-          this.turnMeter.uiUpdate(G.game.round),
-          sleep(0.3),
-        ]);
-        await this.panel.update({ slots: emptySlots });
+        };
       });
-    }
+      logger.log(slots);
+      await this.panel.update({ slots });
+      await sleep(0.3);
 
-    const queryMovementTask = async () => {
-      logger.log("query movement");
-      // will block state update
-      const move = await this.queryMovement();
+      // put cards
+      for (const li of G.game.prevMoves) {
+        await sleep(dt);
+        await this.board.uiPlaceCards(li);
+      }
+
+      // update sp fire
+      if (
+        G.game.board.count.special.some(
+          (v, i) => v != G0.game.board.count.special[i]
+        )
+      ) {
+        await sleep(dt);
+        this.board.uiUpdateFire();
+      }
+
+      // update counters
+      const count = this.players.map((i) => G.game.players[i].count);
+      await sleep(dt);
+      await Promise.all([
+        this.szMeter.uiUpdate(count[0].area, count[1].area),
+        this.spMeter1.uiUpdate(count[0].special),
+        this.spMeter2.uiUpdate(count[1].special),
+      ]);
+
+      G0 = G;
+      // game may terminate here
+      if (round == 0) {
+        return;
+      }
+
+      // draw card
+      slots = slots.map(({ card, discard }) => ({
+        card,
+        discard,
+        show: false,
+        preview: false,
+        flip: true,
+      }));
+      await this.panel.update({ slots });
+      await Promise.all([
+        this.panel.uiUpdateHand(G, false),
+        this.turnMeter.uiUpdate(G.game.round),
+        sleep(0.3),
+      ]);
+      await this.panel.update({ slots: emptySlots });
+    };
+
+    const queryMovement = (G) => async () => {
+      const move = await this.queryMovement(G.game);
       if (move) {
-        this.client.send("move", move);
+        match.send("PlayerMove", move);
       }
     };
 
-    const redrawTask = (quota: number) => async () => {
+    const queryRedraw = (G: IMatchState) => async () => {
+      const quota = G.buffer.redrawQuota[this.player];
       if (quota <= 0) {
-        this.uiTask.then(queryMovementTask);
+        this.uiTask.then(queryMovement(G));
         return;
       }
       const ok = await AlertDialog.prompt({
-        msg: `Redraw cards? (${quota} left)`,
+        msg: `Redraw hand? (${quota} left)`,
         okMsg: "Redraw",
         cancelMsg: "Cancel",
       });
       if (ok) {
-        this.client.send("redraw");
-        quota -= 1;
+        match.send("Redraw");
       } else {
-        quota = 0;
+        this.uiTask.then(queryMovement(G));
       }
-      this.uiTask.then(redrawTask(quota));
     };
 
-    // redraw
-    const quota = G.redrawQuotaLeft[this.client.playerId];
-    const quota0 = G0.redrawQuotaLeft[this.client.playerId];
-    if (
-      G.game &&
-      G.game.round == 12 &&
-      G.moves[this.client.playerId] == null &&
-      quota == quota0 - 1
-    ) {
-      this.uiThreadAppend(async () => {
-        await this.panel.uiUpdateCards(G, true);
-      });
-    }
+    this.driver.on("redraw", async (playerID) => {
+      if (this.player < 0) return;
+      if (playerID == match.playerID) {
+        const { G } = match.client.getState();
+        this.uiThreadAppend(async () => await this.panel.uiUpdateHand(G, true));
+        await queryRedraw(G)();
+      }
+    });
 
-    if (enter("game")) {
-      this.uiTask.then(redrawTask(quota));
-    }
+    this.driver.on("round", (round) => {
+      if (this.player < 0) return;
+      if (round != 12) {
+        this.uiThreadAppend(
+          async () => await handleNewRound(round, match.client.getState())
+        );
+      }
+      if (round != 0) {
+        const { G } = match.client.getState();
+        this.uiTask.then(round == 12 ? queryRedraw(G) : queryMovement(G));
+      }
+    });
 
-    // next round
-    if (G.moveHistory.length == G0.moveHistory.length + 1 && G.game.round > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.uiTask.then(queryMovementTask);
-    }
-
-    // after match
-    if (enter("prepare")) {
-      this.uiThreadAppend(async () => {
-        if (G.game.round == 0) {
-          const li = G.game.board.count.area;
-          const e = li[players[0]] - li[players[1]];
-          let msg = "Draw";
-          if (e > 0) {
-            msg = "You win";
-          }
-          if (e < 0) {
-            msg = "You lose";
-          }
-          await AlertDialog.prompt({
-            msg,
-            cancelMsg: "",
-          });
-        }
-        // FIXME: do we need animation here?
+    const exit = async () => {
+      if (this.ui.visible) {
         await InkResetAnimation.play(async () => {
           this.send("cancel");
           await ActivityPanel.show();
           EntryWindow.show();
         });
+      } else {
+        await ActivityPanel.show();
+      }
+    };
+
+    this.driver.on("finish", () => {
+      if (this.player < 0) return;
+      const { G } = match.client.getState();
+      this.uiThreadAppend(async () => {
+        await handleNewRound(0, match.client.getState());
+        const li = G.game.board.count.area;
+        const e = li[this.players[0]] - li[this.players[1]];
+        await AlertDialog.prompt({
+          msg: e == 0 ? "Draw" : `You ${e > 0 ? "win" : "lose"}`,
+          cancelMsg: null,
+        });
+        await exit();
       });
-    }
+    });
+
+    this.driver.on("abort", () => {
+      if (this.player < 0) return;
+      this.uiThreadAppend(async () => {
+        await AlertDialog.prompt({
+          msg: "A communication error has occurred",
+          cancelMsg: null,
+        });
+        await exit();
+      });
+    });
+
+    match.on("disconnect", (manual) => {
+      this.uiThreadAppend(async () => {
+        if (!manual) {
+          await AlertDialog.prompt({
+            msg: "A communication error has occurred",
+            cancelMsg: null,
+          });
+        }
+        await exit();
+      });
+    });
   }
 
-  private async queryMovement(): Promise<IPlayerMovement> {
+  private async queryMovement(game: IGameState): Promise<IPlayerMovement> {
     await this.panel.update({
       enable: true,
     });
@@ -756,7 +761,7 @@ class MatchWindow_0 extends Window {
     this.board.update({
       input: {
         ...this.board.props.input.value,
-        rotation: (2 * this.client.playerId) as any,
+        rotation: (2 * this.player) as any,
         pointer: null,
       },
       acceptInput: true,
@@ -770,7 +775,7 @@ class MatchWindow_0 extends Window {
           const { rotation, position } = input;
           const move: IPlayerMovement = {
             ...this.move,
-            player: this.client.playerId,
+            player: this.player,
             params: {
               rotation,
               position,
@@ -785,7 +790,7 @@ class MatchWindow_0 extends Window {
         logger.warn("input canceled");
         break;
       }
-      if (isGameMoveValid(this.game, move)) {
+      if (isGameMoveValid(game, move)) {
         break;
       }
       MessageBar.error("you can't put it here.");

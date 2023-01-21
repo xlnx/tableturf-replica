@@ -61,7 +61,7 @@ export function setValue(rect: IRect, pos: ICoordinate, value: number) {
   values[x + y * w] = value;
 }
 
-function forEach(
+export function forEach(
   rect: IRect,
   callback: (pos: ICoordinate, val: number) => void
 ) {
@@ -512,4 +512,18 @@ export function enumerateBoardMoves(
     }
   }
   return li;
+}
+
+/* deck apis */
+export function isDeckValid(deck: number[]) {
+  // card count
+  if (deck.length != 15) {
+    return false;
+  }
+  // not unique
+  if (new Set(deck).size != deck.length) {
+    return false;
+  }
+  // all cards valid
+  return deck.map(getCardById).every((_) => _);
 }

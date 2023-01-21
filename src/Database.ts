@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { getLogger } from "loglevel";
-import { StarterDeck } from "./Game";
+import { StarterDeck } from "./game/MatchController";
 import { calibrateDeck } from "./Terms";
 
 const logger = getLogger("database");

@@ -1,7 +1,6 @@
 import { Grid, Typography, Divider, IconButton } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
-import { BotListActivity } from "./BotListActivity";
 import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 import { SettingsActivity } from "./SettingsActivity";
 import { SocialIcon } from "react-social-icons";
@@ -22,11 +21,6 @@ class RootActivity_0 extends Activity {
           <Grid item xs={12}>
             <BasicButton fullWidth onClick={() => OnlineLoungeActivity.show()}>
               VS Player
-            </BasicButton>
-          </Grid>
-          <Grid item xs={12}>
-            <BasicButton fullWidth onClick={() => BotListActivity.show()}>
-              VS Bot
             </BasicButton>
           </Grid>
           <Grid item xs={12}>

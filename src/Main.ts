@@ -10,7 +10,6 @@ import { InkResetAnimation } from "./ui/InkResetAnimation";
 import { RootActivity } from "./ui/activities/RootActivity";
 import { MessageBar } from "./ui/components/MessageBar";
 import { OnlineViaInviteLinkActivity } from "./ui/activities/OnlineViaInviteLinkActivity";
-import { BotViaNetworkActivity } from "./ui/activities/BotViaNetworkActivity";
 import { ActivityPanel } from "./ui/Activity";
 import { getCardById } from "./core/Tableturf";
 import { DeckPanel } from "./ui/scenes/entry/DeckPanel";
@@ -60,14 +59,14 @@ async function main() {
   }
 
   switch (connect) {
-    case "bot":
-      if (url) {
-        await BotViaNetworkActivity.connect(url);
-        await ActivityPanel.show();
-        return;
-      }
-      MessageBar.error("not enough parameters: [connect=bot]");
-      return;
+    // case "bot":
+    //   if (url) {
+    //     await BotViaNetworkActivity.connect(url);
+    //     await ActivityPanel.show();
+    //     return;
+    //   }
+    //   MessageBar.error("not enough parameters: [connect=bot]");
+    //   return;
     case "player":
       if (url) {
         await OnlineViaInviteLinkActivity.connect(url);
