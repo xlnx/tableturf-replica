@@ -109,7 +109,9 @@ export class Client extends EventDispatcher<Event> {
     this.stopped = true;
     try {
       this.client.stop();
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
   }
 
   send(method: string, ...args: any[]) {

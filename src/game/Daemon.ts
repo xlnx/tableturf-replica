@@ -47,7 +47,9 @@ export class Daemon extends Client {
         playerID: this.client.playerID,
         credentials: this.client.credentials,
       });
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
     logger.log(`daemon[${this.matchID}] stopped`);
   }
 

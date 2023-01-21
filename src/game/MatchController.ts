@@ -170,6 +170,7 @@ export const MatchController: Game<IMatchState> = {
     if (player == -1) {
       return G;
     }
+    // eslint-disable-next-line prefer-const
     let { game, buffer } = G;
     if (game) {
       const players = game.players.map((info, i) =>
