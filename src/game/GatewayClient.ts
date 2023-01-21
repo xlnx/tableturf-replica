@@ -18,8 +18,9 @@ export class GatewayClient {
     gatewayPort,
     https = false,
   }: GatewayClientOptions) {
-    this.addr = `${hostname}:${port}`;
-    this.gatewayAddr = `${https ? "https" : "http"}://${hostname}:${gatewayPort}`;
+    const addr = `${https ? "https" : "http"}://${hostname}`;
+    this.addr = `${addr}:${port}`;
+    this.gatewayAddr = `${addr}:${gatewayPort}`;
   }
 
   async listMatches(): Promise<LobbyAPI.MatchList> {

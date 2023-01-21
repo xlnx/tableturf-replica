@@ -32,6 +32,17 @@ interface GatewayOptions {
   hostnames?: string[];
 }
 
+interface GatewayRunOptions {
+  port: number;
+  gatewayPort: number;
+  internalPortRange: [number, number];
+  https?: {
+    port: number;
+    key: string;
+    cert: string;
+  };
+}
+
 export class Gateway {
   private server;
   private readonly origins = [Origins.LOCALHOST_IN_DEVELOPMENT];
@@ -50,28 +61,7 @@ export class Gateway {
       games: [MatchController],
       origins: this.origins,
       apiOrigins: [Origins.LOCALHOST],
-    })
-  }
-
-  async run(opts: {
-    port: number;
-    gatewayPort: number;
-    internalPortRange: [number, number];
-  }) {
-    const [lo, hi] = opts.internalPortRange;
-    if (hi <= lo) {
-      throw new Error(
-        `internal port range [${lo}, ${hi}) must contain at least one valid port`
-      );
-    }
-
-    const apiPort = lo;
-    this.serverInstance = await this.server.run({
-      port: opts.port,
-      lobbyConfig: { apiPort },
     });
-
-    await this.configureGateway(opts.port, opts.gatewayPort, apiPort);
   }
 
   kill() {
@@ -83,11 +73,25 @@ export class Gateway {
     }
   }
 
-  private async configureGateway(
-    port: number,
-    gatewayPort: number,
-    apiPort: number
-  ) {
+  async run({
+    port,
+    gatewayPort,
+    internalPortRange,
+    https,
+  }: GatewayRunOptions) {
+    const [lo, hi] = internalPortRange;
+    if (hi <= lo) {
+      throw new Error(
+        `internal port range [${lo}, ${hi}) must contain at least one valid port`
+      );
+    }
+
+    const apiPort = lo;
+    this.serverInstance = await this.server.run({
+      port,
+      lobbyConfig: { apiPort },
+    });
+
     const app = new Koa();
     app.use(
       cors({
@@ -113,19 +117,16 @@ export class Gateway {
           playerName: "$daemon",
         }
       );
-      const daemon = new Daemon(
-        lobby,
-        {
-          server: `localhost:${port}`,
-          matchID,
-          playerID,
-          credentials: playerCredentials,
-        }
-      );
+      const daemon = new Daemon(lobby, {
+        server: `localhost:${port}`,
+        matchID,
+        playerID,
+        credentials: playerCredentials,
+      });
       await daemon.start();
       this.matches.set(matchID, daemon);
       return daemon;
-    }
+    };
 
     router.get("/match/list", koaBody(), async (ctx) => {
       const { matches } = await lobby.listMatches(gameName);
@@ -143,10 +144,11 @@ export class Gateway {
     });
 
     router.post("/match/create", koaBody(), async (ctx) => {
-      const { matchName = "match", ...body } = ctx.request.body as ICreateMatchBody;
+      const { matchName = "match", ...body } = ctx.request
+        .body as ICreateMatchBody;
       const { matchID } = await lobby.createMatch(gameName, {
         numPlayers: 5,
-        setupData: { matchName }
+        setupData: { matchName },
       });
       const daemon = await createDaemon(matchID);
       const join = await daemon.joinMatch(matchID, body);
@@ -162,7 +164,10 @@ export class Gateway {
       if (!daemon.isJoinable()) {
         ctx.throw(404, "Match " + matchID + " is not joinable");
       }
-      const join = await daemon.joinMatch(matchID, ctx.request.body as IJoinMatchBody);
+      const join = await daemon.joinMatch(
+        matchID,
+        ctx.request.body as IJoinMatchBody
+      );
       ctx.body = { ...join };
     });
 
@@ -171,5 +176,18 @@ export class Gateway {
     await new Promise<void>((resolve) => {
       this.gatewayInstance = app.listen(gatewayPort, resolve);
     });
+
+    if (https) {
+      const fs = await import("fs");
+      const path = await import("path");
+      const { createServer } = await import("https");
+      const opts = {
+        key: fs.readFileSync(path.resolve(process.cwd(), https.key), "utf8"),
+        cert: fs.readFileSync(path.resolve(process.cwd(), https.cert), "utf8"),
+      };
+      const server = createServer(opts, app.callback());
+      console.log(`serving https ${https.port}`);
+      server.listen(https.port);
+    }
   }
 }
