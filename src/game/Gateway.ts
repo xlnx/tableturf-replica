@@ -29,10 +29,7 @@ function isOriginAllowed(
 }
 
 interface GatewayOptions {
-  hostnames?: string[];
-}
-
-interface GatewayRunOptions {
+  origins?: string[];
   port: number;
   gatewayPort: number;
   internalPortRange: [number, number];
@@ -44,25 +41,12 @@ interface GatewayRunOptions {
 }
 
 export class Gateway {
-  private server;
-  private readonly origins = [Origins.LOCALHOST_IN_DEVELOPMENT];
+  private readonly origins: any[] = [Origins.LOCALHOST_IN_DEVELOPMENT];
   private serverInstance: any;
   private gatewayInstance: any;
+  private server;
 
   readonly matches = new Map<string, Daemon>();
-
-  constructor({ hostnames }: GatewayOptions = {}) {
-    if (hostnames) {
-      for (const hostname of hostnames) {
-        this.origins.push(new RegExp(`${hostname}:\\d+`));
-      }
-    }
-    this.server = Server({
-      games: [MatchController],
-      origins: this.origins,
-      apiOrigins: [Origins.LOCALHOST],
-    });
-  }
 
   kill() {
     if (this.serverInstance) {
@@ -74,17 +58,39 @@ export class Gateway {
   }
 
   async run({
+    origins,
     port,
     gatewayPort,
     internalPortRange,
     https,
-  }: GatewayRunOptions) {
+  }: GatewayOptions) {
+    if (origins) {
+      this.origins.push(...origins);
+    }
+
+    let httpsOpts = null;
+    if (https) {
+      const fs = await import("fs");
+      const path = await import("path");
+      httpsOpts = {
+        key: fs.readFileSync(path.resolve(process.cwd(), https.key), "utf8"),
+        cert: fs.readFileSync(path.resolve(process.cwd(), https.cert), "utf8"),
+      };
+    }
+
     const [lo, hi] = internalPortRange;
     if (hi <= lo) {
       throw new Error(
         `internal port range [${lo}, ${hi}) must contain at least one valid port`
       );
     }
+
+    this.server = Server({
+      games: [MatchController],
+      origins: this.origins,
+      apiOrigins: [Origins.LOCALHOST],
+      https: httpsOpts,
+    });
 
     const apiPort = lo;
     this.serverInstance = await this.server.run({
@@ -118,7 +124,7 @@ export class Gateway {
         }
       );
       const daemon = new Daemon(lobby, {
-        server: `localhost:${port}`,
+        server: `${https ? "https" : "http"}://localhost:${port}`,
         matchID,
         playerID,
         credentials: playerCredentials,
@@ -178,14 +184,8 @@ export class Gateway {
     });
 
     if (https) {
-      const fs = await import("fs");
-      const path = await import("path");
       const { createServer } = await import("https");
-      const opts = {
-        key: fs.readFileSync(path.resolve(process.cwd(), https.key), "utf8"),
-        cert: fs.readFileSync(path.resolve(process.cwd(), https.cert), "utf8"),
-      };
-      const server = createServer(opts, app.callback());
+      const server = createServer(httpsOpts, app.callback());
       console.log(`serving https ${https.port}`);
       server.listen(https.port);
     }

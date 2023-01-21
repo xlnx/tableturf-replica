@@ -51,7 +51,13 @@ export class Client extends EventDispatcher<Event> {
       debug: false,
       game: MatchController,
       multiplayer: ({ transportDataCallback, ...transportOpts }) =>
-        SocketIO({ server, socketOpts: { timeout } })({
+        SocketIO({
+          server,
+          socketOpts: {
+            timeout,
+            transports: ["websocket"],
+          },
+        })({
           ...transportOpts,
           transportDataCallback: (data) => {
             transportDataCallback(data);
@@ -71,7 +77,12 @@ export class Client extends EventDispatcher<Event> {
       this.client.start();
       await Promise.race([
         task,
-        new Promise<void>((_, reject) => setTimeout(reject, timeout)),
+        new Promise<void>((_, reject) =>
+          setTimeout(() => {
+            this.stop();
+            reject(`connection timeout after ${timeout}ms`);
+          }, timeout)
+        ),
       ]);
     };
   }

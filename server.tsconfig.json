@@ -7,6 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "outDir": "dist/server",
+    "sourceMap": true,
     "paths": {
       "*": ["./*.d.ts"]
     }

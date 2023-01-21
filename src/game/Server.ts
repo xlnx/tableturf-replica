@@ -7,17 +7,8 @@ const config = fs
   .toString();
 
 async function main() {
-  // cors = {
-  //   hostnames: ["192.168.1.107"]
-  // }
-  // run = {
-  //   port: 5140,
-  //   gatewayPort: 5141,
-  //   internalPortRange: [32400, 32410],
-  // }
-  const { cors, run } = JSON.parse(config);
-  const gateway = new Gateway(cors);
-  await gateway.run(run);
+  const gateway = new Gateway();
+  await gateway.run(JSON.parse(config));
   await new Promise(() => {});
 }
 
