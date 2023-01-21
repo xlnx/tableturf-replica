@@ -1,8 +1,7 @@
-import { System } from "../engine/System";
 import { GatewayClient } from "../game/GatewayClient";
 
 export const Gateway = new GatewayClient({
-    hostname: System.url.hostname,
-    port: 5140,
-    gatewayPort: 5141,
-})
+  hostname: "api.tableturf.koishi.top",
+  port: 5100,
+  gatewayPort: 5101,
+});

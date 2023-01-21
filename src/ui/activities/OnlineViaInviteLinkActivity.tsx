@@ -3,11 +3,8 @@ import { Grid, TextField, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { MessageBar } from "../components/MessageBar";
-import { LoadingDialog } from "../components/LoadingDialog";
 import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 import { MatchActivity } from "./MatchActivity";
-import { Gateway } from "../Gateway";
-import { DB } from "../../Database";
 
 class OnlineViaInviteLinkActivity_0 extends Activity {
   init() {
@@ -23,15 +20,7 @@ class OnlineViaInviteLinkActivity_0 extends Activity {
     if (!matchID) {
       throw `invalid invite link: ${url}`;
     }
-    await this.connectMatch(matchID);
-  }
-
-  async connectMatch(matchID: string) {
-    const match = await LoadingDialog.wait({
-      task: Gateway.joinMatch(matchID, { playerName: DB.read().playerName }),
-      message: "Connecting...",
-    });
-    await MatchActivity.start(match);
+    await MatchActivity.joinMatch(matchID);
   }
 
   render() {

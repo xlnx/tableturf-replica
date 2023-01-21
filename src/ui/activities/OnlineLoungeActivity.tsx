@@ -51,42 +51,15 @@ class OnlineLoungeActivity_0 extends Activity {
       return true;
     };
 
-    const createMatch = async () => {
-      try {
-        const { playerName } = DB.read();
-        const match = await LoadingDialog.wait({
-          task: Gateway.createMatch({
-            playerName,
-            matchName: `${playerName}'s match`,
-          }),
-          message: "Creating Match...",
-        });
-        await MatchActivity.start(match);
-      } catch (err) {
-        MessageBar.error(err);
-      }
-    };
-
-    const joinMatch = async (matchID: string) => {
-      try {
-        const match = await LoadingDialog.wait({
-          task: Gateway.joinMatch(matchID, {
-            playerName: DB.read().playerName,
-          }),
-          message: "Joining Match...",
-        });
-        await MatchActivity.start(match);
-      } catch (err) {
-        MessageBar.error(err);
-      }
-    };
-
     return (
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           {state.matches.map(({ matchID, setupData: { matchName } }) => (
             <Grid item xs={12} key={matchID}>
-              <Button fullWidth onClick={() => joinMatch(matchID)}>
+              <Button
+                fullWidth
+                onClick={() => MatchActivity.joinMatch(matchID)}
+              >
                 <CardHeader title={matchName} subheader={matchID} />
               </Button>
             </Grid>
@@ -112,7 +85,10 @@ class OnlineLoungeActivity_0 extends Activity {
               </BasicButton>
             </Grid>
             <Grid item xs={6}>
-              <BasicButton fullWidth onClick={createMatch}>
+              <BasicButton
+                fullWidth
+                onClick={() => MatchActivity.createMatch()}
+              >
                 Create Match
               </BasicButton>
             </Grid>

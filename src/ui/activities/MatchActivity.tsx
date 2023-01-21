@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Avatar,
   Box,
   Button,
   Grid,
@@ -25,11 +24,12 @@ import { DB } from "../../Database";
 import { Match } from "../../game/Match";
 import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { StarterDeck } from "../../game/MatchController";
-import { Gateway } from "../Gateway";
-import { LobbyAPI } from "boardgame.io";
 import { Color } from "../../engine/Color";
 import StarIcon from "@mui/icons-material/Star";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { EntryWindow } from "../scenes/entry/EntryWindow";
+import { Gateway } from "../Gateway";
+import { LoadingDialog } from "../components/LoadingDialog";
 
 const logger = getLogger("main-dialog");
 logger.setLevel("info");
@@ -105,7 +105,6 @@ interface OperationInfo {
 
 interface MatchActivityProps {
   match: Match;
-  matchInfo: LobbyAPI.Match;
   state: ClientState<IMatchState>;
   deck: IDeckData;
   manualExit: boolean;
@@ -134,19 +133,54 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       parent: () => RootActivity,
       //
       match: null,
-      matchInfo: null,
       state: null,
       deck,
       manualExit: false,
     };
   }
 
-  async start(match: Match) {
+  async createMatch() {
+    try {
+      const { playerName } = DB.read();
+      const matchName = `${playerName}'s match`;
+      const match = await LoadingDialog.wait({
+        task: Gateway.createMatch({
+          playerName,
+          matchName,
+        }),
+        message: "Creating Match...",
+      });
+      await this.start(match, matchName);
+    } catch (err) {
+      MessageBar.error(err);
+    }
+  }
+
+  async joinMatch(matchID: string) {
+    try {
+      const task = async () => {
+        const {
+          setupData: { matchName },
+        } = await Gateway.getMatch(matchID);
+        const match = await Gateway.joinMatch(matchID, {
+          playerName: DB.read().playerName,
+        });
+        return [match, matchName];
+      };
+      const [match, matchName] = await LoadingDialog.wait({
+        task: task(),
+        message: "Joining Match...",
+      });
+      await this.start(match, matchName);
+    } catch (err) {
+      MessageBar.error(err);
+    }
+  }
+
+  private async start(match: Match, name: string) {
     console.assert(match.isConnected());
 
-    const matchInfo = await Gateway.getMatch(match.matchID);
-    const { matchName } = matchInfo.setupData;
-    MessageBar.success(`joined [${matchName}]`);
+    MessageBar.success(`joined [${name}]`);
 
     match.on("update", (state, prevState) => {
       this.update({ state });
@@ -174,10 +208,30 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       MessageBar.success(`[${name}] becomes host`);
     });
 
+    match.on("disconnect", async (manual) => {
+      if (!manual) {
+        await AlertDialog.prompt({
+          msg: "A communication error has occurred",
+          cancelMsg: null,
+        });
+      }
+      match.stop();
+      if (MatchWindow.ui.visible) {
+        await InkResetAnimation.play(async () => {
+          this.send("cancel");
+          await ActivityPanel.show();
+          await this.props.parent().show();
+          EntryWindow.show();
+        });
+      } else {
+        await ActivityPanel.show();
+        await this.props.parent().show();
+      }
+    });
+
     await this.update({
-      title: matchName,
+      title: name,
       match,
-      matchInfo,
       state: match.client.getState(),
       manualExit: false,
     });

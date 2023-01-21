@@ -13,6 +13,7 @@ import { OnlineViaInviteLinkActivity } from "./ui/activities/OnlineViaInviteLink
 import { ActivityPanel } from "./ui/Activity";
 import { getCardById } from "./core/Tableturf";
 import { DeckPanel } from "./ui/scenes/entry/DeckPanel";
+import { MatchActivity } from "./ui/activities/MatchActivity";
 
 const logger = getLogger("main");
 logger.setLevel("debug");
@@ -74,7 +75,7 @@ async function main() {
         return;
       }
       if (match) {
-        await OnlineViaInviteLinkActivity.connectMatch(match);
+        await MatchActivity.joinMatch(match);
         await ActivityPanel.show();
         return;
       }

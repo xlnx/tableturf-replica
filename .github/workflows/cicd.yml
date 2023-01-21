@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - master
+      - preview
       - "dev/**"
   pull_request:
     branches:
       - master
+      - preview
 
 jobs:
 
@@ -81,5 +83,29 @@ jobs:
         accessKeyId: ${{ secrets.ACCESS_KEY_ID }}
         accessKeySecret: ${{ secrets.ACCESS_KEY_SECRET }}
         bucket: tableturf-replica-hk
+        endpoint: oss-cn-hongkong.aliyuncs.com
+        folder: dist
+
+  deploy_preview:
+    if: github.repository == 'xlnx/tableturf-replica' && github.ref_name == 'preview'
+
+    runs-on: ubuntu-latest
+    needs: [test]
+    environment: production
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'yarn'
+    - run: yarn install --frozen-lockfile
+    - run: yarn build
+    - name: deploy page
+      uses: fangbinwei/aliyun-oss-website-action@v1.3.0
+      with:
+        accessKeyId: ${{ secrets.ACCESS_KEY_ID }}
+        accessKeySecret: ${{ secrets.ACCESS_KEY_SECRET }}
+        bucket: tableturf-replica-pre-hk
         endpoint: oss-cn-hongkong.aliyuncs.com
         folder: dist

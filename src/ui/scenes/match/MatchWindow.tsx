@@ -733,21 +733,9 @@ class MatchWindow_0 extends Window {
       if (this.player < 0) return;
       this.uiThreadAppend(async () => {
         await AlertDialog.prompt({
-          msg: "A communication error has occurred",
+          msg: "Match aborted",
           cancelMsg: null,
         });
-        await exit();
-      });
-    });
-
-    match.on("disconnect", (manual) => {
-      this.uiThreadAppend(async () => {
-        if (!manual) {
-          await AlertDialog.prompt({
-            msg: "A communication error has occurred",
-            cancelMsg: null,
-          });
-        }
         await exit();
       });
     });
