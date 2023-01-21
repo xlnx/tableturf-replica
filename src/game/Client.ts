@@ -12,7 +12,12 @@ import { EventDispatcher } from "./EventDispatcher";
 const logger = loglevel.getLogger("client");
 logger.setLevel("info");
 
-type Event = "update" | "player-join" | "player-leave";
+type Event =
+  | "update"
+  | "player-join"
+  | "player-leave"
+  | "disconnect"
+  | "change-host";
 
 export interface ClientConnectOptions {
   server: string;
@@ -95,6 +100,9 @@ export class Client extends EventDispatcher<Event> {
     this.client.subscribe(
       (state) => state && setTimeout(() => this.handleUpdate(state))
     );
+    (this.client as any).transport.socket.on("disconnect", () => {
+      this.dispatchEvent("disconnect", this.stopped);
+    });
   }
 
   stop() {
@@ -125,6 +133,8 @@ export class Client extends EventDispatcher<Event> {
   );
   on(event: "player-join", handler: (playerID: string) => any);
   on(event: "player-leave", handler: (playerID: string) => any);
+  on(event: "disconnect", handler: (manual: boolean) => any);
+  on(event: "change-host", handler: (playerID: string) => any);
 
   on(event: Event, handler: any) {
     this.registerEventHandler(event, handler);
@@ -146,6 +156,9 @@ export class Client extends EventDispatcher<Event> {
       }
     }
     if (this.prevState != null) {
+      if (state.G.meta.host != this.prevState.G.meta.host) {
+        this.dispatchEvent("change-host", state.G.meta.host);
+      }
     }
     this.dispatchEvent("update", state, this.prevState);
     this.prevMatchData = matchData;

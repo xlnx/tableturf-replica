@@ -132,6 +132,7 @@ export const MatchController: Game<IMatchState> = {
       moves: [],
       ready: [],
       redrawQuota: [],
+      cards: [],
       history: [],
     },
   }),
@@ -201,6 +202,7 @@ export const MatchController: Game<IMatchState> = {
           ready: Array(N + 1).fill(false),
           redrawQuota: Array(2).fill(G.meta.redrawQuota),
           moves: Array(2).fill(null),
+          cards: [],
           history: [],
         };
       },
@@ -215,13 +217,17 @@ export const MatchController: Game<IMatchState> = {
         onEnd: ({ G }) => {
           const { moves } = G.buffer;
           if (moves.every((e) => e)) {
+            const cards = moves.map(
+              ({ hand }, i) => G.game.players[i].hand[hand]
+            );
             G.game = moveGame(G.game, moves);
             G.buffer.moves = Array(2).fill(null);
+            G.buffer.cards.push(cards);
             G.buffer.history.push(moves);
           }
         },
       },
-      endIf: ({ G }) => G.game.round == 0,
+      endIf: ({ G }) => G.game.round == 0 || G.meta.players.length < 2,
       next: "beforePrepare",
     },
   },

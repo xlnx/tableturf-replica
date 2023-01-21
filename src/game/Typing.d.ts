@@ -27,6 +27,7 @@ interface IBufferState {
   ready: boolean[]; // playerID -> ready
   redrawQuota: number[];
   moves: IPlayerMovement[];
+  cards: number[][];
   history: IPlayerMovement[][];
 }
 

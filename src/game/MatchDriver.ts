@@ -2,10 +2,11 @@ import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { EventDispatcher } from "./EventDispatcher";
 import { Match } from "./Match";
 
-type Event = "start" | "round" | "redraw" | "move" | "finish";
+type Event = "start" | "round" | "redraw" | "move" | "finish" | "abort";
 
 export class MatchDriver extends EventDispatcher<Event> {
   private readonly moves: boolean[] = Array(2).fill(false);
+  private readonly detach: any[] = [];
 
   constructor(readonly match: Match) {
     super();
@@ -19,9 +20,14 @@ export class MatchDriver extends EventDispatcher<Event> {
   on(event: "redraw", handler: (playerID: string) => any);
   on(event: "move", handler: (playerID: string, move: IPlayerMovement) => any);
   on(event: "finish", handler: () => any);
+  on(event: "abort", handler: () => any);
 
   on(event: Event, handler: any) {
-    this.registerEventHandler(event, handler);
+    this.detach.push(this.registerEventHandler(event, handler));
+  }
+
+  stop() {
+    this.detach.forEach((detach) => detach());
   }
 
   private handleUpdate(
@@ -58,6 +64,13 @@ export class MatchDriver extends EventDispatcher<Event> {
       }
     };
     G.buffer.moves.forEach(checkMoveUpdate);
+
+    if (ctx.phase != "play") {
+      if (G.game.round > 0) {
+        this.dispatchEvent("abort");
+        return;
+      }
+    }
 
     // enter next round
     if (G.game.round == G0.game.round - 1) {
