@@ -79,7 +79,6 @@ export class Client extends EventDispatcher<Event> {
         task,
         new Promise<void>((_, reject) =>
           setTimeout(() => {
-            this.stop();
             reject(`connection timeout after ${timeout}ms`);
           }, timeout)
         ),
