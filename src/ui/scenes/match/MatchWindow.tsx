@@ -14,25 +14,25 @@ import {
   isGameMoveValid,
 } from "../../../core/Tableturf";
 import { MessageBar } from "../../components/MessageBar";
-import { ReactNode, useEffect, useRef } from "react";
-import { Box, Grid, Paper, ThemeProvider } from "@mui/material";
+import { ReactNode, useEffect } from "react";
+import { Box, Paper, ThemeProvider } from "@mui/material";
 import { Theme, DarkButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
-import { CardSmall } from "../../components/CardSmall";
 import { ActivityPanel } from "../../Activity";
 import { AlertDialog } from "../../components/AlertDialog";
 import { InkResetAnimation } from "../../InkResetAnimation";
 import { EntryWindow } from "../entry/EntryWindow";
 import { CardSlot } from "./CardSlot";
-import gsap from "gsap";
 import { Match } from "../../../game/Match";
 import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { MatchDriver } from "../../../game/MatchDriver";
+import { Hands } from "./Hands";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
 
 type PartialMove = Omit<Omit<IPlayerMovement, "player">, "params">;
+type Action = "discard" | "trivial" | "special";
 
 interface MatchState {
   player: IPlayerId;
@@ -57,11 +57,9 @@ const emptySlots: SlotState[] = Array(2).fill({
 });
 
 interface MatchWindowPanelProps {
-  enable: boolean;
-  cards: number[];
-  mask: boolean[];
+  enabled: boolean;
   selected: number;
-  action: "discard" | "trivial" | "special";
+  action: Action;
   state: MatchState;
   slots: SlotState[];
   onUpdateMove: (move: PartialMove) => void;
@@ -69,13 +67,26 @@ interface MatchWindowPanelProps {
 }
 
 class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
-  private cardsRef;
+  private readonly hands = (() => {
+    const hands = new Hands();
+    hands.update({
+      onClick: (i) => {
+        this.props.onClick(i);
+      },
+      onChange: (i) => {
+        this.props.onUpdateMove({
+          action: this.props.action,
+          hand: i,
+        });
+        this.update({ selected: i });
+      },
+    });
+    return hands;
+  })();
 
   init(): MatchWindowPanelProps {
     return {
-      enable: true,
-      cards: [],
-      mask: Array(4).fill(true),
+      enabled: true,
       selected: -1,
       action: "trivial",
       state: null,
@@ -85,7 +96,17 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
     };
   }
 
-  async updateGameSate(player: IPlayerId, game: IGameState) {
+  async resetGameSate(player: IPlayerId, game: IGameState) {
+    await this.reset(game, player);
+    const playerState = game.players[player];
+    const cards = playerState.hand;
+    await this.hands.update({
+      cards,
+      selected: -1,
+    });
+  }
+
+  async reset(game: IGameState, player: IPlayerId) {
     const playerState = game.players[player];
     const cards = playerState.hand;
     const handMask = cards.map(
@@ -98,143 +119,83 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
         getCardById(card).count.special <= playerState.count.special &&
         enumerateBoardMoves(game, player, card, true).length > 0
     );
-    const action = "trivial";
-    const selected = -1;
     await this.update({
-      cards,
-      mask: handMask,
-      selected,
-      action,
+      action: "trivial",
       state: {
         player,
         handMask,
         handSpMask,
       },
     });
-    this.props.onUpdateMove({
-      action,
-      hand: selected,
-    });
   }
 
-  async uiUpdateHand(G: IMatchState, isRedraw: boolean) {
-    const idxs = isRedraw
-      ? [0, 1, 2, 3]
-      : [G.buffer.history.slice(-1)[0][this.props.state.player].hand];
-    await Promise.all(
-      idxs.map((idx) =>
-        gsap.to(this.cardsRef.current[idx], {
-          duration: 0.3,
-          scale: 0.9,
-          opacity: 0,
-        })
-      )
-    );
-
-    await this.updateGameSate(this.props.state.player, G.game);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    await Promise.all(
-      idxs.map((idx) =>
-        gsap.to(this.cardsRef.current[idx], {
-          duration: 0.3,
-          scale: 1,
-          opacity: 1,
-        })
-      )
-    );
+  async uiUpdateHands(G: IMatchState, isRedraw: boolean) {
+    const { player } = this.props.state;
+    const cards = G.game.players[player].hand.slice();
+    if (!isRedraw) {
+      const { hand } = G.buffer.history.slice(-1)[0][player];
+      for (let i = 0; i < 4; ++i) {
+        if (i != hand) {
+          cards[i] = null;
+        }
+      }
+    }
+    await this.reset(G.game, player);
+    await this.hands.uiUpdate(cards);
   }
 
   render(): ReactNode {
     useEffect(() => {
-      if (this.props.enable) {
-        const card =
-          this.props.selected >= 0 ? this.props.cards[this.props.selected] : -1;
-        if (this.props.action != "discard" || card < 0) {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.update({
-            slots: [
-              {
-                card,
-                discard: false,
-                show: card >= 0,
-                flip: true,
-                preview: true,
-              },
-              this.props.slots[1],
-            ],
-          });
-        }
+      if (!this.props.enabled) {
+        return;
       }
-    }, [this.props.selected, this.props.enable, this.props.action]);
-
-    this.cardsRef = useRef([]);
-
-    const handleHandClick = async (selected: number) => {
-      if (selected >= 0) {
-        this.props.onClick(selected);
+      const card =
+        this.props.selected >= 0
+          ? this.hands.props.cards[this.props.selected]
+          : -1;
+      if (this.props.action == "discard" && card >= 0) {
+        return;
       }
-      if (selected != this.props.selected) {
-        await this.update({ selected });
-        this.props.onUpdateMove({
-          action: this.props.action,
-          hand: selected,
-        });
-      }
-    };
-
-    const handlePass = async () => {
-      const discard = this.props.action != "discard";
-      const action = discard ? "discard" : "trivial";
-      const selected = discard ? -1 : this.props.selected;
-      await this.update({
-        action,
-        selected,
-        mask: discard ? Array(4).fill(true) : this.props.state.handMask,
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.update({
+        slots: [
+          {
+            card,
+            discard: false,
+            show: card >= 0,
+            flip: true,
+            preview: true,
+          },
+          this.props.slots[1],
+        ],
       });
-      this.props.onUpdateMove({
-        action,
-        hand: selected,
-      });
-    };
+    }, [this.props.selected, this.props.enabled, this.props.action]);
 
-    const handleSpAttack = async () => {
-      const special = this.props.action != "special";
-      const action = special ? "special" : "trivial";
+    useEffect(() => {
+      if (!this.props.state) {
+        return;
+      }
       let selected = this.props.selected;
-      if (special) {
-        if (!this.props.state.handSpMask[selected]) {
+      let mask = this.props.state.handMask;
+      if (this.props.action == "discard") {
+        mask = Array(4).fill(true);
+        selected = -1;
+      }
+      if (this.props.action == "special") {
+        mask = this.props.state.handSpMask;
+        if (!mask[selected]) {
           selected = -1;
         }
       }
-      await this.update({
-        action,
-        selected,
-        mask: special ? this.props.state.handSpMask : this.props.state.handMask,
-      });
-      this.props.onUpdateMove({
-        action,
-        hand: selected,
-      });
-    };
+      this.hands.update({ selected, mask });
+    }, [this.props.action, this.props.state]);
 
-    const li = [];
-    for (let i = 0; i < 4; ++i) {
-      const card = this.props.cards[i];
-      li.push(
-        <Grid item xs={6} key={i}>
-          <Box ref={(el) => (this.cardsRef.current[i] = el)}>
-            <CardSmall
-              card={card || 1}
-              width={235}
-              active={this.props.mask[i] && this.props.enable}
-              selected={this.props.selected == i}
-              onClick={() => handleHandClick(i)}
-            ></CardSmall>
-          </Box>
-        </Grid>
-      );
-    }
+    useEffect(() => {
+      this.hands.update({
+        enabled: this.props.enabled,
+        selected: -1,
+      });
+    }, [this.props.enabled]);
 
     return (
       <ThemeProvider theme={Theme}>
@@ -249,8 +210,7 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
             boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
           }}
         >
-          <Grid
-            container
+          <Box
             sx={{
               position: "absolute",
               left: 28,
@@ -259,12 +219,12 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
               height: 640,
             }}
           >
-            {li}
-          </Grid>
+            {this.hands.node}
+          </Box>
         </Paper>
         <DarkButton
-          disabled={!this.props.enable}
-          selected={this.props.enable && this.props.action == "discard"}
+          disabled={!this.props.enabled}
+          selected={this.props.enabled && this.props.action == "discard"}
           sx={{
             position: "absolute",
             left: 42,
@@ -278,13 +238,17 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
               backgroundColor: "#d2e332ff",
             },
           }}
-          onClick={handlePass}
+          onClick={() =>
+            this.update({
+              action: this.props.action != "discard" ? "discard" : "trivial",
+            })
+          }
         >
           Pass
         </DarkButton>
         <DarkButton
-          disabled={!this.props.enable}
-          selected={this.props.enable && this.props.action == "special"}
+          disabled={!this.props.enabled}
+          selected={this.props.enabled && this.props.action == "special"}
           sx={{
             position: "absolute",
             left: 292,
@@ -298,7 +262,11 @@ class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
               backgroundColor: "#d2e332ff",
             },
           }}
-          onClick={handleSpAttack}
+          onClick={() =>
+            this.update({
+              action: this.props.action != "special" ? "special" : "trivial",
+            })
+          }
         >
           Special Attack!
         </DarkButton>
@@ -468,6 +436,9 @@ class MatchWindow_0 extends Window {
     this.panel.update({
       onUpdateMove: (move) => {
         logger.log(move);
+        if (!this.match) {
+          return;
+        }
         this.move = move;
         const { G } = this.match.client.getState();
         const player = G.meta.players.indexOf(this.match.playerID) as IPlayerId;
@@ -540,7 +511,7 @@ class MatchWindow_0 extends Window {
           acceptInput: false,
         });
         this.board.uiReset(G.game.board);
-        await this.panel.updateGameSate(this.player, G.game);
+        await this.panel.resetGameSate(this.player, G.game);
         await this.panel.update({ slots: emptySlots });
         const count = this.players.map((i) => G.game.players[i].count);
         this.szMeter.update({ value1: count[0].area, value2: count[1].area });
@@ -648,7 +619,7 @@ class MatchWindow_0 extends Window {
       }));
       await this.panel.update({ slots });
       await Promise.all([
-        this.panel.uiUpdateHand(G, false),
+        this.panel.uiUpdateHands(G, false),
         this.turnMeter.uiUpdate(G.game.round),
         sleep(0.3),
       ]);
@@ -684,7 +655,9 @@ class MatchWindow_0 extends Window {
       if (this.player < 0) return;
       if (playerID == match.playerID) {
         const { G } = match.client.getState();
-        this.uiThreadAppend(async () => await this.panel.uiUpdateHand(G, true));
+        this.uiThreadAppend(
+          async () => await this.panel.uiUpdateHands(G, true)
+        );
         await queryRedraw(G)();
       }
     });
@@ -742,9 +715,7 @@ class MatchWindow_0 extends Window {
   }
 
   private async queryMovement(game: IGameState): Promise<IPlayerMovement> {
-    await this.panel.update({
-      enable: true,
-    });
+    await this.panel.update({ enabled: true });
 
     this.board.update({
       input: {
@@ -788,11 +759,7 @@ class MatchWindow_0 extends Window {
     this.board.update({ acceptInput: false });
     this.spMeter1.update({ spAttack: 0 });
     this.szMeter.update({ preview: false });
-    await this.panel.update({
-      enable: false,
-      mask: Array(4).fill(true),
-      selected: -1,
-    });
+    await this.panel.update({ enabled: false });
 
     return move;
   }
