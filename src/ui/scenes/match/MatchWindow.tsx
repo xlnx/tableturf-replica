@@ -7,16 +7,15 @@ import { TurnMeterComponent } from "../../TurnMeterComponent";
 import { SpMeterComponent } from "../../SpMeterComponent";
 import { System } from "../../../engine/System";
 import { getLogger } from "loglevel";
-import { enumerateBoardMoves } from "../../../core/Tableturf";
 import {
   getCardById,
   moveBoard,
   isGameMoveValid,
 } from "../../../core/Tableturf";
 import { MessageBar } from "../../components/MessageBar";
-import { ReactNode, useEffect } from "react";
-import { Box, Paper, ThemeProvider } from "@mui/material";
-import { Theme, DarkButton } from "../../Theme";
+import { ReactNode } from "react";
+import { ThemeProvider } from "@mui/material";
+import { Theme } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { ActivityPanel } from "../../Activity";
 import { AlertDialog } from "../../components/AlertDialog";
@@ -26,19 +25,12 @@ import { CardSlot } from "./CardSlot";
 import { Match } from "../../../game/Match";
 import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { MatchDriver } from "../../../game/MatchDriver";
-import { Hands } from "./Hands";
+import { PlayerPanel } from "./PlayerPanel";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
 
 type PartialMove = Omit<Omit<IPlayerMovement, "player">, "params">;
-type Action = "discard" | "trivial" | "special";
-
-interface MatchState {
-  player: IPlayerId;
-  handMask: boolean[];
-  handSpMask: boolean[];
-}
 
 interface SlotState {
   card: number;
@@ -57,219 +49,59 @@ const emptySlots: SlotState[] = Array(2).fill({
 });
 
 interface MatchWindowPanelProps {
-  enabled: boolean;
-  selected: number;
-  action: Action;
-  state: MatchState;
   slots: SlotState[];
-  onUpdateMove: (move: PartialMove) => void;
+  onUpdateMove: (move) => void;
   onClick: (hand: number) => void;
 }
 
 class MatchWindowPanel extends ReactComponent<MatchWindowPanelProps> {
-  private readonly hands = (() => {
-    const hands = new Hands();
-    hands.update({
+  private readonly playerPanel = (() => {
+    const panel = new PlayerPanel();
+    panel.update({
       onClick: (i) => {
         this.props.onClick(i);
       },
-      onChange: (i) => {
-        this.props.onUpdateMove({
-          action: this.props.action,
-          hand: i,
+      onUpdateMove: (move) => {
+        this.props.onUpdateMove(move);
+      },
+      onPreview: (card: number) => {
+        this.update({
+          slots: [
+            {
+              card,
+              discard: false,
+              show: card >= 0,
+              flip: true,
+              preview: true,
+            },
+            this.props.slots[1],
+          ],
         });
-        this.update({ selected: i });
       },
     });
-    return hands;
+    return panel;
   })();
 
   init(): MatchWindowPanelProps {
     return {
-      enabled: true,
-      selected: -1,
-      action: "trivial",
-      state: null,
       slots: emptySlots,
       onUpdateMove: () => {},
       onClick: () => {},
     };
   }
 
-  async resetGameSate(player: IPlayerId, game: IGameState) {
-    await this.reset(game, player);
-    const playerState = game.players[player];
-    const cards = playerState.hand;
-    await this.hands.update({
-      cards,
-      selected: -1,
-    });
+  async reset(G: IMatchState, player: IPlayerId) {
+    await this.playerPanel.reset(G, player);
   }
 
-  async reset(game: IGameState, player: IPlayerId) {
-    const playerState = game.players[player];
-    const cards = playerState.hand;
-    const handMask = cards.map(
-      (card) =>
-        card && enumerateBoardMoves(game, player, card, false).length > 0
-    );
-    const handSpMask = cards.map(
-      (card) =>
-        card &&
-        getCardById(card).count.special <= playerState.count.special &&
-        enumerateBoardMoves(game, player, card, true).length > 0
-    );
-    await this.update({
-      action: "trivial",
-      state: {
-        player,
-        handMask,
-        handSpMask,
-      },
-    });
-  }
-
-  async uiUpdateHands(G: IMatchState, isRedraw: boolean) {
-    const { player } = this.props.state;
-    const cards = G.game.players[player].hand.slice();
-    if (!isRedraw) {
-      const { hand } = G.buffer.history.slice(-1)[0][player];
-      for (let i = 0; i < 4; ++i) {
-        if (i != hand) {
-          cards[i] = null;
-        }
-      }
-    }
-    await this.reset(G.game, player);
-    await this.hands.uiUpdate(cards);
+  async uiUpdate(G: IMatchState) {
+    await this.playerPanel.uiUpdate(G);
   }
 
   render(): ReactNode {
-    useEffect(() => {
-      if (!this.props.enabled) {
-        return;
-      }
-      const card =
-        this.props.selected >= 0
-          ? this.hands.props.cards[this.props.selected]
-          : -1;
-      if (this.props.action == "discard" && card >= 0) {
-        return;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.update({
-        slots: [
-          {
-            card,
-            discard: false,
-            show: card >= 0,
-            flip: true,
-            preview: true,
-          },
-          this.props.slots[1],
-        ],
-      });
-    }, [this.props.selected, this.props.enabled, this.props.action]);
-
-    useEffect(() => {
-      if (!this.props.state) {
-        return;
-      }
-      let selected = this.props.selected;
-      let mask = this.props.state.handMask;
-      if (this.props.action == "discard") {
-        mask = Array(4).fill(true);
-        selected = -1;
-      }
-      if (this.props.action == "special") {
-        mask = this.props.state.handSpMask;
-        if (!mask[selected]) {
-          selected = -1;
-        }
-      }
-      this.hands.update({ selected, mask });
-    }, [this.props.action, this.props.state]);
-
-    useEffect(() => {
-      this.hands.update({
-        enabled: this.props.enabled,
-        selected: -1,
-      });
-    }, [this.props.enabled]);
-
     return (
       <ThemeProvider theme={Theme}>
-        <Paper
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 135,
-            width: 545,
-            height: 675,
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
-            boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              left: 28,
-              top: 25,
-              width: 510,
-              height: 640,
-            }}
-          >
-            {this.hands.node}
-          </Box>
-        </Paper>
-        <DarkButton
-          disabled={!this.props.enabled}
-          selected={this.props.enabled && this.props.action == "discard"}
-          sx={{
-            position: "absolute",
-            left: 42,
-            top: 838,
-            width: 220,
-            height: 90,
-            "&.Mui-selected": {
-              backgroundColor: "#d2e332dd",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "#d2e332ff",
-            },
-          }}
-          onClick={() =>
-            this.update({
-              action: this.props.action != "discard" ? "discard" : "trivial",
-            })
-          }
-        >
-          Pass
-        </DarkButton>
-        <DarkButton
-          disabled={!this.props.enabled}
-          selected={this.props.enabled && this.props.action == "special"}
-          sx={{
-            position: "absolute",
-            left: 292,
-            top: 838,
-            width: 220,
-            height: 90,
-            "&.Mui-selected": {
-              backgroundColor: "#d2e332dd",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "#d2e332ff",
-            },
-          }}
-          onClick={() =>
-            this.update({
-              action: this.props.action != "special" ? "special" : "trivial",
-            })
-          }
-        >
-          Special Attack!
-        </DarkButton>
+        {this.playerPanel.node}
         <div
           style={{
             position: "absolute",
@@ -511,7 +343,7 @@ class MatchWindow_0 extends Window {
           acceptInput: false,
         });
         this.board.uiReset(G.game.board);
-        await this.panel.resetGameSate(this.player, G.game);
+        await this.panel.reset(G, this.player);
         await this.panel.update({ slots: emptySlots });
         const count = this.players.map((i) => G.game.players[i].count);
         this.szMeter.update({ value1: count[0].area, value2: count[1].area });
@@ -619,7 +451,7 @@ class MatchWindow_0 extends Window {
       }));
       await this.panel.update({ slots });
       await Promise.all([
-        this.panel.uiUpdateHands(G, false),
+        this.panel.uiUpdate(G),
         this.turnMeter.uiUpdate(G.game.round),
         sleep(0.3),
       ]);
@@ -655,9 +487,7 @@ class MatchWindow_0 extends Window {
       if (this.player < 0) return;
       if (playerID == match.playerID) {
         const { G } = match.client.getState();
-        this.uiThreadAppend(
-          async () => await this.panel.uiUpdateHands(G, true)
-        );
+        this.uiThreadAppend(async () => await this.panel.uiUpdate(G));
         await queryRedraw(G)();
       }
     });
