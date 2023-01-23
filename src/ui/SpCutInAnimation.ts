@@ -51,7 +51,7 @@ export class SpCutInAnimation extends Component<ISpCutInAnimationProps> {
         },
       },
       p2: {
-        x: 1320,
+        x: 1220,
         y: 260,
         ink1: {
           x: 53,

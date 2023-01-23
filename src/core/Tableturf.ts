@@ -320,7 +320,7 @@ export function initGame(stage: number, decks: number[][]): IGameState {
       deck: deck.slice(4),
       hand: deck.slice(0, 4),
       count: {
-        area: 0,
+        area: 1,
         special: 0,
       },
     })),

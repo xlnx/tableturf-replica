@@ -10,12 +10,10 @@ interface HandsProps {
   mask: boolean[];
   selected: number;
   // layout
+  player: IPlayerId;
   spacing: number;
   xs: number;
   wi: number;
-  // events
-  onClick: (i: number) => void;
-  onChange: (i: number) => void;
 }
 
 export class Hands extends ReactComponent<HandsProps> {
@@ -28,12 +26,10 @@ export class Hands extends ReactComponent<HandsProps> {
       mask: Array(4).fill(true),
       selected: -1,
       // layout
+      player: 0,
       spacing: 2,
       xs: 6,
       wi: 235,
-      // onClick
-      onClick: () => {},
-      onChange: () => {},
     };
   }
 
@@ -71,7 +67,7 @@ export class Hands extends ReactComponent<HandsProps> {
   render() {
     this.cardsRef = useRef([]);
     useEffect(() => {
-      this.props.onChange(this.props.selected);
+      this.dispatchEvent("selected-change", this.props.selected);
     }, [this.props.selected]);
 
     const li = [];
@@ -84,12 +80,13 @@ export class Hands extends ReactComponent<HandsProps> {
             ref={(el) => (this.cardsRef.current[i] = el)}
           >
             <CardSmall
+              player={this.props.player}
               card={card || 1}
               width={this.props.wi}
               active={this.props.mask[i] && this.props.enabled}
               selected={this.props.selected == i}
               onClick={() => {
-                this.props.onClick(i);
+                this.dispatchEvent("click", i);
                 if (this.props.selected != i) {
                   this.update({ selected: i });
                 }

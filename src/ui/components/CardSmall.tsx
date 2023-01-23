@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { getLogger } from "loglevel";
-import { Spaces, getCardById } from "../../core/Tableturf";
+import { getCardById } from "../../core/Tableturf";
 import { SquareTilemap } from "./SquareTilemap";
 import { Card } from "./Card";
+import { CardGrid } from "./CardGrid";
 
 const logger = getLogger("card-small");
 logger.setLevel("info");
@@ -10,6 +11,7 @@ logger.setLevel("info");
 interface CardSmallProps {
   card: number;
   width: number;
+  player?: IPlayerId;
   active?: boolean;
   selected?: boolean;
   onClick?: () => void;
@@ -25,6 +27,7 @@ const layout = {
 export function CardSmall({
   card: cardId,
   width,
+  player = 0,
   active = true,
   selected = false,
   onClick = () => {},
@@ -65,20 +68,10 @@ export function CardSmall({
             transformOrigin: "top left",
           }}
         >
-          <SquareTilemap
-            id={`card-grid-small-${card.id}`}
-            rect={card}
-            values={[
-              {
-                image: "/textures/empty_space.webp",
-                alpha: 0.7,
-                value: Spaces.EMPTY,
-              },
-              { image: "/textures/pure_yellow.webp", value: Spaces.TRIVIAL },
-              { image: "/textures/pure_orange.webp", value: Spaces.SPECIAL },
-            ]}
+          <CardGrid
+            card={card}
+            player={player}
             width={layout.width - 2 * layout.padding}
-            layout={{ width: 40 }}
           />
         </div>
         <div
@@ -112,12 +105,17 @@ export function CardSmall({
           }}
         >
           <SquareTilemap
-            id={`card-small-sp-${card.count.special}`}
+            id={`card-small-sp-${card.count.special}-${player}`}
             rect={{
               size: [5, 2],
               values: Array(card.count.special).fill(0),
             }}
-            values={[{ image: "/textures/pure_orange.webp", value: 0 }]}
+            values={[
+              {
+                image: `/textures/player${player + 1}_special_space.webp`,
+                value: 0,
+              },
+            ]}
             width={64}
             layout={{
               width: 40,

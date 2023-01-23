@@ -62,7 +62,7 @@ export class OverlayTexture extends RenderBuffer<IOverlayComponentProps> {
       scale: 0.8,
       angle: 45,
       angleV: -180,
-      primary: ColorPalette.Space.overlay.normal,
+      primary: ColorPalette.Player1.primary,
       secondary: ColorPalette.Space.overlay.invalid,
       file: "guide_stride.webp",
     });
@@ -74,7 +74,7 @@ export class OverlayTexture extends RenderBuffer<IOverlayComponentProps> {
       scale: 1.2,
       angle: -75,
       angleV: -150,
-      primary: ColorPalette.Space.overlay.special,
+      primary: ColorPalette.Player1.secondary,
       secondary: ColorPalette.Space.overlay.invalid,
       file: "guide_dot_01.webp",
     });

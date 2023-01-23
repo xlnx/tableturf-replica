@@ -38,6 +38,10 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
 
   componentDidUpdate(prevProps: Readonly<Props>) {}
 
+  on(event: string, handler: any) {
+    return this.registerEventHandler(event, handler);
+  }
+
   get node() {
     return this._node;
   }

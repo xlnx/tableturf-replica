@@ -26,8 +26,6 @@ export interface PlayerColorPalette {
 export class ColorPalette {
   static readonly Space = {
     overlay: {
-      normal: Color.fromRgb01([0.81, 0.89, 0.15]),
-      special: Color.fromRgb01([0.86, 0.59, 0.15]),
       invalid: Color.fromRgb01([0.78, 0.78, 0.78]),
     },
     flash: {
