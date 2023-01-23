@@ -400,11 +400,13 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
 
     driver.on("abort", async () => {
       if (player < 0) return;
-      await AlertDialog.prompt({
-        msg: "Match aborted",
-        cancelMsg: null,
+      gui.uiBlocking(async () => {
+        await AlertDialog.prompt({
+          msg: "Match aborted",
+          cancelMsg: null,
+        });
+        await exit();
       });
-      await exit();
     });
 
     this.detach.push(

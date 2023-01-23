@@ -214,11 +214,13 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     driver.on("abort", async () => {
       if (!active) return;
-      await AlertDialog.prompt({
-        msg: "Match aborted",
-        cancelMsg: null,
+      gui.uiBlocking(async () => {
+        await AlertDialog.prompt({
+          msg: "Match aborted",
+          cancelMsg: null,
+        });
+        await exit();
       });
-      await exit();
     });
   }
 }

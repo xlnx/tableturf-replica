@@ -80,7 +80,7 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
     const ok = isBoardMoveValid(state, move, false);
     if (!ok) {
       logger.debug("invalid move:", rectToString(state), move);
-      MessageBar.error("you can't put it there.");
+      MessageBar.error("you can't put it there");
       return;
     }
     const { board } = this.window;

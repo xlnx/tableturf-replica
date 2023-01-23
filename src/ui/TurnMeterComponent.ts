@@ -1,7 +1,6 @@
 import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";
 import { EaseFunc } from "../engine/animations/Ease";
-import BlendGlsl from "./shaders/Blend.glsl?raw";
 
 interface ITimerComponentProps {
   value: number;
@@ -22,11 +21,6 @@ export class TurnMeterComponent extends Component<ITimerComponentProps> {
       value: 0,
     });
 
-    const bgShader = this.addShader(BlendGlsl, {
-      uColorPrimary: Color.fromHex(0x838286).rgb01,
-      uColorSecondary: Color.fromHex(0x737173).rgb01,
-    });
-
     const root = this.addContainer();
 
     const bgRoot = this.addContainer({ parent: root });
@@ -35,48 +29,6 @@ export class TurnMeterComponent extends Component<ITimerComponentProps> {
       .beginFill(Color.BLACK.i32)
       .drawCircle(0, 0, 90);
     shadow.alpha = shadowAlpha;
-
-    const panelRoot = this.addContainer({
-      parent: bgRoot,
-      filters: [bgShader],
-    });
-
-    this.addGraphics({ parent: panelRoot })
-      .beginFill(Color.WHITE.i32)
-      .drawCircle(0, 0, 90);
-
-    this.addSprite({
-      parent: panelRoot,
-      anchor: 0.5,
-      x: -5.8,
-      y: 20,
-      width: 340 * 0.5,
-      height: 114 * 0.5,
-      angle: -6,
-      texture: "GftImage_44.webp",
-    });
-
-    this.addSprite({
-      parent: panelRoot,
-      anchor: 0.5,
-      x: -18,
-      y: 41.6,
-      width: 400 * 0.3,
-      height: 288 * 0.3,
-      tint: Color.fromHex(0x080808),
-      texture: "GftVsResult_02.webp",
-    });
-
-    this.addSprite({
-      parent: panelRoot,
-      anchor: 0.5,
-      x: 19,
-      y: -34,
-      angle: -165.5,
-      width: 202 * 0.9,
-      height: 64 * 0.9,
-      texture: "GftImage_32.webp",
-    });
 
     this.addText({
       parent: bgRoot,

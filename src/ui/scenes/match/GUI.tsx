@@ -126,12 +126,6 @@ export class GUI {
   readonly layout = {
     width: 1920,
     height: 1080,
-    board: {
-      x: 194,
-      y: -16,
-      width: 1e8,
-      height: 1040,
-    },
     szMeter: {
       x: -315,
       y: -5,
@@ -158,20 +152,8 @@ export class GUI {
       ],
     },
     turnMeter: {
-      x: -280,
-      y: -350,
-    },
-    spMeter: {
-      p: [
-        {
-          x: -910,
-          y: 442,
-        },
-        {
-          x: -790,
-          y: -514,
-        },
-      ],
+      x: -300,
+      y: -400,
     },
   };
 
@@ -190,11 +172,9 @@ export class GUI {
     this.board = window.addComponent(new BoardComponent(), {
       parent: root,
       anchor: 0.5,
-      x: this.layout.board.x,
-      y: this.layout.board.y,
       scale: {
-        width: this.layout.board.width,
-        height: this.layout.board.height,
+        width: 1e8,
+        height: 1040,
       },
     });
     this.board.onUpdateInput((e, ok) => {
