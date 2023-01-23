@@ -47,45 +47,6 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     };
   }
 
-  async uiUpdate(G: IMatchState) {
-    const { player } = this.props.state;
-    const cards = G.game.players[player].hand.slice();
-    const isRedraw = G.game.round == 12 && !G.buffer.moves[player];
-    if (!isRedraw) {
-      const { hand } = G.buffer.history.slice(-1)[0][player];
-      for (let i = 0; i < 4; ++i) {
-        if (i != hand) {
-          cards[i] = null;
-        }
-      }
-    }
-    await this.updateState(G.game, player);
-    await this.hands.uiUpdate(cards);
-  }
-
-  private async updateState(game: IGameState, player: IPlayerId) {
-    const playerState = game.players[player];
-    const cards = playerState.hand;
-    const handMask = cards.map(
-      (card) =>
-        card && enumerateBoardMoves(game, player, card, false).length > 0
-    );
-    const handSpMask = cards.map(
-      (card) =>
-        card &&
-        getCardById(card).count.special <= playerState.count.special &&
-        enumerateBoardMoves(game, player, card, true).length > 0
-    );
-    await this.update({
-      action: "trivial",
-      state: {
-        player,
-        handMask,
-        handSpMask,
-      },
-    });
-  }
-
   render() {
     useEffect(() => {
       if (!this.props.enabled) {
@@ -125,6 +86,10 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       }
       this.hands.update({ selected, mask });
     }, [this.props.action, this.props.state]);
+
+    useEffect(() => {
+      this.dispatchEvent("action-change", this.props.action);
+    }, [this.props.action]);
 
     useEffect(() => {
       this.hands.update({
@@ -227,6 +192,30 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     this.detach.forEach((f) => f());
     const driver = new MatchDriver(match);
 
+    const uiUpdateMask = async (G: IMatchState) => {
+      const { game } = G;
+      const playerState = game.players[player];
+      const cards = playerState.hand;
+      const handMask = cards.map(
+        (card) =>
+          card && enumerateBoardMoves(game, player, card, false).length > 0
+      );
+      const handSpMask = cards.map(
+        (card) =>
+          card &&
+          getCardById(card).count.special <= playerState.count.special &&
+          enumerateBoardMoves(game, player, card, true).length > 0
+      );
+      await this.update({
+        action: "trivial",
+        state: {
+          player,
+          handMask,
+          handSpMask,
+        },
+      });
+    };
+
     const uiReset = async (G: IMatchState) => {
       gui.board.position.set(194, -16);
       gui.board.update({ acceptInput: false });
@@ -238,7 +227,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
         visibility: { slots: true },
       });
       await gui.reset(G, players);
-      await this.updateState(G.game, player);
+      await uiUpdateMask(G);
       const playerState = G.game.players[player];
       const cards = playerState.hand;
       await this.hands.update({
@@ -312,7 +301,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
         if (isGameMoveValid(game, move)) {
           break;
         }
-        MessageBar.error("you can't put it here.");
+        MessageBar.error("you can't put it there");
         logger.warn("invalid movement:", move);
       } while (1);
 
@@ -353,13 +342,13 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       const cards = Array(4);
       const { hand } = G.buffer.history.slice(-1)[0][player];
       cards[hand] = G.game.players[player].hand[hand];
-      await this.updateState(G.game, player);
+      await uiUpdateMask(G);
       await this.hands.uiUpdate(cards);
     };
 
     const uiRedraw = async (G: IMatchState) => {
       const cards = G.game.players[player].hand.slice();
-      await this.updateState(G.game, player);
+      await uiUpdateMask(G);
       await this.hands.uiUpdate(cards);
     };
 
@@ -420,49 +409,63 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
 
     this.detach.push(
       this.hands.on("click", (hand: number) => {
+        if (player < 0) return;
         if (hand == this.hands.props.selected) {
           gui.board.uiRotateInput(1);
         }
       })
     );
 
-    this.detach.push(
-      this.hands.on("selected-change", (hand: number) => {
-        const { action } = this.props;
-        if (action == "discard" && hand >= 0) {
-          const move: IPlayerMovement = {
-            player,
-            action: "discard",
-            hand: hand,
-          };
-          this.send("player.pass", move);
-        }
-        const card =
-          hand < 0 || action == "discard"
-            ? null
-            : getCardById(G0.game.players[player].hand[hand]);
-        let pointer = gui.board.props.input.value.pointer;
-        if (card != gui.board.props.input.value.card) {
-          if (System.isMobile) {
-            if (pointer == null) {
-              const [w, h] = G0.game.board.size;
-              pointer = { x: Math.floor(w / 2), y: Math.floor(h / 2) };
-            }
+    const uiUpdateInput = async () => {
+      const { selected: hand } = this.hands.props;
+      const { action } = this.props;
+      if (action == "discard" && hand >= 0) {
+        const move: IPlayerMovement = {
+          player,
+          action: "discard",
+          hand,
+        };
+        this.send("player.pass", move);
+      }
+      const card =
+        hand < 0 || action == "discard"
+          ? null
+          : getCardById(G0.game.players[player].hand[hand]);
+      let pointer = gui.board.props.input.value.pointer;
+      if (card != gui.board.props.input.value.card) {
+        if (System.isMobile) {
+          if (pointer == null) {
+            const [w, h] = G0.game.board.size;
+            pointer = { x: Math.floor(w / 2), y: Math.floor(h / 2) };
           }
         }
-        if (action == "special" && card) {
-          gui.spMeter1.update({ spAttack: card.count.special });
-        } else {
-          gui.spMeter1.update({ spAttack: 0 });
-        }
-        gui.board.update({
-          input: {
-            ...gui.board.props.input.value,
-            card,
-            pointer,
-            isSpecialAttack: action == "special",
-          },
-        });
+      }
+      if (action == "special" && card) {
+        gui.spMeter1.update({ spAttack: card.count.special });
+      } else {
+        gui.spMeter1.update({ spAttack: 0 });
+      }
+      gui.board.update({
+        input: {
+          ...gui.board.props.input.value,
+          card,
+          pointer,
+          isSpecialAttack: action == "special",
+        },
+      });
+    };
+
+    this.detach.push(
+      this.hands.on("selected-change", () => {
+        if (player < 0) return;
+        uiUpdateInput();
+      })
+    );
+
+    this.detach.push(
+      this.on("action-change", () => {
+        if (player < 0) return;
+        uiUpdateInput();
       })
     );
   }

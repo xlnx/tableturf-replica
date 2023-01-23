@@ -486,7 +486,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
 
     const ok = isBoardMoveValid(this.board, move, isSpecialAttack);
 
-    this.selection = this.uiUpdateOverlay(move, ok);
+    this.selection = this.uiUpdateOverlay({ ...move, player: 0 }, ok);
     this.onUpdateInputFn(move, ok);
 
     return move;
