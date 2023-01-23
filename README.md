@@ -6,13 +6,14 @@
 
 ## Try it Out!
 
-* Visit main page: [https://tableturf.koishi.top](https://tableturf.koishi.top)
-* Play with custom demo bot: [https://tableturf.koishi.top/?connect=bot&url=wss://api.koishi.top:5140](https://tableturf.koishi.top/?connect=bot&url=wss://api.koishi.top:5140)
+- Visit main page: [https://tableturf.koishi.top](https://tableturf.koishi.top)
+- Play with custom demo bot: [https://tableturf.koishi.top/?connect=bot&url=wss://api.koishi.top:5140](https://tableturf.koishi.top/?connect=bot&url=wss://api.koishi.top:5140)
 
 ## Preview
 
 ![](docs/page1.webp)
 ![](docs/page2.webp)
+![](docs/page3.webp)
 
 ## Custom Bot
 
@@ -20,12 +21,12 @@ Check demo project: [fga401-bot-adapter](https://github.com/xlnx/fga401-bot-adap
 
 ## Ref Frameworks
 
-* **Bundler**: [Vite](https://vitejs.dev/)
-* **Rendering**: [pixi-js](https://pixijs.com/)
-* **Dialogs**: [React](https://reactjs.org/)
-* **State Management**: [boardgame.io](https://boardgame.io/)
-* **P2P**: [PeerJs](https://peerjs.com/)
-* **Python API**:
-  * [js2py](https://github.com/PiotrDabkowski/Js2Py)
-  * [jsonrpc](https://www.jsonrpc.org/specification)
-  * [websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
+- **Bundler**: [Vite](https://vitejs.dev/)
+- **Rendering**: [pixi-js](https://pixijs.com/)
+- **Dialogs**: [React](https://reactjs.org/)
+- **State Management**: [boardgame.io](https://boardgame.io/)
+- **P2P**: [PeerJs](https://peerjs.com/)
+- **Python API**:
+  - [js2py](https://github.com/PiotrDabkowski/Js2Py)
+  - [jsonrpc](https://www.jsonrpc.org/specification)
+  - [websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
