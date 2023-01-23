@@ -27,7 +27,7 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Theme, BasicButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
-import { StarterDeck } from "../../../Game";
+// import { StarterDeck } from "../../../Game";
 import { getLogger } from "loglevel";
 import { rectToString } from "../../../core/Utils";
 import { CardVaultPanel } from "./CardVaultPanel";
@@ -35,6 +35,7 @@ import { DeckPanel } from "./DeckPanel";
 import { DeckSaveDialog } from "./DeckSaveDialog";
 import { I18n } from "../../../i18n/I18n";
 import { DeckShareDialog } from "./DeckShareDialog";
+import { StarterDeck } from "../../../game/MatchController";
 
 const logger = getLogger("entry-window");
 logger.setLevel("info");
@@ -79,7 +80,7 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
     const ok = isBoardMoveValid(state, move, false);
     if (!ok) {
       logger.debug("invalid move:", rectToString(state), move);
-      MessageBar.error("you can't put it there.");
+      MessageBar.error("you can't put it there");
       return;
     }
     const { board } = this.window;

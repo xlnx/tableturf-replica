@@ -2,6 +2,7 @@ import { ColorPalette } from "./ColorPalette";
 import { Color } from "../engine/Color";
 import { Component } from "../engine/Component";
 import { EaseFunc } from "../engine/animations/Ease";
+import { Container } from "pixi.js";
 
 interface IInkBeatComponentProps {
   color: Color;
@@ -148,6 +149,7 @@ export class SzMeterComponent extends Component<ISzMeterComponentProps> {
   };
 
   private readonly playFn: (v1: number, v2: number) => Promise<any>;
+  readonly roots: Container[] = [];
 
   constructor() {
     super({
@@ -160,12 +162,16 @@ export class SzMeterComponent extends Component<ISzMeterComponentProps> {
 
     const skew = (Math.PI * -15) / 180;
 
+    const roots = [0, 1].map(() => this.addContainer());
+    this.roots = roots;
+
     const [text1, text2] = [
       { p: this.layout.p1, c: ColorPalette.Player1 },
       { p: this.layout.p2, c: ColorPalette.Player2 },
-    ].map(({ p, c }) => {
+    ].map(({ p, c }, i) => {
       const { x, y, img, width, scale, angle, alpha } = p.ink;
       this.addSprite({
+        parent: roots[i],
         anchor: 0.5,
         x,
         y,
@@ -182,6 +188,7 @@ export class SzMeterComponent extends Component<ISzMeterComponentProps> {
       });
 
       const root = this.addContainer({
+        parent: roots[i],
         x: p.text.x,
         y: p.text.y,
       });
@@ -213,13 +220,13 @@ export class SzMeterComponent extends Component<ISzMeterComponentProps> {
       return { root, text, text1 };
     });
 
-    const previewRoot = this.addContainer();
+    const previewRoots = roots.map((parent) => this.addContainer({ parent }));
     const [preview1, preview2] = [
       { p: this.layout.p1, c: ColorPalette.Player1 },
       { p: this.layout.p2, c: ColorPalette.Player2 },
-    ].map(({ p, c }) => {
+    ].map(({ p, c }, i) => {
       const parent = this.addContainer({
-        parent: previewRoot,
+        parent: previewRoots[i],
         x: p.text.x - 25,
         y: p.text.y + 85,
       });
@@ -280,9 +287,10 @@ export class SzMeterComponent extends Component<ISzMeterComponentProps> {
     const [inkbeat1, inkbeat2] = [
       { p: this.layout.p1, c: ColorPalette.Player1 },
       { p: this.layout.p2, c: ColorPalette.Player2 },
-    ].map(({ p, c }) => {
+    ].map(({ p, c }, i) => {
       const { x, y, angle } = p.inkbeat;
       const ib = this.addComponent(new InkBeatComponent(), {
+        parent: roots[i],
         x,
         y,
       });
@@ -296,7 +304,9 @@ export class SzMeterComponent extends Component<ISzMeterComponentProps> {
     this.props.value2.onUpdate(
       (v) => (text2.text1.text = text2.text.text = `${v}`)
     );
-    this.props.preview.onUpdate((v) => (previewRoot.visible = v));
+    this.props.preview.onUpdate((v) =>
+      previewRoots.forEach((e) => (e.visible = v))
+    );
     this.props.preview1.onUpdate(
       (v) => (preview1.text.text = preview1.text1.text = `${v}`)
     );

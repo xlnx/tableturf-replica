@@ -140,7 +140,7 @@ export function Collapsible({
   label,
   open,
   maxBodyHeight,
-  onClick = () => {},
+  onClick = () => { },
 }: CollapsibleProps) {
   const color = open ? "text.primary" : "text.secondary";
   const dt = 150;
@@ -236,6 +236,13 @@ export const Theme = createTheme({
     borderRadius: 16,
   },
   components: {
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          background: "transparent",
+        }
+      }
+    },
     MuiButton: {
       styleOverrides: {
         iconSizeMedium: {

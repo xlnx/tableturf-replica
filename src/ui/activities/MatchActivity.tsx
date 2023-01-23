@@ -1,25 +1,102 @@
-import { useState } from "react";
-import { Box, Grid, MenuItem, TextField } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Grid,
+  Menu,
+  MenuItem,
+  Stack,
+  TextField,
+} from "@mui/material";
 import { Activity, ActivityPanel } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton, Collapsible } from "../Theme";
 import { getLogger } from "loglevel";
-import { StarterDeck, TableturfClientState } from "../../Game";
-import { Client } from "../../client/Client";
 import { AlertDialog } from "../components/AlertDialog";
-import { P2PHost } from "../../client/P2P";
 import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
 import { MatchWindow } from "../scenes/match/MatchWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
-import { EntryWindow } from "../scenes/entry/EntryWindow";
 import { getStages } from "../../core/Tableturf";
 import { isDeckValid } from "../../Terms";
 import { I18n } from "../../i18n/I18n";
 import { DB } from "../../Database";
+import { Match } from "../../game/Match";
+import { ClientState } from "boardgame.io/dist/types/src/client/client";
+import { StarterDeck } from "../../game/MatchController";
+import { Color } from "../../engine/Color";
+import StarIcon from "@mui/icons-material/Star";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { EntryWindow } from "../scenes/entry/EntryWindow";
+import { Gateway } from "../Gateway";
+import { LoadingDialog } from "../components/LoadingDialog";
 
 const logger = getLogger("main-dialog");
 logger.setLevel("info");
+
+type Role = "spectator" | "alpha" | "bravo";
+const styles = {
+  spectator: {
+    backgroundColor: "#3c4048",
+  },
+  alpha: {
+    backgroundColor: "#dc5f00",
+  },
+  bravo: {
+    backgroundColor: "#4649ff",
+  },
+};
+
+function PlayerAvatar({ online, name, role, host, self, onClick }) {
+  const btn = !online ? null : (
+    <Button
+      sx={{
+        width: "100%",
+        height: "100%",
+        fontSize: "1.5rem",
+        backgroundColor: Color.fromHex(styles[role].backgroundColor).darken(0.2)
+          .hexSharp,
+        transition: "all 200ms ease-out",
+        "&:hover": {
+          backgroundColor: styles[role].backgroundColor,
+        },
+      }}
+      onClick={onClick}
+    >
+      {name.substring(0, 2).toUpperCase()}
+    </Button>
+  );
+  const [w, h] = [108, 96];
+  return (
+    <Box sx={{ position: "relative", width: w, height: h }}>
+      {btn}
+      <StarIcon
+        sx={{
+          position: "absolute",
+          left: 4,
+          top: 4,
+          color: "white",
+          fontSize: "0.9rem",
+          opacity: host ? 1 : 0,
+          pointerEvents: "none",
+          transition: "all 200ms ease-out",
+        }}
+      />
+      {!self ? null : (
+        <ArrowDropDownIcon
+          sx={{
+            position: "absolute",
+            left: 5,
+            top: -70,
+            color: "white",
+            fontSize: "3rem",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+    </Box>
+  );
+}
 
 interface OperationInfo {
   hostOnly?: boolean;
@@ -27,13 +104,10 @@ interface OperationInfo {
 }
 
 interface MatchActivityProps {
-  client: Client;
-  player: IPlayerId;
-  state: TableturfClientState;
+  match: Match;
+  state: ClientState<IMatchState>;
   deck: IDeckData;
-  botDeck: IDeckData;
   manualExit: boolean;
-  version: number;
 }
 
 const defaultDeck: IDeckData = {
@@ -58,177 +132,183 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       title: "Match",
       parent: () => RootActivity,
       //
-      client: null,
-      player: 0 as IPlayerId,
+      match: null,
       state: null,
       deck,
-      botDeck: defaultDeck,
       manualExit: false,
-      // version for force re-render
-      version: 0,
     };
   }
 
-  componentDidMount(): void {
-    DB.subscribe(() => this.update({ version: this.props.version + 1 }));
+  async createMatch() {
+    try {
+      const { playerName } = DB.read();
+      const matchName = `${playerName}'s match`;
+      const match = await LoadingDialog.wait({
+        task: Gateway.createMatch({
+          playerName,
+          matchName,
+        }),
+        message: "Creating Match...",
+      });
+      await this.start(match, matchName);
+    } catch (err) {
+      MessageBar.error(err);
+    }
   }
 
-  async start(client: Client) {
-    console.assert(client.isConnected());
+  async joinMatch(matchID: string) {
+    try {
+      const task = async () => {
+        const {
+          setupData: { matchName },
+        } = await Gateway.getMatch(matchID);
+        const match = await Gateway.joinMatch(matchID, {
+          playerName: DB.read().playerName,
+        });
+        return [match, matchName];
+      };
+      const [match, matchName] = await LoadingDialog.wait({
+        task: task(),
+        message: "Joining Match...",
+      });
+      await this.start(match, matchName);
+    } catch (err) {
+      MessageBar.error(err);
+    }
+  }
+
+  private async start(match: Match, name: string) {
+    console.assert(match.isConnected());
+
+    MessageBar.success(`joined [${name}]`);
+
+    match.on("update", (state, prevState) => {
+      this.update({ state });
+
+      if (
+        state.ctx.phase == "handshake" &&
+        prevState.ctx.phase != "handshake"
+      ) {
+        match.send("Handshake", { deck: this.props.deck.deck.slice() });
+      }
+    });
+
+    match.on("player-join", (playerID) => {
+      const { name } = match.client.matchData[playerID];
+      MessageBar.success(`[${name}] joined the match`);
+    });
+
+    match.on("player-leave", (playerID) => {
+      const { name } = match.client.matchData[playerID];
+      MessageBar.warning(`[${name}] left the match`);
+    });
+
+    match.on("change-host", (playerID) => {
+      const { name } = match.client.matchData[playerID];
+      MessageBar.success(`[${name}] became host`);
+    });
+
+    match.on("disconnect", async (manual) => {
+      if (!manual) {
+        await AlertDialog.prompt({
+          msg: "A communication error has occurred",
+          cancelMsg: null,
+        });
+      }
+      match.stop();
+      if (MatchWindow.ui.visible) {
+        await InkResetAnimation.play(async () => {
+          this.send("cancel");
+          await ActivityPanel.show();
+          await this.props.parent().show();
+          EntryWindow.show();
+        });
+      } else {
+        await ActivityPanel.show();
+        await this.props.parent().show();
+      }
+    });
+
     await this.update({
-      client,
-      player: client.playerId,
-      state: client.state,
+      title: name,
+      match,
+      state: match.client.getState(),
       manualExit: false,
     });
-    await this.setupBot();
-    client.on("update", this.handleUpdate.bind(this));
-    client.on("disconnect", async () => {
-      await this.handleDisconnect();
-      await this.props.parent().show();
-    });
-    MatchWindow.bind(client);
+
+    MatchWindow.bind(match);
+
     await this.show();
   }
 
   async back() {
-    console.assert(this.props.client);
+    console.assert(this.props.match);
     const ok = await AlertDialog.prompt({
-      msg: "Leave the room now?",
+      msg: "Leave this match?",
     });
     if (ok) {
       await this.update({ manualExit: true });
-      this.props.client.stop();
-      await this.handleDisconnect();
+      this.props.match.stop();
     }
     return ok;
   }
 
-  private async handleDisconnect() {
-    await this.update({ client: null });
-    await this.uiHandlePlayerLeave();
-  }
-
-  private async uiHandlePlayerLeave() {
-    logger.debug("uiHandlePlayerLeave");
-    MessageBar.warning("${player} left the room");
-    if (!this.props.manualExit) {
-      await AlertDialog.prompt({
-        msg: "A communication error has occurred",
-        cancelMsg: null,
-      });
-    }
-    await InkResetAnimation.play(async () => {
-      MatchWindow.send("cancel");
-      await ActivityPanel.show();
-      EntryWindow.show();
-    });
-  }
-
-  private async setupBot() {
-    if (!this.isVsBot()) {
-      return;
-    }
-    const { support } = this.props.client.botInfo;
-    if (support.stages.length) {
-      this.props.client.send("updateState", { stage: support.stages[0] });
-    }
-    await this.update({ botDeck: autoDeck });
-  }
-
-  private async handleUpdate(
-    state: TableturfClientState,
-    { G: G0, ctx: ctx0 }: TableturfClientState
-  ) {
-    const { G, ctx } = state;
-
-    const enter = (phase: string) =>
-      ctx.phase == phase && ctx0.phase != ctx.phase;
-
-    for (let i = 0; i < 2; ++i) {
-      if (!G.players[i] && !!G0.players[i]) {
-        await this.uiHandlePlayerLeave();
-      }
-    }
-
-    // botInitHook
-    if (enter("botInitHook")) {
-      this.props.client.send("sync");
-    }
-
-    // init
-    if (enter("init")) {
-      await InkResetAnimation.play(async () => {
-        await MatchWindow.uiReset(G);
-        this.props.client.send("sync");
-        await ActivityPanel.hide();
-        MatchWindow.show();
-      });
-    }
-
-    await this.update({ state });
-  }
-
   isReady() {
-    return this.props.client && this.props.state.G.ready[this.props.player];
+    return (
+      this.props.match &&
+      this.props.state.G.buffer.ready[this.props.match.playerID]
+    );
   }
 
   isForbidden({ hostOnly = false, phase = "prepare" }: OperationInfo = {}) {
-    if (!this.props.client) {
+    if (!this.props.match) {
       return true;
     }
     if (phase && this.props.state.ctx.phase != phase) {
       return true;
     }
-    if (hostOnly && !this.props.client.isHost()) {
+    if (hostOnly && this.props.state.G.meta.host != this.props.match.playerID) {
       return true;
     }
     return false;
   }
 
-  isVsBot() {
-    return this.props.client && this.props.client.botInfo;
-  }
-
   isStageSupported(stage: number) {
-    if (!this.props.client) {
+    if (!this.props.match) {
       return false;
     }
-    const { botInfo } = this.props.client;
-    if (!botInfo || !botInfo.support.stages.length) {
-      return true;
-    }
-    return botInfo.support.stages.indexOf(stage) >= 0;
+    return true;
+    // const { botInfo } = this.props.match;
+    // if (!botInfo || !botInfo.support.stages.length) {
+    //   return true;
+    // }
+    // return botInfo.support.stages.indexOf(stage) >= 0;
   }
 
   render() {
+    const [state, setState] = useState({
+      settingsOpen: false,
+      selectedPlayer: 0,
+      playerMenuAnchorEl: null,
+      version: 0,
+    });
+
+    useEffect(() => {
+      DB.subscribe(() => setState({ ...state, version: state.version + 1 }));
+    }, []);
+
     const shareInviteLink = async () => {
       const url = new URL(System.url.origin);
       url.searchParams.append("connect", "player");
-      url.searchParams.append("match", this.props.client.matchId);
+      url.searchParams.append("match", this.props.match.matchID);
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url.href);
-        MessageBar.success(`successfully copied invite link to clipboard`);
+        MessageBar.success(`invite link copied: [${url.href}]`);
       } else {
         console.log(url.href);
         MessageBar.warning(`logged to console since context is not secure`);
       }
     };
-
-    let copyInviteLinkBtn = null;
-    if (this.props.client && this.props.client instanceof P2PHost) {
-      copyInviteLinkBtn = (
-        <Grid item xs={6}>
-          <BasicButton
-            fullWidth
-            disabled={this.isForbidden({ hostOnly: true })}
-            onClick={shareInviteLink}
-          >
-            Share Invite Link
-          </BasicButton>
-        </Grid>
-      );
-    }
 
     const stageMenuItems = getStages().map((stage) => (
       <MenuItem
@@ -247,103 +327,119 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       </MenuItem>
     ));
 
-    const [botPanelState, setBotPanelState] = useState({
-      open: false,
-    });
-
-    const renderBotPanel = () => {
-      const { botInfo } = this.props.client;
-      const useCustomDeck = !botInfo.support.decks.length;
-      const decks = [
-        autoDeck,
-        ...(useCustomDeck ? DB.read().decks : botInfo.support.decks),
-      ];
-      const deckMenuItems = decks.map(({ name, deck }, i) => (
-        <MenuItem value={i} key={i} disabled={deck && !isDeckValid(deck)}>
-          {name}
-        </MenuItem>
-      ));
-      return (
-        <Collapsible
-          label="Bot Settings"
-          open={botPanelState.open}
-          onClick={() =>
-            setBotPanelState({
-              ...botPanelState,
-              open: !botPanelState.open,
-            })
-          }
-          maxBodyHeight={100}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                select
-                variant="standard"
-                label="Deck"
-                disabled={
-                  this.isForbidden({ hostOnly: true }) || this.isReady()
+    const settingsPanel = (
+      <Collapsible
+        label="Advanced Settings"
+        open={state.settingsOpen}
+        onClick={() =>
+          setState({
+            ...state,
+            settingsOpen: !state.settingsOpen,
+          })
+        }
+        maxBodyHeight={100}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              variant="standard"
+              type="number"
+              label="Redraw Quota"
+              disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
+              value={this.props.state.G.meta.redrawQuota}
+              onChange={({ target }) => {
+                const quota = +target.value;
+                if (0 <= quota && quota < 10) {
+                  this.props.match.send("UpdateMeta", { redrawQuota: quota });
                 }
-                value={-1}
-                onChange={({ target }) =>
-                  this.update({ botDeck: decks[+target.value] })
-                }
-              >
-                <MenuItem value={-1} sx={{ display: "none" }}>
-                  {this.props.botDeck.name +
-                    (useCustomDeck && this.props.botDeck.deck
-                      ? " [Snapshot]"
-                      : "")}
-                </MenuItem>
-                {deckMenuItems}
-              </TextField>
-            </Grid>
+              }}
+            ></TextField>
           </Grid>
-        </Collapsible>
-      );
-    };
+        </Grid>
+      </Collapsible>
+    );
 
-    const [advancedPanelState, setAdvancedPanelState] = useState({
-      open: false,
-    });
-
-    const renderAdvancedPanel = () => {
+    const renderPlayersPanel = () => {
+      const { G } = this.props.state;
+      const { match } = this.props;
+      const { matchData } = match.client;
+      const handleClose = () => {
+        setState({
+          ...state,
+          playerMenuAnchorEl: null,
+        });
+      };
+      const isHost = G.meta.host == match.playerID;
+      const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
+      const selectedPlayerID = state.selectedPlayer.toString();
+      const selectedPlayerIdx = G.meta.players.indexOf(selectedPlayerID);
       return (
-        <Collapsible
-          label="Advanced Settings"
-          open={advancedPanelState.open}
-          onClick={() =>
-            setAdvancedPanelState({
-              ...advancedPanelState,
-              open: !advancedPanelState.open,
-            })
-          }
-          maxBodyHeight={100}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                variant="standard"
-                type="number"
-                label="Redraw Quota"
-                disabled={
-                  this.isForbidden({ hostOnly: true }) || this.isReady()
+        <>
+          <Stack direction="row" spacing={3}>
+            {matchData.slice(1).map(({ id, name, isConnected }) => {
+              const playerID = id.toString();
+              let role: Role = "spectator";
+              const idx = G.meta.players.indexOf(playerID);
+              if (idx >= 0) {
+                if (isSpectator) {
+                  role = ["alpha", "bravo"][idx] as Role;
+                } else {
+                  role = ["alpha", "bravo"][
+                    id == +match.playerID ? 0 : 1
+                  ] as Role;
                 }
-                value={this.props.state.G.redrawQuota}
-                onChange={({ target }) => {
-                  const quota = +target.value;
-                  if (0 <= quota && quota < 10) {
-                    this.props.client.send("updateState", {
-                      redrawQuota: quota,
-                    });
-                  }
+              }
+              return (
+                <Box key={id}>
+                  <PlayerAvatar
+                    online={isConnected}
+                    name={name}
+                    role={role}
+                    host={playerID == G.meta.host}
+                    self={playerID == match.playerID}
+                    onClick={({ currentTarget }) =>
+                      setState({
+                        ...state,
+                        selectedPlayer: id,
+                        playerMenuAnchorEl: currentTarget,
+                      })
+                    }
+                  />
+                </Box>
+              );
+            })}
+          </Stack>
+          <Menu
+            anchorEl={state.playerMenuAnchorEl}
+            open={state.playerMenuAnchorEl != null}
+            onClose={handleClose}
+          >
+            <MenuItem>{matchData[selectedPlayerID].name}</MenuItem>
+            {!isHost || match.playerID == selectedPlayerID ? null : (
+              <MenuItem
+                onClick={() => {
+                  console.assert(+selectedPlayerID != 0);
+                  match.send("UpdateMeta", { host: selectedPlayerID });
+                  handleClose();
                 }}
-              ></TextField>
-            </Grid>
-          </Grid>
-        </Collapsible>
+              >
+                Make host
+              </MenuItem>
+            )}
+            {!isHost ? null : (
+              <MenuItem
+                disabled={selectedPlayerIdx < 0 && G.meta.players.length >= 2}
+                onClick={() => {
+                  match.send("ToggleRole", selectedPlayerID);
+                  handleClose();
+                }}
+              >
+                {`Make ${selectedPlayerIdx < 0 ? "player" : "spectator"}`}
+              </MenuItem>
+            )}
+          </Menu>
+        </>
       );
     };
 
@@ -351,15 +447,18 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           <Grid item xs={12}>
+            {renderPlayersPanel()}
+          </Grid>
+          <Grid item xs={12}>
             <TextField
               fullWidth
               select
               variant="standard"
               label="Stage"
               disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
-              value={this.props.state.G.stage}
+              value={this.props.state.G.meta.stage}
               onChange={({ target }) =>
-                this.props.client.send("updateState", { stage: +target.value })
+                this.props.match.send("UpdateMeta", { stage: +target.value })
               }
             >
               {stageMenuItems}
@@ -384,13 +483,8 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             </TextField>
           </Grid>
           <Grid item xs={12} sx={{ p: 2 }}>
-            {renderAdvancedPanel()}
+            {settingsPanel}
           </Grid>
-          {!this.isVsBot() ? null : (
-            <Grid item xs={12} sx={{ p: 2 }}>
-              {renderBotPanel()}
-            </Grid>
-          )}
         </Grid>
         <Box
           sx={{
@@ -403,29 +497,19 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
           }}
         >
           <Grid container spacing={4} justifyContent={"flex-end"}>
-            {copyInviteLinkBtn}
+            <Grid item xs={6}>
+              <BasicButton fullWidth onClick={shareInviteLink}>
+                Share Invite Link
+              </BasicButton>
+            </Grid>
             <Grid item xs={6}>
               <BasicButton
                 fullWidth
-                selected={this.props.state.G.ready[this.props.player]}
+                selected={
+                  this.props.state.G.buffer.ready[this.props.match.playerID]
+                }
                 disabled={this.isForbidden()}
-                onClick={() => {
-                  if (this.isVsBot()) {
-                    const players = this.props.state.G.players;
-                    console.assert(this.props.player == 0);
-                    this.props.client.send("updateState", {
-                      players: [
-                        { ...players[0], deck: this.props.deck.deck },
-                        { ...players[1], deck: this.props.botDeck.deck },
-                      ],
-                    });
-                  } else {
-                    this.props.client.send("updatePlayerInfo", {
-                      deck: this.props.deck.deck,
-                    });
-                  }
-                  this.props.client.send("toggleReady");
-                }}
+                onClick={() => this.props.match.send("ToggleReady")}
               >
                 Ready!
               </BasicButton>

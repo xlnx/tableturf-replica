@@ -7,6 +7,7 @@ import { SquareTilemap } from "./SquareTilemap";
 import { v4 } from "uuid";
 import { measureTextWidth } from "../../engine/Utils";
 import { Platform } from "../../engine/Platform";
+import { CardGrid } from "./CardGrid";
 
 const logger = getLogger("card-large");
 logger.setLevel("info");
@@ -221,27 +222,7 @@ function renderSvg(card: ICard, player: IPlayerId) {
             transform: "translate(200px, 332px) rotate(7deg)",
           }}
         >
-          <SquareTilemap
-            id={`card-grid-large-${card.id}-${player}`}
-            rect={card}
-            values={[
-              {
-                image: "/textures/empty_space.webp",
-                alpha: 0.7,
-                value: Spaces.EMPTY,
-              },
-              {
-                image: `/textures/player${player + 1}_trivial_space.webp`,
-                value: Spaces.TRIVIAL,
-              },
-              {
-                image: `/textures/player${player + 1}_special_space.webp`,
-                value: Spaces.SPECIAL,
-              },
-            ]}
-            width={122}
-            layout={{ width: 40 }}
-          />
+          <CardGrid card={card} player={player} width={122} />
         </g>
       </>
       <text
@@ -448,27 +429,7 @@ function renderWebKit(card: ICard, player: IPlayerId) {
           transform: "rotate(7deg)",
         }}
       >
-        <SquareTilemap
-          id={`card-grid-large-${card.id}-${player}`}
-          rect={card}
-          values={[
-            {
-              image: "/textures/empty_space.webp",
-              alpha: 0.7,
-              value: Spaces.EMPTY,
-            },
-            {
-              image: `/textures/player${player + 1}_trivial_space.webp`,
-              value: Spaces.TRIVIAL,
-            },
-            {
-              image: `/textures/player${player + 1}_special_space.webp`,
-              value: Spaces.SPECIAL,
-            },
-          ]}
-          width={122}
-          layout={{ width: 40 }}
-        />
+        <CardGrid card={card} player={player} width={122} />
       </div>
       {[{ WebkitTextStroke: "8px black" }, {}].map((style, i) => (
         <div

@@ -63,6 +63,7 @@ export function Card({
       style={{
         width,
         height: (layout.height / layout.width) * width,
+        userSelect: "none",
       }}
       onClick={handleClick}
     >

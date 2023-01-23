@@ -1,9 +1,10 @@
 import { Grid, Typography, Divider, IconButton } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
-import { BotListActivity } from "./BotListActivity";
-import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 import { SettingsActivity } from "./SettingsActivity";
+import { JoinMatchActivity } from "./JoinMatchActivity";
+import { PublicMatchesActivity } from "./PublicMatchesActivity";
+import { MatchActivity } from "./MatchActivity";
 import { SocialIcon } from "react-social-icons";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
@@ -20,13 +21,18 @@ class RootActivity_0 extends Activity {
       <>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           <Grid item xs={12}>
-            <BasicButton fullWidth onClick={() => OnlineLoungeActivity.show()}>
-              VS Player
+            <BasicButton fullWidth onClick={() => MatchActivity.createMatch()}>
+              Create Match
             </BasicButton>
           </Grid>
           <Grid item xs={12}>
-            <BasicButton fullWidth onClick={() => BotListActivity.show()}>
-              VS Bot
+            <BasicButton fullWidth onClick={() => JoinMatchActivity.show()}>
+              Join Match
+            </BasicButton>
+          </Grid>
+          <Grid item xs={12}>
+            <BasicButton fullWidth onClick={() => PublicMatchesActivity.show()}>
+              Public Match List
             </BasicButton>
           </Grid>
           <Grid item xs={12}>

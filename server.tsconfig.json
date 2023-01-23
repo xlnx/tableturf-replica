@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "allowJs": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "outDir": "dist/server",
+    "sourceMap": true,
+    "paths": {
+      "*": ["./*.d.ts"]
+    }
+  },
+  "include": ["src/game", "src/core"]
+}

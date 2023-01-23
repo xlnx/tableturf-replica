@@ -3,35 +3,24 @@ import { Grid, TextField, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { MessageBar } from "../components/MessageBar";
-import { LoadingDialog } from "../components/LoadingDialog";
-import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
-import { P2PClient } from "../../client/P2P";
 import { MatchActivity } from "./MatchActivity";
+import { RootActivity } from "./RootActivity";
 
-class OnlineViaInviteLinkActivity_0 extends Activity {
+class JoinMatchActivity_0 extends Activity {
   init() {
     return {
       zIndex: 2,
       title: "Via Invite Link",
-      parent: () => OnlineLoungeActivity,
+      parent: () => RootActivity,
     };
   }
 
   async connect(url: string) {
-    const matchId = new URL(url).searchParams.get("match");
-    if (!matchId) {
+    const matchID = new URL(url).searchParams.get("match");
+    if (!matchID) {
       throw `invalid invite link: ${url}`;
     }
-    await this.connectMatch(matchId);
-  }
-
-  async connectMatch(matchId: string) {
-    const client = await LoadingDialog.wait({
-      task: P2PClient.connect(matchId),
-      message: "Connecting...",
-    });
-    MessageBar.success(`connected to ${matchId}`);
-    await MatchActivity.start(client);
+    await MatchActivity.joinMatch(matchID);
   }
 
   render() {
@@ -80,4 +69,4 @@ class OnlineViaInviteLinkActivity_0 extends Activity {
   }
 }
 
-export const OnlineViaInviteLinkActivity = new OnlineViaInviteLinkActivity_0();
+export const JoinMatchActivity = new JoinMatchActivity_0();

@@ -22,6 +22,7 @@ import {
   Spaces,
 } from "../core/Tableturf";
 import { WheelHandler } from "../engine/events/WheelHandler";
+import { ColorPalette } from "./ColorPalette";
 
 interface IPlayerInput {
   card: ICard;
@@ -460,16 +461,8 @@ export class BoardComponent extends Component<IBoardComponentProps> {
   }
 
   private uiUpdateInput(input?: IPlayerInput): ICardPlacement {
-    this.selection = [];
-    if (this.board == null) {
-      return null;
-    }
-
-    const [width, height] = this.board.size;
-    this.overlay.update({
-      matrix: { ...this.board, values: this.selection.slice() },
-    });
-    if (input == null) {
+    this.selection = this.uiUpdateOverlay(null);
+    if (!this.board || !input) {
       return null;
     }
 
@@ -492,21 +485,46 @@ export class BoardComponent extends Component<IBoardComponentProps> {
     };
 
     const ok = isBoardMoveValid(this.board, move, isSpecialAttack);
-    const value = ok ? 1 : 0;
-    this.nrmOverlay.update({ value });
-    this.spOverlay.update({ value });
-    forEachNonEmpty(rotateCard(card, rotation), ({ x, y }, v) => {
-      x += position.x;
-      y += position.y;
-      this.selection[x + width * y] = v;
-    });
-    this.overlay.update({
-      matrix: { ...this.board, values: this.selection.slice() },
-    });
 
+    this.selection = this.uiUpdateOverlay({ ...move, player: 0 }, ok);
     this.onUpdateInputFn(move, ok);
 
     return move;
+  }
+
+  uiUpdateOverlay(move: ICardPlacement, ok = true): number[] {
+    const value = ok ? 1 : 0;
+    const player = move ? move.player : 0;
+    this.nrmOverlay.update({
+      value,
+      primary: [ColorPalette.Player1.primary, ColorPalette.Player2.primary][
+        player
+      ],
+    });
+    this.spOverlay.update({
+      value,
+      primary: [ColorPalette.Player1.secondary, ColorPalette.Player2.secondary][
+        player
+      ],
+    });
+    const li = [];
+    if (this.board && move) {
+      const card = getCardById(move.card);
+      const { rotation, position } = move;
+      forEachNonEmpty(rotateCard(card, rotation), ({ x, y }, v) => {
+        x += position.x;
+        y += position.y;
+        li[x + this.board.size[0] * y] = v;
+      });
+    }
+    this.overlay.update({
+      matrix: {
+        size: [0, 0],
+        ...this.board,
+        values: li.slice(),
+      },
+    });
+    return li;
   }
 
   private getAdjustedCardPosition(

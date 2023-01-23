@@ -1,3 +1,5 @@
+import { EventDispatcher } from "../game/EventDispatcher";
+
 interface Slot {
   promise: Promise<any>;
   resolve: any;
@@ -7,7 +9,7 @@ interface Slot {
 /**
  * @deprecated may drop request
  */
-export class Awaiter {
+export class Awaiter extends EventDispatcher<string> {
   private readonly slots = new Map<string, Slot[]>();
 
   /**

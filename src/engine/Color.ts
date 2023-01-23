@@ -42,7 +42,7 @@ export class Color {
   }
 
   static fromHex(hex: string | number) {
-    if (<any>hex instanceof String) {
+    if (typeof hex == "string") {
       hex = string2hex(<any>hex);
     }
     return Color.fromRgb01(Array.from(hex2rgb(<any>hex)));
