@@ -351,7 +351,11 @@ export class GUI {
     });
     await Promise.all(
       this.panel.spMeter.map((meter, i) =>
-        meter.update({ preview: -1, count: count[i].special })
+        meter.update({
+          name: this.match.client.matchData[G.meta.players[players[i]]].name,
+          preview: -1,
+          count: count[i].special,
+        })
       )
     );
     this.turnMeter.update({ value: G.game.round });
