@@ -5,7 +5,7 @@ import { MatchDriver } from "../../../game/MatchDriver";
 import { AlertDialog } from "../../components/AlertDialog";
 import { GUI } from "./GUI";
 import { Hands } from "./Hands";
-import { moveBoard } from "../../../core/Tableturf";
+import { getCardById, moveBoard } from "../../../core/Tableturf";
 
 interface SpectatorPanelProps {
   gui: GUI;
@@ -103,9 +103,10 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       mask[hand] = true;
       await this.hands[player].update({ mask });
       if (G.buffer.moves[player] && action != "discard") {
+        const card = G.game.players[player].hand[hand];
         const e: ICardPlacement = {
           player,
-          card: G.game.players[player].hand[hand],
+          card,
           rotation: params.rotation,
           position: params.position,
         };
@@ -116,6 +117,15 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
           preview1: count.area[0],
           preview2: count.area[1],
         });
+        if (action == "special") {
+          await gui.panel.spMeter[player].update({
+            preview:
+              G.game.players[player].count.special -
+              getCardById(card).count.special +
+              count.special[player] -
+              G.game.board.count.special[player],
+          });
+        }
       }
     };
 
@@ -142,6 +152,10 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     const uiUpdate = async (G: IMatchState) => {
       gui.board.uiUpdateOverlay(null);
+      gui.szMeter.update({ preview: false });
+      await Promise.all(
+        gui.panel.spMeter.map((meter, i) => meter.update({ preview: -1 }))
+      );
       await gui.uiUpdate(G, G0, players, async () => {
         await Promise.all(
           [0, 1].map(async (i) => {
