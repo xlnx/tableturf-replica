@@ -205,7 +205,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     match.on("change-host", (playerID) => {
       const { name } = match.client.matchData[playerID];
-      MessageBar.success(`[${name}] becomes host`);
+      MessageBar.success(`[${name}] became host`);
     });
 
     match.on("disconnect", async (manual) => {

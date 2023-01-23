@@ -15,7 +15,6 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@boardgame.io/p2p": "https://github.com/xlnx/p2p#dist",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@mui/icons-material": "^5.11.0",

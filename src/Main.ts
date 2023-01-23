@@ -9,7 +9,7 @@ import { MatchWindow } from "./ui/scenes/match/MatchWindow";
 import { InkResetAnimation } from "./ui/InkResetAnimation";
 import { RootActivity } from "./ui/activities/RootActivity";
 import { MessageBar } from "./ui/components/MessageBar";
-import { OnlineViaInviteLinkActivity } from "./ui/activities/OnlineViaInviteLinkActivity";
+import { JoinMatchActivity } from "./ui/activities/JoinMatchActivity";
 import { ActivityPanel } from "./ui/Activity";
 import { getCardById } from "./core/Tableturf";
 import { DeckPanel } from "./ui/scenes/entry/DeckPanel";
@@ -70,7 +70,7 @@ async function main() {
     //   return;
     case "player":
       if (url) {
-        await OnlineViaInviteLinkActivity.connect(url);
+        await JoinMatchActivity.connect(url);
         await ActivityPanel.show();
         return;
       }

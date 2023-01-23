@@ -3,15 +3,15 @@ import { Grid, TextField, Box } from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { MessageBar } from "../components/MessageBar";
-import { OnlineLoungeActivity } from "./OnlineLoungeActivity";
 import { MatchActivity } from "./MatchActivity";
+import { RootActivity } from "./RootActivity";
 
-class OnlineViaInviteLinkActivity_0 extends Activity {
+class JoinMatchActivity_0 extends Activity {
   init() {
     return {
       zIndex: 2,
       title: "Via Invite Link",
-      parent: () => OnlineLoungeActivity,
+      parent: () => RootActivity,
     };
   }
 
@@ -69,4 +69,4 @@ class OnlineViaInviteLinkActivity_0 extends Activity {
   }
 }
 
-export const OnlineViaInviteLinkActivity = new OnlineViaInviteLinkActivity_0();
+export const JoinMatchActivity = new JoinMatchActivity_0();
