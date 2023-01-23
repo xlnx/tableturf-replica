@@ -26,12 +26,7 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
   constructor() {
     super();
     this.hands.forEach((hands, i) => {
-      hands.update({
-        player: i as IPlayerId,
-        // xs: 6,
-        // wi: 170,
-        // spacing: 2,
-      });
+      hands.update({ player: i as IPlayerId });
     });
   }
 

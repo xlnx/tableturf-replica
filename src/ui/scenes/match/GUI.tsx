@@ -6,7 +6,6 @@ import { Match } from "../../../game/Match";
 import { BoardComponent } from "../../BoardComponent";
 import { ColorPalette } from "../../ColorPalette";
 import { SpCutInAnimation } from "../../SpCutInAnimation";
-import { SpMeterComponent } from "../../SpMeterComponent";
 import { SzMeterComponent } from "../../SzMeterComponent";
 import { TurnMeterComponent } from "../../TurnMeterComponent";
 import { CardSlot } from "./CardSlot";
@@ -16,6 +15,8 @@ import { ActivityPanel } from "../../Activity";
 import { MatchWindow } from "./MatchWindow";
 import { EntryWindow } from "../entry/EntryWindow";
 import { Container } from "pixi.js";
+import { SpMeter } from "./SpMeter";
+import { Box } from "@mui/material";
 
 const logger = getLogger("gui");
 logger.setLevel("info");
@@ -50,6 +51,8 @@ const emptySlot = {
 };
 
 class GUIPanel extends ReactComponent<GUIPanelProps> {
+  readonly spMeter = [new SpMeter(), new SpMeter()];
+
   init(): GUIPanelProps {
     return {
       G: null,
@@ -61,32 +64,49 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
     };
   }
 
+  constructor() {
+    super();
+    this.spMeter.forEach((meter, i) =>
+      meter.update({ player: i as IPlayerId, flip: !!i })
+    );
+  }
+
   render() {
     return (
-      <div
-        style={{
-          position: "absolute",
-          top: 315,
-          left: 1585,
-          pointerEvents: "none",
-          visibility: this.props.visibility.slots ? "visible" : "hidden",
-        }}
-      >
-        {this.props.slots.map(({ card, discard, show, flip, preview }, i) => (
-          <div style={{ position: "absolute" }} key={i}>
-            <CardSlot
-              card={card}
-              discard={discard}
-              width={292}
-              player={i as IPlayerId}
-              dy={220 * (1 - 2 * i)}
-              preview={preview}
-              show={show}
-              flip={flip}
-            />
-          </div>
+      <>
+        <div
+          style={{
+            position: "absolute",
+            top: 315,
+            left: 1585,
+            pointerEvents: "none",
+            visibility: this.props.visibility.slots ? "visible" : "hidden",
+          }}
+        >
+          {this.props.slots.map(({ card, discard, show, flip, preview }, i) => (
+            <div style={{ position: "absolute" }} key={i}>
+              <CardSlot
+                card={card}
+                discard={discard}
+                width={292}
+                player={i as IPlayerId}
+                dy={220 * (1 - 2 * i)}
+                preview={preview}
+                show={show}
+                flip={flip}
+              />
+            </div>
+          ))}
+        </div>
+        {this.spMeter.map((e, i) => (
+          <Box
+            key={i}
+            sx={{ position: "absolute", left: 24 + i * 1860, top: 970 }}
+          >
+            {e.node}
+          </Box>
         ))}
-      </div>
+      </>
     );
   }
 }
@@ -98,10 +118,8 @@ export class GUI {
   readonly szMeter: SzMeterComponent;
   readonly turnMeter: TurnMeterComponent;
   readonly spCutInAnim: SpCutInAnimation;
-  readonly spMeter1: SpMeterComponent;
-  readonly spMeter2: SpMeterComponent;
 
-  private readonly panel = new GUIPanel();
+  readonly panel = new GUIPanel();
 
   private uiTask = new Promise<void>((resolve) => resolve());
 
@@ -194,15 +212,6 @@ export class GUI {
       }
     });
 
-    [this.spMeter1, this.spMeter2] = this.layout.spMeter.p.map((p) =>
-      window.addComponent(new SpMeterComponent(), {
-        parent: root,
-        x: p.x,
-        y: p.y,
-      })
-    );
-    this.spMeter2.update({ turn: -1 });
-
     this.turnMeter = window.addComponent(new TurnMeterComponent(), {
       parent: root,
       anchor: 0.5,
@@ -260,10 +269,14 @@ export class GUI {
           moves[i].action == "special" ? getCardById(cards[i]) : null
         )
       );
-      [this.spMeter1, this.spMeter2].forEach((ui, i) => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        ui.uiUpdate(G.game.players[players[i]].count.special);
-      });
+      await Promise.all(
+        this.panel.spMeter.map(async (meter, i) => {
+          await meter.update({
+            preview: -1,
+            count: G.game.players[players[i]].count.special,
+          });
+        })
+      );
     }
 
     // show cards
@@ -301,8 +314,8 @@ export class GUI {
     await sleep(dt);
     await Promise.all([
       this.szMeter.uiUpdate(count[0].area, count[1].area),
-      this.spMeter1.uiUpdate(count[0].special),
-      this.spMeter2.uiUpdate(count[1].special),
+      this.panel.spMeter[0].update({ preview: -1, count: count[0].special }),
+      this.panel.spMeter[1].update({ preview: -1, count: count[1].special }),
     ]);
 
     // game may terminate here
@@ -356,8 +369,11 @@ export class GUI {
       value1: count[0].area,
       value2: count[1].area,
     });
-    this.spMeter1.update({ value: count[0].special });
-    this.spMeter2.update({ value: count[1].special });
+    await Promise.all(
+      this.panel.spMeter.map((meter, i) =>
+        meter.update({ preview: -1, count: count[i].special })
+      )
+    );
     this.turnMeter.update({ value: G.game.round });
   }
 

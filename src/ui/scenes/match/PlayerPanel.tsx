@@ -263,7 +263,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     const uiQueryPlayerMovement = async (game: IGameState) => {
       await this.update({ enabled: true });
 
-      const { board, spMeter1, szMeter } = gui;
+      const { board, szMeter } = gui;
       board.update({
         input: {
           ...board.props.input.value,
@@ -306,8 +306,8 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       } while (1);
 
       board.update({ acceptInput: false });
-      spMeter1.update({ spAttack: 0 });
       szMeter.update({ preview: false });
+      await gui.panel.spMeter[0].update({ preview: -1 });
       await this.update({ enabled: false });
 
       return move;
@@ -440,11 +440,12 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
           }
         }
       }
-      if (action == "special" && card) {
-        gui.spMeter1.update({ spAttack: card.count.special });
-      } else {
-        gui.spMeter1.update({ spAttack: 0 });
-      }
+      await gui.panel.spMeter[0].update({
+        preview:
+          action == "special" && card
+            ? gui.panel.spMeter[0].props.count - card.count.special
+            : -1,
+      });
       gui.board.update({
         input: {
           ...gui.board.props.input.value,
