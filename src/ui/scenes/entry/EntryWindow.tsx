@@ -15,7 +15,7 @@ import { MessageBar } from "../../components/MessageBar";
 import { System } from "../../../engine/System";
 import { DB } from "../../../Database";
 import BgMotionGlsl from "../../shaders/BgMotion.glsl?raw";
-import React, { useEffect } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import {
   Box,
   Paper,
@@ -142,56 +142,7 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
     board.uiReset(state);
   }
 
-  render(): React.ReactNode {
-    const historyPanel = (
-      <List
-        sx={{
-          position: "absolute",
-          width: 350,
-          maxHeight: 690,
-          left: 1550,
-          top: 16,
-          overflow: "auto",
-        }}
-      >
-        <TransitionGroup>
-          {this.props.history
-            .slice()
-            .reverse()
-            .map(({ card, isInDeck }) => (
-              <CSSTransition
-                timeout={200}
-                classNames="entry-history-bar"
-                key={card}
-              >
-                <Box sx={{ p: 1 }}>
-                  <Paper
-                    sx={{
-                      height: 72,
-                      p: 1,
-                      boxSizing: "border-box",
-                      boxShadow: "4px 4px 2px rgba(0, 0, 0, 0.3)",
-                      display: "flex",
-                      alignItems: "center",
-                      backgroundColor: isInDeck
-                        ? ColorPalette.Main.bg.primary.hexSharp
-                        : Color.BLACK.hexSharp,
-                    }}
-                  >
-                    <Typography sx={{ textShadow: "2px 2px black" }}>
-                      {I18n.localize(
-                        "CommonMsg/MiniGame/MiniGameCardName",
-                        getCardById(card).name
-                      )}
-                    </Typography>
-                  </Paper>
-                </Box>
-              </CSSTransition>
-            ))}
-        </TransitionGroup>
-      </List>
-    );
-
+  render(): ReactNode {
     useEffect(() => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       DeckPanel.update({
@@ -208,48 +159,101 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
       });
     }, [this.props.history]);
 
-    const MyBtn = styled(BasicButton)(() => ({
-      position: "absolute",
-      width: 220,
-      height: 90,
-    }));
-
-    const y0 = 750;
-    const h = 100;
-    const btnPanel = (
-      <React.Fragment>
-        <MyBtn
+    const historyPanel = useMemo(
+      () => (
+        <List
           sx={{
-            left: 1650,
-            top: y0 + h * 0,
-          }}
-          onClick={async () => {
-            await this.reset();
-            await DeckPanel.edit();
+            position: "absolute",
+            width: 350,
+            maxHeight: 690,
+            left: 1550,
+            top: 16,
+            overflow: "auto",
           }}
         >
-          Edit Deck
-        </MyBtn>
-        <MyBtn
-          sx={{
-            left: 1650,
-            top: y0 + h * 1,
-          }}
-          onClick={() => this.reset()}
-        >
-          Reset
-        </MyBtn>
-        <MyBtn
-          sx={{
-            left: 1650,
-            top: y0 + h * 2,
-          }}
-          onClick={() => this.undo()}
-        >
-          Undo
-        </MyBtn>
-      </React.Fragment>
+          <TransitionGroup>
+            {this.props.history
+              .slice()
+              .reverse()
+              .map(({ card, isInDeck }) => (
+                <CSSTransition
+                  timeout={200}
+                  classNames="entry-history-bar"
+                  key={card}
+                >
+                  <Box sx={{ p: 1 }}>
+                    <Paper
+                      sx={{
+                        height: 72,
+                        p: 1,
+                        boxSizing: "border-box",
+                        boxShadow: "4px 4px 2px rgba(0, 0, 0, 0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        backgroundColor: isInDeck
+                          ? ColorPalette.Main.bg.primary.hexSharp
+                          : Color.BLACK.hexSharp,
+                      }}
+                    >
+                      <Typography sx={{ textShadow: "2px 2px black" }}>
+                        {I18n.localize(
+                          "CommonMsg/MiniGame/MiniGameCardName",
+                          getCardById(card).name
+                        )}
+                      </Typography>
+                    </Paper>
+                  </Box>
+                </CSSTransition>
+              ))}
+          </TransitionGroup>
+        </List>
+      ),
+      [this.props.history]
     );
+
+    const btnPanel = useMemo(() => {
+      const MyBtn = styled(BasicButton)(() => ({
+        position: "absolute",
+        width: 220,
+        height: 90,
+      }));
+      const y0 = 750;
+      const h = 100;
+      return (
+        <>
+          <MyBtn
+            sx={{
+              left: 1650,
+              top: y0 + h * 0,
+            }}
+            onClick={async () => {
+              await this.reset();
+              await DeckPanel.edit();
+            }}
+          >
+            Edit Deck
+          </MyBtn>
+          <MyBtn
+            sx={{
+              left: 1650,
+              top: y0 + h * 1,
+            }}
+            onClick={() => this.reset()}
+          >
+            Reset
+          </MyBtn>
+          <MyBtn
+            sx={{
+              left: 1650,
+              top: y0 + h * 2,
+            }}
+            onClick={() => this.undo()}
+          >
+            Undo
+          </MyBtn>
+        </>
+      );
+    }, []);
 
     return (
       <div>
@@ -327,7 +331,7 @@ class EntryWindow_0 extends Window {
     this.board.onInput((move) => this.panel.processMove(move));
   }
 
-  renderReact(): React.ReactNode {
+  renderReact(): ReactNode {
     return (
       <ThemeProvider theme={Theme}>
         {this.panel.node}
