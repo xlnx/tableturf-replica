@@ -29,8 +29,10 @@ export function CardSmall({
   player = 0,
   active = true,
   selected = false,
-  onClick = () => {},
+  onClick,
 }: CardSmallProps) {
+  onClick = onClick || (() => {});
+
   const node = useMemo(() => {
     logger.log(`card-small re-render`);
     const card = getCardById(cardId);

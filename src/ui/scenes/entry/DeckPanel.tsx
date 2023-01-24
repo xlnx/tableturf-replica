@@ -67,7 +67,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
       JSON.stringify(this.props.cards) != JSON.stringify(original);
     if (isModified) {
       const ok = await AlertDialog.prompt({
-        msg: "Changes to current deck will be lost, are you sure?",
+        msg: "Your changes will be lost, confirm?",
         okMsg: "Ok",
         cancelMsg: "Cancel",
       });

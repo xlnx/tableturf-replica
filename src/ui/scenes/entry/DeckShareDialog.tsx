@@ -261,7 +261,10 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
                       disabled={true}
                       checked={state.portrait}
                       onChange={({ target }) =>
-                        setState({ ...state, portrait: target.checked })
+                        setState((state) => ({
+                          ...state,
+                          portrait: target.checked,
+                        }))
                       }
                     />
                   }
@@ -274,7 +277,10 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
                     <Checkbox
                       checked={state.dark}
                       onChange={({ target }) =>
-                        setState({ ...state, dark: target.checked })
+                        setState((state) => ({
+                          ...state,
+                          dark: target.checked,
+                        }))
                       }
                     />
                   }

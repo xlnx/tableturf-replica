@@ -42,7 +42,9 @@ class JoinMatchActivity_0 extends Activity {
               variant="standard"
               label="Invite Link"
               autoComplete="off"
-              onChange={(e) => setState({ ...state, url: e.target.value })}
+              onChange={(e) =>
+                setState((state) => ({ ...state, url: e.target.value }))
+              }
             />
           </Grid>
         </Grid>

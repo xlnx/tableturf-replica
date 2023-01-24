@@ -294,7 +294,9 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     });
 
     useEffect(() => {
-      DB.subscribe(() => setState({ ...state, version: state.version + 1 }));
+      DB.subscribe(() =>
+        setState((state) => ({ ...state, version: state.version + 1 }))
+      );
     }, []);
 
     const shareInviteLink = async () => {
@@ -332,10 +334,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         label="Advanced Settings"
         open={state.settingsOpen}
         onClick={() =>
-          setState({
+          setState((state) => ({
             ...state,
             settingsOpen: !state.settingsOpen,
-          })
+          }))
         }
         maxBodyHeight={100}
       >
@@ -365,10 +367,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       const { match } = this.props;
       const { matchData } = match.client;
       const handleClose = () => {
-        setState({
+        setState((state) => ({
           ...state,
           playerMenuAnchorEl: null,
-        });
+        }));
       };
       const isHost = G.meta.host == match.playerID;
       const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
@@ -399,11 +401,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                     host={playerID == G.meta.host}
                     self={playerID == match.playerID}
                     onClick={({ currentTarget }) =>
-                      setState({
+                      setState((state) => ({
                         ...state,
                         selectedPlayer: id,
                         playerMenuAnchorEl: currentTarget,
-                      })
+                      }))
                     }
                   />
                 </Box>
