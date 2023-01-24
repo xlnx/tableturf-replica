@@ -96,6 +96,7 @@ export class Hands extends ReactComponent<HandsProps> {
         </Grid>
       );
     }
+
     return (
       <Grid container spacing={this.props.spacing}>
         {li}

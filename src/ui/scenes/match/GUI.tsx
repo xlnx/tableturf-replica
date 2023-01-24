@@ -7,16 +7,15 @@ import { BoardComponent } from "../../BoardComponent";
 import { ColorPalette } from "../../ColorPalette";
 import { SpCutInAnimation } from "../../SpCutInAnimation";
 import { SzMeterComponent } from "../../SzMeterComponent";
-import { TurnMeterComponent } from "../../TurnMeterComponent";
 import { CardSlot } from "./CardSlot";
 import { ReactNode } from "react";
 import { InkResetAnimation } from "../../InkResetAnimation";
 import { ActivityPanel } from "../../Activity";
 import { MatchWindow } from "./MatchWindow";
 import { EntryWindow } from "../entry/EntryWindow";
-import { Container } from "pixi.js";
 import { SpMeter } from "./SpMeter";
 import { Box } from "@mui/material";
+import { TurnMeter } from "./TurnMeter";
 
 const logger = getLogger("gui");
 logger.setLevel("info");
@@ -52,6 +51,7 @@ const emptySlot = {
 
 class GUIPanel extends ReactComponent<GUIPanelProps> {
   readonly spMeter = [new SpMeter(), new SpMeter()];
+  readonly turnMeter = new TurnMeter();
 
   init(): GUIPanelProps {
     return {
@@ -98,6 +98,15 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
             </div>
           ))}
         </div>
+        <Box
+          sx={{
+            position: "absolute",
+            left: 570,
+            top: 52,
+          }}
+        >
+          {this.turnMeter.node}
+        </Box>
         {this.spMeter.map((e, i) => (
           <Box
             key={i}
@@ -116,7 +125,6 @@ export class GUI {
 
   readonly board: BoardComponent;
   readonly szMeter: SzMeterComponent;
-  readonly turnMeter: TurnMeterComponent;
   readonly spCutInAnim: SpCutInAnimation;
 
   readonly panel = new GUIPanel();
@@ -150,10 +158,6 @@ export class GUI {
           img: "Ink_02.webp",
         },
       ],
-    },
-    turnMeter: {
-      x: -300,
-      y: -400,
     },
   };
 
@@ -190,13 +194,6 @@ export class GUI {
           preview2: count.area[1 - player],
         });
       }
-    });
-
-    this.turnMeter = window.addComponent(new TurnMeterComponent(), {
-      parent: root,
-      anchor: 0.5,
-      x: this.layout.turnMeter.x,
-      y: this.layout.turnMeter.y,
     });
 
     this.spCutInAnim = new SpCutInAnimation();
@@ -314,7 +311,7 @@ export class GUI {
     await this.update({ slots });
     await Promise.all([
       task(),
-      this.turnMeter.uiUpdate(G.game.round),
+      this.panel.turnMeter.uiUpdate(G.game.round),
       sleep(0.3),
     ]);
     this.uiUpdateSlots();
@@ -358,7 +355,7 @@ export class GUI {
         })
       )
     );
-    this.turnMeter.update({ value: G.game.round });
+    this.panel.turnMeter.update({ count: G.game.round });
   }
 
   async show(task: () => Promise<void> = async () => {}) {

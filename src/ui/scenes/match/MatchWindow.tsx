@@ -13,10 +13,10 @@ const logger = getLogger("game-play");
 logger.setLevel("info");
 
 class MatchWindow_0 extends Window {
-  private readonly gui: GUI;
+  readonly gui: GUI;
 
-  private readonly playerPanel = new PlayerPanel();
-  private readonly spectatorPanel = new SpectatorPanel();
+  readonly playerPanel = new PlayerPanel();
+  readonly spectatorPanel = new SpectatorPanel();
 
   constructor() {
     super({
