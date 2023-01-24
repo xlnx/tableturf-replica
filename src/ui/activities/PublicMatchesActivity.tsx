@@ -52,7 +52,7 @@ class PublicMatchesActivity_0 extends Activity<PublicMatchesActivityProps> {
 
   render() {
     return (
-      <>
+      <div>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           {this.props.matches.map(({ matchID, setupData: { matchName } }) => (
             <Grid item xs={12} key={matchID}>
@@ -91,7 +91,7 @@ class PublicMatchesActivity_0 extends Activity<PublicMatchesActivityProps> {
             </Grid>
           </Grid>
         </Box>
-      </>
+      </div>
     );
   }
 }

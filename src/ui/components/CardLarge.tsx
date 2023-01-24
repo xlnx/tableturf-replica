@@ -7,7 +7,6 @@ import { SquareTilemap } from "./SquareTilemap";
 import { v4 } from "uuid";
 import { measureTextWidth } from "../../engine/Utils";
 import { Platform } from "../../engine/Platform";
-import { CardGrid } from "./CardGrid";
 
 const logger = getLogger("card-large");
 logger.setLevel("info");
@@ -72,10 +71,10 @@ function renderSvg(card: ICard, player: IPlayerId) {
   const { cardBg, InnerFrameBg, costImg, NameBg } = svgStyle[card.rarity];
   const spMeter = Array(10);
   for (let i = 0; i < card.count.special - 5; ++i) {
-    spMeter[i] = 0;
+    spMeter[i] = Spaces.SPECIAL;
   }
   for (let i = 0; i < Math.min(card.count.special, 5); ++i) {
-    spMeter[i + 5] = 0;
+    spMeter[i + 5] = Spaces.SPECIAL;
   }
   const cardName = I18n.localize(
     "CommonMsg/MiniGame/MiniGameCardName",
@@ -194,22 +193,13 @@ function renderSvg(card: ICard, player: IPlayerId) {
           style={{ transform: "translate(94px, 422px)" }}
         >
           <SquareTilemap
-            id={`card-large-sp-${card.count.special}-${player}`}
+            player={player}
             rect={{
               size: [5, 2],
               values: spMeter,
             }}
-            values={[
-              {
-                image: `/textures/player${player + 1}_special_space.webp`,
-                value: 0,
-              },
-            ]}
             width={160 / 2}
-            layout={{
-              width: 40,
-              padding: { x: 8, y: 8 },
-            }}
+            padding={8}
           />
         </g>
         <g
@@ -222,7 +212,7 @@ function renderSvg(card: ICard, player: IPlayerId) {
             transform: "translate(200px, 332px) rotate(7deg)",
           }}
         >
-          <CardGrid card={card} player={player} width={122} />
+          <SquareTilemap rect={card} player={player} width={122} />
         </g>
       </>
       <text
@@ -274,10 +264,10 @@ function renderWebKit(card: ICard, player: IPlayerId) {
   const { cardBg, innerFrameBg, costImg, nameBg } = webkitStyle[card.rarity];
   const spMeter = Array(10);
   for (let i = 0; i < card.count.special - 5; ++i) {
-    spMeter[i] = 0;
+    spMeter[i] = Spaces.SPECIAL;
   }
   for (let i = 0; i < Math.min(card.count.special, 5); ++i) {
-    spMeter[i + 5] = 0;
+    spMeter[i + 5] = Spaces.SPECIAL;
   }
   const cardName = I18n.localize(
     "CommonMsg/MiniGame/MiniGameCardName",
@@ -401,22 +391,13 @@ function renderWebKit(card: ICard, player: IPlayerId) {
         }}
       >
         <SquareTilemap
-          id={`card-large-sp-${card.count.special}-${player}`}
+          player={player}
           rect={{
             size: [5, 2],
             values: spMeter,
           }}
-          values={[
-            {
-              image: `/textures/player${player + 1}_special_space.webp`,
-              value: 0,
-            },
-          ]}
           width={160 / 2}
-          layout={{
-            width: 40,
-            padding: { x: 8, y: 8 },
-          }}
+          padding={8}
         />
       </div>
       <div
@@ -429,7 +410,7 @@ function renderWebKit(card: ICard, player: IPlayerId) {
           transform: "rotate(7deg)",
         }}
       >
-        <CardGrid card={card} player={player} width={122} />
+        <SquareTilemap rect={card} player={player} width={122} />
       </div>
       {[{ WebkitTextStroke: "8px black" }, {}].map((style, i) => (
         <div

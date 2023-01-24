@@ -252,14 +252,10 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
     );
 
     return (
-      <ThemeProvider theme={Theme}>
+      <div>
         {historyPanel}
         {btnPanel}
-        {DeckPanel.node}
-        {CardVaultPanel.node}
-        {DeckSaveDialog.node}
-        {DeckShareDialog.node}
-      </ThemeProvider>
+      </div>
     );
   }
 }
@@ -332,7 +328,15 @@ class EntryWindow_0 extends Window {
   }
 
   renderReact(): React.ReactNode {
-    return this.panel.node;
+    return (
+      <ThemeProvider theme={Theme}>
+        {this.panel.node}
+        {DeckPanel.node}
+        {CardVaultPanel.node}
+        {DeckSaveDialog.node}
+        {DeckShareDialog.node}
+      </ThemeProvider>
+    );
   }
 }
 

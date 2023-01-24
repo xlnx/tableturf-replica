@@ -1,9 +1,8 @@
 import { useMemo } from "react";
 import { getLogger } from "loglevel";
-import { getCardById } from "../../core/Tableturf";
+import { Spaces, getCardById } from "../../core/Tableturf";
 import { SquareTilemap } from "./SquareTilemap";
 import { Card } from "./Card";
-import { CardGrid } from "./CardGrid";
 
 const logger = getLogger("card-small");
 logger.setLevel("info");
@@ -68,8 +67,8 @@ export function CardSmall({
             transformOrigin: "top left",
           }}
         >
-          <CardGrid
-            card={card}
+          <SquareTilemap
+            rect={card}
             player={player}
             width={layout.width - 2 * layout.padding}
           />
@@ -105,22 +104,13 @@ export function CardSmall({
           }}
         >
           <SquareTilemap
-            id={`card-small-sp-${card.count.special}-${player}`}
+            player={player}
             rect={{
               size: [5, 2],
-              values: Array(card.count.special).fill(0),
+              values: Array(card.count.special).fill(Spaces.SPECIAL),
             }}
-            values={[
-              {
-                image: `/textures/player${player + 1}_special_space.webp`,
-                value: 0,
-              },
-            ]}
             width={88}
-            layout={{
-              width: 40,
-              padding: { x: 10, y: 10 },
-            }}
+            padding={8}
           />
         </div>
       </div>

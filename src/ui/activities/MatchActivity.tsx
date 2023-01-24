@@ -375,7 +375,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       const selectedPlayerID = state.selectedPlayer.toString();
       const selectedPlayerIdx = G.meta.players.indexOf(selectedPlayerID);
       return (
-        <>
+        <div>
           <Stack direction="row" spacing={3}>
             {matchData.slice(1).map(({ id, name, isConnected }) => {
               const playerID = id.toString();
@@ -439,12 +439,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               </MenuItem>
             )}
           </Menu>
-        </>
+        </div>
       );
     };
 
     return (
-      <>
+      <div>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           <Grid item xs={12}>
             {renderPlayersPanel()}
@@ -516,7 +516,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             </Grid>
           </Grid>
         </Box>
-      </>
+      </div>
     );
   }
 }

@@ -74,7 +74,7 @@ export function SplitButton({
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   return (
-    <>
+    <div>
       <ToggleButtonGroup ref={anchorRef} sx={{ ...sx }}>
         <BasicButton onClick={items[defaultItem].onClick}>
           {children}
@@ -123,7 +123,7 @@ export function SplitButton({
           </Grow>
         )}
       </Popper>
-    </>
+    </div>
   );
 }
 
@@ -140,7 +140,7 @@ export function Collapsible({
   label,
   open,
   maxBodyHeight,
-  onClick = () => { },
+  onClick = () => {},
 }: CollapsibleProps) {
   const color = open ? "text.primary" : "text.secondary";
   const dt = 150;
@@ -240,8 +240,8 @@ export const Theme = createTheme({
       styleOverrides: {
         root: {
           background: "transparent",
-        }
-      }
+        },
+      },
     },
     MuiButton: {
       styleOverrides: {
