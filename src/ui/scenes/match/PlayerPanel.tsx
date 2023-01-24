@@ -234,6 +234,8 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
         cards,
         selected: -1,
       });
+      // give the browser 300ms to update layout
+      await new Promise((resolve) => setTimeout(resolve, 300));
     };
 
     driver.on("start", () => {

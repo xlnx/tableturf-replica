@@ -143,14 +143,17 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     try {
       const { playerName } = DB.read();
       const matchName = `${playerName}'s match`;
-      const match = await LoadingDialog.wait({
-        task: Gateway.createMatch({
+      const task = async () => {
+        const match = await Gateway.createMatch({
           playerName,
           matchName,
-        }),
+        });
+        await this.start(match, matchName);
+      };
+      await LoadingDialog.wait({
+        task: task(),
         message: "Creating Match...",
       });
-      await this.start(match, matchName);
     } catch (err) {
       MessageBar.error(err);
     }
@@ -165,13 +168,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         const match = await Gateway.joinMatch(matchID, {
           playerName: DB.read().playerName,
         });
-        return [match, matchName];
+        await this.start(match, matchName);
       };
-      const [match, matchName] = await LoadingDialog.wait({
+      await LoadingDialog.wait({
         task: task(),
         message: "Joining Match...",
       });
-      await this.start(match, matchName);
     } catch (err) {
       MessageBar.error(err);
     }
@@ -237,6 +239,9 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     });
 
     MatchWindow.bind(match);
+
+    // give the browser 300ms to compute layout
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     await this.show();
   }
