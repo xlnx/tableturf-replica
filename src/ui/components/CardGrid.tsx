@@ -28,7 +28,7 @@ export function CardGrid({ card, player, width }: CardGridProps) {
         },
       ]}
       width={width}
-      layout={{ width: 40 }}
+      layout={{ width: 24 }}
     />
   );
 }

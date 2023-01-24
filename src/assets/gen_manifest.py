@@ -17,11 +17,22 @@ result = [
   for s in result
 ]
 
-result = {
+preload = {
   v: "/textures/" + v \
-  for v in result
+  for v in result \
+  if not v.startswith("cards")
 }
 
 os.chdir(CURDIR)
 with open("manifest.json", "w") as f:
-  json.dump(result, f, indent=2),
+  json.dump(preload, f, indent=2),
+
+extra = {
+  v: "/textures/" + v \
+  for v in result \
+  if v.startswith("cards")
+}
+
+os.chdir(CURDIR)
+with open("manifest_1.json", "w") as f:
+  json.dump(extra, f, indent=2),

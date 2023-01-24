@@ -116,10 +116,10 @@ export function CardSmall({
                 value: 0,
               },
             ]}
-            width={64}
+            width={88}
             layout={{
               width: 40,
-              padding: { x: 8, y: 8 },
+              padding: { x: 10, y: 10 },
             }}
           />
         </div>

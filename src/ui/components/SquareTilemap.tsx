@@ -32,9 +32,6 @@ interface SquareTilemapProps {
   };
 }
 
-// TODO: maybe we can use react-pixi for describing 2d content layout,
-//       however some implementation issue exists that chrominum
-//       performs badly when using raf with multiple canvases.
 export function SquareTilemap({
   id,
   rect,
@@ -78,19 +75,13 @@ export function SquareTilemap({
   }
 
   return (
-    <svg width={width * 2} height={(h / w) * width * 2}>
-      <image
-        className={`tilemap-${id}`}
-        width={w * dx}
-        height={h * dy}
-        xlinkHref={url}
-        preserveAspectRatio="none"
-        style={{
-          transformBox: "fill-box",
-          transformOrigin: "top left",
-          transform: `scale(${width / (wi * w)})`,
-        }}
-      ></image>
-    </svg>
+    <div
+      style={{
+        width: width,
+        height: (h / w) * width,
+        backgroundImage: `url(${url})`,
+        backgroundSize: "100% 100%",
+      }}
+    />
   );
 }
