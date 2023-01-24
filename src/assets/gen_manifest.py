@@ -19,7 +19,8 @@ result = [
 
 result = {
   v: "/textures/" + v \
-  for v in result
+  for v in result \
+  if not v.startswith("cards")
 }
 
 os.chdir(CURDIR)

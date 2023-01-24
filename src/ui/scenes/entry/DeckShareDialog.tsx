@@ -8,6 +8,7 @@ import {
   CardHeader,
   Checkbox,
   Divider,
+  Typography,
   FormControlLabel,
 } from "@mui/material";
 import { System } from "../../../engine/System";
@@ -18,7 +19,6 @@ import { DB } from "../../../Database";
 import { LoadingDialog } from "../../components/LoadingDialog";
 import { MessageBar } from "../../components/MessageBar";
 import { getDeckTotalArea } from "../../../Terms";
-import Typography from "@mui/material/Typography";
 import { DeckPanel } from "./DeckPanel";
 
 function formatUrl(deck: IDeckData) {

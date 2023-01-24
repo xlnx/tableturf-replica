@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "outDir": "dist/server",
+    "outDir": "server/dist",
     "sourceMap": true,
     "paths": {
       "*": ["./*.d.ts"]

@@ -2,27 +2,25 @@
 import "./engine/WindowManager";
 
 import { WebfontLoaderPlugin } from "pixi-webfont-loader";
-import { Loader, WRAP_MODES } from "pixi.js";
+import { Loader } from "pixi.js";
 import Manifest from "./assets/manifest.json";
+import { System } from "./engine/System";
 
 Loader.registerPlugin(WebfontLoaderPlugin);
-const loader = Loader.shared;
 
-loader.add({ name: "Splatoon1", url: "fonts/Splatoon1-common.woff2" });
-loader.add({ name: "Splatoon2", url: "fonts/Splatoon2-common.woff2" });
+async function main() {
+  Loader.shared.add({ name: "Splatoon1", url: "fonts/Splatoon1-common.woff2" });
+  Loader.shared.add({ name: "Splatoon2", url: "fonts/Splatoon2-common.woff2" });
 
-for (const [name, url] of Object.entries(Manifest)) {
-  loader.add({
-    name,
-    url: <string>url,
-  });
+  await Promise.all([
+    System.loadManifest(Manifest),
+    new Promise((resolve) => {
+      Loader.shared.onComplete.once(resolve);
+      Loader.shared.load();
+    }),
+  ]);
+
+  import("./Main");
 }
 
-loader.onComplete.once(async () => {
-  for (const name of Object.keys(Manifest)) {
-    loader.resources[name].texture.baseTexture.wrapMode = WRAP_MODES.REPEAT;
-  }
-  await import("./Main");
-});
-
-loader.load();
+main();
