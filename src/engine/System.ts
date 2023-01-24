@@ -15,11 +15,10 @@ export class System extends Platform {
 
   static texture(path: string): Texture {
     const loader = this.loaders.find((loader) => path in loader.resources);
-    if (!loader) {
-      logger.warn(`texture [${path}] not found`);
-      return Texture.EMPTY;
+    if (loader) {
+      return loader.resources[path].texture;
     }
-    return loader.resources[path].texture;
+    return Texture.from("/textures/" + path);
   }
 
   static loadManifest(manifest: any): Promise<void> {
