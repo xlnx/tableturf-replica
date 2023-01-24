@@ -92,6 +92,8 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
           }
         })
       );
+      // give the browser 300ms to update layout
+      await new Promise((resolve) => setTimeout(resolve, 300));
     };
 
     const uiUpdatePlayerMove = async (

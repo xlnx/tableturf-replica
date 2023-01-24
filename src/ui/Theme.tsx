@@ -140,8 +140,10 @@ export function Collapsible({
   label,
   open,
   maxBodyHeight,
-  onClick = () => {},
+  onClick,
 }: CollapsibleProps) {
+  onClick = onClick || (() => {});
+
   const color = open ? "text.primary" : "text.secondary";
   const dt = 150;
   return (

@@ -448,8 +448,10 @@ export function CardLarge({
   player = 0,
   active = true,
   selected = false,
-  onClick = () => {},
+  onClick,
 }: CardLargeProps) {
+  onClick = onClick || (() => {});
+
   const node = useMemo(() => {
     logger.log(`card-large re-render`);
     const card = getCardById(cardId);

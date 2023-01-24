@@ -1,7 +1,7 @@
 import "./CardVaultPanel.less";
 
 import fuzzysort from "fuzzysort";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Grid,
@@ -128,34 +128,140 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
         .map((card) => ({ key: key(card), id: card.id }))
         .sort((a, b) => cmp(a.key, b.key) * (reverse ? -1 : 1))
         .map(({ id }) => id);
-      setState({ ...state, cards });
+      setState((state) => ({ ...state, cards }));
     }, [query, sorter, reverse]);
 
-    const sortMenuItems = sorters.map(({ label }, i) => (
-      <MenuItem value={i} key={i}>
-        {label}
-      </MenuItem>
-    ));
+    const topBar = useMemo(() => {
+      const sortMenuItems = sorters.map(({ label }, i) => (
+        <MenuItem value={i} key={i}>
+          {label}
+        </MenuItem>
+      ));
 
-    const handleCardClick = (card: number) => async () => {
-      const cards = DeckPanel.props.cards;
-      if (cards.length >= 15) {
-        MessageBar.warning("your deck is full");
-        return;
-      }
-      await DeckPanel.update({ cards: [...cards, card] });
-    };
+      const handleQuitEdit = async () => {
+        const ok = await DeckPanel.confirmUpdateDeck();
+        if (!ok) {
+          return;
+        }
+        this.props.resolve();
+      };
 
-    const handleQuitEdit = async () => {
-      const ok = await DeckPanel.confirmUpdateDeck();
-      if (!ok) {
-        return;
-      }
-      this.props.resolve();
-    };
+      return (
+        <Grid
+          container
+          spacing={2}
+          sx={{ width: "100%", pb: 2 }}
+          // justifyContent="center"
+          alignItems="flex-end"
+        >
+          <Grid item sx={{ flexGrow: 1 }}>
+            <TextField
+              fullWidth
+              variant="standard"
+              label="Search..."
+              autoComplete="off"
+              onChange={(e) =>
+                setState((state) => ({ ...state, query: e.target.value }))
+              }
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              select
+              fullWidth
+              variant="standard"
+              label="Sort"
+              autoComplete="off"
+              value={sorter}
+              onChange={(e) =>
+                setState((state) => ({ ...state, sorter: +e.target.value }))
+              }
+              InputProps={{
+                startAdornment: (
+                  <IconButton
+                    onClick={() =>
+                      setState((state) => ({ ...state, reverse: !reverse }))
+                    }
+                  >
+                    {reverse ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  </IconButton>
+                ),
+              }}
+            >
+              {sortMenuItems}
+            </TextField>
+          </Grid>
+          <Grid item>
+            <Tooltip title="Share">
+              <IconButton onClick={() => DeckShareDialog.prompt()}>
+                <ShareIcon sx={{ fontSize: "2rem" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Save As">
+              <IconButton onClick={() => DeckSaveDialog.prompt()}>
+                <SaveIcon sx={{ fontSize: "2rem" }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Quit Edit">
+              <IconButton onClick={handleQuitEdit}>
+                <ExitToAppIcon sx={{ fontSize: "2rem" }} />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+        </Grid>
+      );
+    }, [sorter, reverse, this.props.resolve]);
 
     const index = [];
     state.cards.forEach((id, i) => (index[id] = i));
+
+    const cardPanel = useMemo(() => {
+      const handleCardClick = (card: number) => async () => {
+        const cards = DeckPanel.props.cards;
+        if (cards.length >= 15) {
+          MessageBar.warning("your deck is full");
+          return;
+        }
+        await DeckPanel.update({ cards: [...cards, card] });
+      };
+      return (
+        <Box
+          sx={{
+            position: "relative",
+            overflow: "auto",
+            height: 0,
+            flex: 1,
+          }}
+        >
+          {getCards().map((card) => {
+            const idx = index[card.id];
+            const visible = idx != null;
+            return (
+              <Box
+                key={card.id}
+                sx={{
+                  p: 1,
+                  position: "absolute",
+                  opacity: visible ? 1 : 0,
+                  pointerEvents: visible ? "inherit" : "none",
+                  transform: `translate(
+                        ${(idx % 6) * 100}%, 
+                        ${Math.floor(idx / 6) * 270}px
+                      )`,
+                }}
+              >
+                <CardLarge
+                  width={180}
+                  card={card.id}
+                  active={this.props.excludeCards.indexOf(card.id) < 0}
+                  onClick={handleCardClick(card.id)}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }, [state.cards, this.props.excludeCards]);
 
     return (
       <Box
@@ -183,107 +289,8 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
               flexDirection: "column",
             }}
           >
-            <Grid
-              container
-              spacing={2}
-              sx={{ width: "100%", pb: 2 }}
-              // justifyContent="center"
-              alignItems="flex-end"
-            >
-              <Grid item sx={{ flexGrow: 1 }}>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  label="Search..."
-                  autoComplete="off"
-                  onChange={(e) =>
-                    setState({ ...state, query: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  select
-                  fullWidth
-                  variant="standard"
-                  label="Sort"
-                  autoComplete="off"
-                  value={state.sorter}
-                  onChange={(e) =>
-                    setState({ ...state, sorter: +e.target.value })
-                  }
-                  InputProps={{
-                    startAdornment: (
-                      <IconButton
-                        onClick={() =>
-                          setState({ ...state, reverse: !state.reverse })
-                        }
-                      >
-                        {state.reverse ? (
-                          <ExpandLessIcon />
-                        ) : (
-                          <ExpandMoreIcon />
-                        )}
-                      </IconButton>
-                    ),
-                  }}
-                >
-                  {sortMenuItems}
-                </TextField>
-              </Grid>
-              <Grid item>
-                <Tooltip title="Share">
-                  <IconButton onClick={() => DeckShareDialog.prompt()}>
-                    <ShareIcon sx={{ fontSize: "2rem" }} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Save As">
-                  <IconButton onClick={() => DeckSaveDialog.prompt()}>
-                    <SaveIcon sx={{ fontSize: "2rem" }} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Quit Edit">
-                  <IconButton onClick={handleQuitEdit}>
-                    <ExitToAppIcon sx={{ fontSize: "2rem" }} />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-            </Grid>
-            <Box
-              sx={{
-                position: "relative",
-                overflow: "auto",
-                height: 0,
-                flex: 1,
-              }}
-            >
-              {getCards().map((card) => {
-                const idx = index[card.id];
-                const visible = idx != null;
-                return (
-                  <Box
-                    key={card.id}
-                    sx={{
-                      p: 1,
-                      position: "absolute",
-                      opacity: visible ? 1 : 0,
-                      pointerEvents: visible ? "inherit" : "none",
-                      transform: `translate(
-                        ${(idx % 6) * 100}%, 
-                        ${Math.floor(idx / 6) * 270}px
-                      )`,
-                    }}
-                  >
-                    <CardLarge
-                      width={180}
-                      card={card.id}
-                      active={this.props.excludeCards.indexOf(card.id) < 0}
-                      onClick={handleCardClick(card.id)}
-                    />
-                  </Box>
-                );
-              })}
-            </Box>
+            {topBar}
+            {cardPanel}
           </Box>
         </Paper>
       </Box>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -143,14 +143,17 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     try {
       const { playerName } = DB.read();
       const matchName = `${playerName}'s match`;
-      const match = await LoadingDialog.wait({
-        task: Gateway.createMatch({
+      const task = async () => {
+        const match = await Gateway.createMatch({
           playerName,
           matchName,
-        }),
+        });
+        await this.start(match, matchName);
+      };
+      await LoadingDialog.wait({
+        task: task(),
         message: "Creating Match...",
       });
-      await this.start(match, matchName);
     } catch (err) {
       MessageBar.error(err);
     }
@@ -165,13 +168,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         const match = await Gateway.joinMatch(matchID, {
           playerName: DB.read().playerName,
         });
-        return [match, matchName];
+        await this.start(match, matchName);
       };
-      const [match, matchName] = await LoadingDialog.wait({
+      await LoadingDialog.wait({
         task: task(),
         message: "Joining Match...",
       });
-      await this.start(match, matchName);
     } catch (err) {
       MessageBar.error(err);
     }
@@ -238,6 +240,9 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     MatchWindow.bind(match);
 
+    // give the browser 300ms to compute layout
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     await this.show();
   }
 
@@ -294,88 +299,136 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     });
 
     useEffect(() => {
-      DB.subscribe(() => setState({ ...state, version: state.version + 1 }));
+      DB.subscribe(() =>
+        setState((state) => ({ ...state, version: state.version + 1 }))
+      );
     }, []);
 
-    const shareInviteLink = async () => {
-      const url = new URL(System.url.origin);
-      url.searchParams.append("connect", "player");
-      url.searchParams.append("match", this.props.match.matchID);
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url.href);
-        MessageBar.success(`invite link copied: [${url.href}]`);
-      } else {
-        console.log(url.href);
-        MessageBar.warning(`logged to console since context is not secure`);
-      }
-    };
+    const mainPanel = useMemo(() => {
+      const stageMenuItems = getStages().map((stage) => (
+        <MenuItem
+          value={stage.id}
+          key={stage.id}
+          disabled={!this.isStageSupported(stage.id)}
+        >
+          {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
+        </MenuItem>
+      ));
 
-    const stageMenuItems = getStages().map((stage) => (
-      <MenuItem
-        value={stage.id}
-        key={stage.id}
-        disabled={!this.isStageSupported(stage.id)}
-      >
-        {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
-      </MenuItem>
-    ));
-
-    const decks = DB.read().decks.slice();
-    const deckMenuItems = decks.map(({ name, deck }, i) => (
-      <MenuItem value={i} key={i} disabled={!isDeckValid(deck)}>
-        {name}
-      </MenuItem>
-    ));
-
-    const settingsPanel = (
-      <Collapsible
-        label="Advanced Settings"
-        open={state.settingsOpen}
-        onClick={() =>
-          setState({
-            ...state,
-            settingsOpen: !state.settingsOpen,
-          })
-        }
-        maxBodyHeight={100}
-      >
-        <Grid container spacing={2}>
+      const decks = DB.read().decks.slice();
+      const deckMenuItems = decks.map(({ name, deck }, i) => (
+        <MenuItem value={i} key={i} disabled={!isDeckValid(deck)}>
+          {name}
+        </MenuItem>
+      ));
+      return (
+        <>
           <Grid item xs={12}>
             <TextField
               fullWidth
+              select
               variant="standard"
-              type="number"
-              label="Redraw Quota"
+              label="Stage"
               disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
-              value={this.props.state.G.meta.redrawQuota}
-              onChange={({ target }) => {
-                const quota = +target.value;
-                if (0 <= quota && quota < 10) {
-                  this.props.match.send("UpdateMeta", { redrawQuota: quota });
-                }
-              }}
-            ></TextField>
+              value={this.props.state.G.meta.stage}
+              onChange={({ target }) =>
+                this.props.match.send("UpdateMeta", { stage: +target.value })
+              }
+            >
+              {stageMenuItems}
+            </TextField>
           </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              select
+              variant="standard"
+              label="Deck"
+              disabled={this.isForbidden() || this.isReady()}
+              value={-1}
+              onChange={({ target }) =>
+                this.update({ deck: { ...decks[+target.value] } })
+              }
+            >
+              <MenuItem value={-1} sx={{ display: "none" }}>
+                {this.props.deck.name + " [Snapshot]"}
+              </MenuItem>
+              {deckMenuItems}
+            </TextField>
+          </Grid>
+        </>
+      );
+    }, [
+      this.props.match,
+      this.props.state.ctx.phase,
+      this.props.state.G.meta.stage,
+      this.props.deck,
+      state.version,
+    ]);
+
+    const settingsPanel = useMemo(
+      () => (
+        <Grid item xs={12} sx={{ p: 2 }}>
+          <Collapsible
+            label="Advanced Settings"
+            open={state.settingsOpen}
+            onClick={() =>
+              setState((state) => ({
+                ...state,
+                settingsOpen: !state.settingsOpen,
+              }))
+            }
+            maxBodyHeight={100}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  variant="standard"
+                  type="number"
+                  label="Redraw Quota"
+                  disabled={
+                    this.isForbidden({ hostOnly: true }) || this.isReady()
+                  }
+                  value={this.props.state.G.meta.redrawQuota}
+                  onChange={({ target }) => {
+                    const quota = +target.value;
+                    if (0 <= quota && quota < 10) {
+                      this.props.match.send("UpdateMeta", {
+                        redrawQuota: quota,
+                      });
+                    }
+                  }}
+                ></TextField>
+              </Grid>
+            </Grid>
+          </Collapsible>
         </Grid>
-      </Collapsible>
+      ),
+      [
+        this.props.match,
+        this.props.state.ctx.phase,
+        this.props.state.G.meta.redrawQuota,
+        state.settingsOpen,
+      ]
     );
 
-    const renderPlayersPanel = () => {
+    const playersPanel = useMemo(() => {
       const { G } = this.props.state;
       const { match } = this.props;
       const { matchData } = match.client;
       const handleClose = () => {
-        setState({
+        setState((state) => ({
           ...state,
           playerMenuAnchorEl: null,
-        });
+        }));
       };
       const isHost = G.meta.host == match.playerID;
       const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
       const selectedPlayerID = state.selectedPlayer.toString();
       const selectedPlayerIdx = G.meta.players.indexOf(selectedPlayerID);
       return (
-        <div>
+        <Grid item xs={12}>
           <Stack direction="row" spacing={3}>
             {matchData.slice(1).map(({ id, name, isConnected }) => {
               const playerID = id.toString();
@@ -399,11 +452,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                     host={playerID == G.meta.host}
                     self={playerID == match.playerID}
                     onClick={({ currentTarget }) =>
-                      setState({
+                      setState((state) => ({
                         ...state,
                         selectedPlayer: id,
                         playerMenuAnchorEl: currentTarget,
-                      })
+                      }))
                     }
                   />
                 </Box>
@@ -439,53 +492,29 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               </MenuItem>
             )}
           </Menu>
-        </div>
-      );
-    };
-
-    return (
-      <div>
-        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
-          <Grid item xs={12}>
-            {renderPlayersPanel()}
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              select
-              variant="standard"
-              label="Stage"
-              disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
-              value={this.props.state.G.meta.stage}
-              onChange={({ target }) =>
-                this.props.match.send("UpdateMeta", { stage: +target.value })
-              }
-            >
-              {stageMenuItems}
-            </TextField>
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              select
-              variant="standard"
-              label="Deck"
-              disabled={this.isForbidden() || this.isReady()}
-              value={-1}
-              onChange={({ target }) =>
-                this.update({ deck: { ...decks[+target.value] } })
-              }
-            >
-              <MenuItem value={-1} sx={{ display: "none" }}>
-                {this.props.deck.name + " [Snapshot]"}
-              </MenuItem>
-              {deckMenuItems}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sx={{ p: 2 }}>
-            {settingsPanel}
-          </Grid>
         </Grid>
+      );
+    }, [
+      this.props.match,
+      this.props.state.G,
+      state.selectedPlayer,
+      state.playerMenuAnchorEl,
+    ]);
+
+    const bottomPanel = useMemo(() => {
+      const shareInviteLink = async () => {
+        const url = new URL(System.url.origin);
+        url.searchParams.append("connect", "player");
+        url.searchParams.append("match", this.props.match.matchID);
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(url.href);
+          MessageBar.success(`invite link copied: [${url.href}]`);
+        } else {
+          console.log(url.href);
+          MessageBar.warning(`logged to console since context is not secure`);
+        }
+      };
+      return (
         <Box
           sx={{
             boxSizing: "border-box",
@@ -516,6 +545,21 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             </Grid>
           </Grid>
         </Box>
+      );
+    }, [
+      this.props.match,
+      this.props.state.ctx.phase,
+      JSON.stringify(this.props.state.G.buffer.ready),
+    ]);
+
+    return (
+      <div>
+        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+          {playersPanel}
+          {mainPanel}
+          {settingsPanel}
+        </Grid>
+        {bottomPanel}
       </div>
     );
   }
