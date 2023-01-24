@@ -56,7 +56,6 @@ export function Card({
     return (
       <div
         className="card-body"
-        ref={bodyRef}
         style={{
           width: "100%",
           height: "100%",
@@ -65,32 +64,41 @@ export function Card({
         }}
       >
         <div
+          ref={bodyRef}
           style={{
-            position: "relative",
-            width: layout.width,
-            height: layout.height,
-            borderRadius: layout.radius,
-            background: "#9ea28c",
-            overflow: "hidden",
-            transform: `scale(${width / layout.width})`,
-            transformOrigin: "top left",
-            boxShadow:
-              active && selected
-                ? "4px 4px rgba(0, 0, 0, 0.5)"
-                : "2px 2px rgba(0, 0, 0, 0.2)",
+            width: "100%",
+            height: "100%",
+            transformOrigin: "center",
           }}
         >
-          {children}
           <div
-            className="card-overlay"
             style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: "100%",
-              height: "100%",
+              position: "relative",
+              width: layout.width,
+              height: layout.height,
+              borderRadius: layout.radius,
+              background: "#9ea28c",
+              overflow: "hidden",
+              transform: `scale(${width / layout.width})`,
+              transformOrigin: "top left",
+              boxShadow:
+                active && selected
+                  ? "4px 4px rgba(0, 0, 0, 0.5)"
+                  : "2px 2px rgba(0, 0, 0, 0.2)",
             }}
-          ></div>
+          >
+            {children}
+            <div
+              className="card-overlay"
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: "100%",
+                height: "100%",
+              }}
+            ></div>
+          </div>
         </div>
       </div>
     );
