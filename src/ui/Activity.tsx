@@ -1,7 +1,7 @@
 import "./Activity.less";
 
 import React from "react";
-import { Box, Card, Paper, CardHeader, Divider } from "@mui/material";
+import { Box, Paper, CardHeader, Divider } from "@mui/material";
 import { ReactComponent } from "../engine/ReactComponent";
 import { v4 } from "uuid";
 import { getLogger } from "loglevel";
@@ -35,7 +35,7 @@ interface ActivityBodyProps {
 
 function ActivityBody({ activity }: ActivityBodyProps) {
   return (
-    <Card
+    <Paper
       sx={{
         boxSizing: "border-box",
         position: "absolute",
@@ -84,7 +84,7 @@ function ActivityBody({ activity }: ActivityBodyProps) {
           {activity.node}
         </Box>
       </Box>
-    </Card>
+    </Paper>
   );
 }
 

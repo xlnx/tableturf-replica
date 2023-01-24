@@ -73,7 +73,7 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
 
   render() {
     return (
-      <>
+      <div>
         <div
           style={{
             position: "absolute",
@@ -115,7 +115,7 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
             {e.node}
           </Box>
         ))}
-      </>
+      </div>
     );
   }
 }

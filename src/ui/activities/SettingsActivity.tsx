@@ -31,7 +31,7 @@ class SettingsActivity_0 extends Activity<SettingsActivityProps> {
   render() {
     const nameError = getNameError(this.props.name);
     return (
-      <>
+      <div>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           <Grid item xs={12}>
             <TextField
@@ -79,7 +79,7 @@ class SettingsActivity_0 extends Activity<SettingsActivityProps> {
             </Grid>
           </Grid>
         </Box>
-      </>
+      </div>
     );
   }
 }

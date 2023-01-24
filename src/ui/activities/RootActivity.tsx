@@ -18,7 +18,7 @@ class RootActivity_0 extends Activity {
 
   render() {
     return (
-      <>
+      <div>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
           <Grid item xs={12}>
             <BasicButton fullWidth onClick={() => MatchActivity.createMatch()}>
@@ -95,7 +95,7 @@ class RootActivity_0 extends Activity {
             </Typography>
           </Grid>
         </Grid>
-      </>
+      </div>
     );
   }
 }

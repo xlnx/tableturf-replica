@@ -1,6 +1,6 @@
 import "./Card.less";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { PulseAnimation } from "../../engine/animations/PulseAnimation";
 import { getLogger } from "loglevel";
 
@@ -10,7 +10,6 @@ logger.setLevel("info");
 interface CardProps {
   layout: { width: number; height: number; radius: number };
   width: number;
-  radius?: number;
   children?: React.ReactNode;
   active?: boolean;
   selected?: boolean;
@@ -25,9 +24,6 @@ export function Card({
   selected = false,
   onClick = () => {},
 }: CardProps) {
-  logger.log(`card rerender`);
-
-  selected = active && selected;
   const [state, setState] = React.useState({
     bodyScale: 1,
   });
@@ -52,21 +48,9 @@ export function Card({
     onClick();
   };
 
-  const className = ["card"];
-  className.push(active ? "card-active" : "card-inactive");
-  if (selected) {
-    className.push("card-selected");
-  }
-  return (
-    <div
-      className={className.join(" ")}
-      style={{
-        width,
-        height: (layout.height / layout.width) * width,
-        userSelect: "none",
-      }}
-      onClick={handleClick}
-    >
+  const body = useMemo(() => {
+    logger.log(`card rerender`);
+    return (
       <div
         className="card-body"
         style={{
@@ -87,31 +71,41 @@ export function Card({
             overflow: "hidden",
             transform: `scale(${width / layout.width})`,
             transformOrigin: "top left",
-            boxShadow: selected
-              ? "4px 4px rgba(0, 0, 0, 0.5)"
-              : "2px 2px rgba(0, 0, 0, 0.2)",
+            boxShadow:
+              active && selected
+                ? "4px 4px rgba(0, 0, 0, 0.5)"
+                : "2px 2px rgba(0, 0, 0, 0.2)",
           }}
         >
-          <div
-            className="card-content"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            {children}
-          </div>
+          {children}
           <div
             className="card-overlay"
             style={{
               position: "absolute",
+              left: 0,
+              top: 0,
               width: "100%",
               height: "100%",
             }}
           ></div>
         </div>
       </div>
+    );
+  }, [children, layout]);
+
+  return (
+    <div
+      className={
+        !active ? "card-inactive" : selected ? "card-selected" : "card-active"
+      }
+      style={{
+        width,
+        height: (layout.height / layout.width) * width,
+        userSelect: "none",
+      }}
+      onClick={handleClick}
+    >
+      {body}
     </div>
   );
 }
