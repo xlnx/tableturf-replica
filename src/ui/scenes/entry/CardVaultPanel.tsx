@@ -261,7 +261,7 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
           })}
         </Box>
       );
-    }, [JSON.stringify(state.cards), JSON.stringify(this.props.excludeCards)]);
+    }, [state.cards, this.props.excludeCards]);
 
     return (
       <Box
