@@ -12,13 +12,19 @@ export class System extends Platform {
   static readonly args = this.url.searchParams;
 
   private static readonly loaders: Loader[] = [];
+  private static readonly textures: any = {};
 
   static texture(path: string): Texture {
     const loader = this.loaders.find((loader) => path in loader.resources);
     if (loader) {
       return loader.resources[path].texture;
     }
-    return Texture.from("/textures/" + path);
+    if (!(path in this.textures)) {
+      this.textures[path] = Texture.from("/textures/" + path, {
+        wrapMode: WRAP_MODES.REPEAT,
+      });
+    }
+    return this.textures[path];
   }
 
   static loadManifest(manifest: any): Promise<void> {

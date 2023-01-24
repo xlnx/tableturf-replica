@@ -91,38 +91,48 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       y: -w1 / 2,
     });
 
+    const imgs = {
+      empty: System.texture("empty_space.webp"),
+      black: System.texture("pure_black.webp"),
+      n1: System.texture("player1_trivial_space.webp"),
+      s1: System.texture("player1_special_space.webp"),
+      n2: System.texture("player2_trivial_space.webp"),
+      s2: System.texture("player2_special_space.webp"),
+      neutral: System.texture("neutral_space.webp"),
+    };
+
     this.bg = this.addComponent(new GridComponent(), {
       parent: this.root,
     });
     this.bg.update({
       tileset: new Map<any, any>([
-        [Spaces.EMPTY, "empty_space.webp"],
-        [Spaces.TRIVIAL, "pure_black.webp"],
-        [-Spaces.TRIVIAL, "pure_black.webp"],
-        [-Spaces.TRIVIAL, "pure_black.webp"],
-        [Spaces.NEUTRAL, "pure_black.webp"],
+        [Spaces.EMPTY, imgs.empty],
+        [Spaces.TRIVIAL, imgs.black],
+        [-Spaces.TRIVIAL, imgs.black],
+        [-Spaces.TRIVIAL, imgs.black],
+        [Spaces.NEUTRAL, imgs.black],
       ]),
       transform: {
         anchor: 0.5,
       },
     });
 
-    const e1 = { texture: "player1_trivial_space.webp", alpha: 1 };
-    const e2 = { texture: "player2_trivial_space.webp", alpha: 1 };
+    const e1 = { texture: imgs.n1, alpha: 1 };
+    const e2 = { texture: imgs.n2, alpha: 1 };
     const spaceTilesets = [
       new Map<any, any>([
         [Spaces.TRIVIAL, e1],
-        [Spaces.SPECIAL, "player1_special_space.webp"],
+        [Spaces.SPECIAL, imgs.s1],
         [-Spaces.TRIVIAL, e2],
-        [-Spaces.SPECIAL, "player2_special_space.webp"],
-        [Spaces.NEUTRAL, "neutral_space.webp"],
+        [-Spaces.SPECIAL, imgs.s2],
+        [Spaces.NEUTRAL, imgs.neutral],
       ]),
       new Map<any, any>([
         [Spaces.TRIVIAL, e2],
-        [Spaces.SPECIAL, "player2_special_space.webp"],
+        [Spaces.SPECIAL, imgs.s2],
         [-Spaces.TRIVIAL, e1],
-        [-Spaces.SPECIAL, "player1_special_space.webp"],
-        [Spaces.NEUTRAL, "neutral_space.webp"],
+        [-Spaces.SPECIAL, imgs.s1],
+        [Spaces.NEUTRAL, imgs.neutral],
       ]),
     ];
     this.spaces = this.addComponent(new GridComponent(), {
@@ -183,7 +193,7 @@ export class BoardComponent extends Component<IBoardComponentProps> {
       parent: this.root,
     });
     this.flash.update({
-      tileset: new Map([[1, "Decide.webp"]]),
+      tileset: new Map([[1, System.texture("Decide.webp")]]),
       transform: {
         anchor: 0.5,
         dx: w1,

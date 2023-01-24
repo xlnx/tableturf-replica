@@ -1,13 +1,11 @@
 import { Component } from "../engine/Component";
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Texture } from "pixi.js";
-import { System } from "../engine/System";
 
-type TextureSpec = Texture | string;
 type TileSpec =
-  | TextureSpec
+  | Texture
   | {
-      texture: TextureSpec;
+      texture: Texture;
       alpha: number;
     };
 
@@ -60,9 +58,6 @@ export class GridComponent extends Component<IGridComponentProps> {
       let texture = tileset.values().next().value;
       if (typeof texture == "object" && !(texture instanceof Texture)) {
         texture = texture.texture;
-      }
-      if (typeof texture == "string") {
-        texture = System.texture(texture);
       }
       const { width, height } = texture;
 
