@@ -193,6 +193,7 @@ function renderSvg(card: ICard, player: IPlayerId) {
           style={{ transform: "translate(94px, 422px)" }}
         >
           <SquareTilemap
+            id={`card-large-sp-${card.id}-${player}`}
             player={player}
             rect={{
               size: [5, 2],
@@ -212,7 +213,12 @@ function renderSvg(card: ICard, player: IPlayerId) {
             transform: "translate(200px, 332px) rotate(7deg)",
           }}
         >
-          <SquareTilemap rect={card} player={player} width={122} />
+          <SquareTilemap
+            id={`card-grid-${card.id}-${player}`}
+            rect={card}
+            player={player}
+            width={122}
+          />
         </g>
       </>
       <text
@@ -391,6 +397,7 @@ function renderWebKit(card: ICard, player: IPlayerId) {
         }}
       >
         <SquareTilemap
+          id={`card-large-sp-${card.id}-${player}`}
           player={player}
           rect={{
             size: [5, 2],
@@ -410,7 +417,12 @@ function renderWebKit(card: ICard, player: IPlayerId) {
           transform: "rotate(7deg)",
         }}
       >
-        <SquareTilemap rect={card} player={player} width={122} />
+        <SquareTilemap
+          id={`card-grid-${card.id}-${player}`}
+          rect={card}
+          player={player}
+          width={122}
+        />
       </div>
       {[{ WebkitTextStroke: "8px black" }, {}].map((style, i) => (
         <div
