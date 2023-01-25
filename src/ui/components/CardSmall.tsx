@@ -70,6 +70,7 @@ export function CardSmall({
           }}
         >
           <SquareTilemap
+            id={`card-grid-${card.id}-${player}`}
             rect={card}
             player={player}
             width={layout.width - 2 * layout.padding}
@@ -106,6 +107,7 @@ export function CardSmall({
           }}
         >
           <SquareTilemap
+            id={`card-small-sp-${card.id}-${player}`}
             player={player}
             rect={{
               size: [5, 2],
