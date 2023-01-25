@@ -28,10 +28,11 @@ class Canvas extends Component {
     this.app = new Application({
       width,
       height,
-      antialias: true,
+      antialias: false,
       autoDensity: true,
       backgroundAlpha: 0,
       resolution: Math.max(1, window.devicePixelRatio || 1),
+      powerPreference: "high-performance",
     });
 
     this.app.stage = new PixiRootContainer();
