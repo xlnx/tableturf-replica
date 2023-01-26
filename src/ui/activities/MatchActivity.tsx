@@ -258,36 +258,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     return ok;
   }
 
-  isReady() {
-    return (
-      this.props.match &&
-      this.props.state.G.buffer.ready[this.props.match.playerID]
-    );
-  }
-
-  isForbidden({ hostOnly = false, phase = "prepare" }: OperationInfo = {}) {
-    if (!this.props.match) {
-      return true;
-    }
-    if (phase && this.props.state.ctx.phase != phase) {
-      return true;
-    }
-    if (hostOnly && this.props.state.G.meta.host != this.props.match.playerID) {
-      return true;
-    }
-    return false;
-  }
-
   isStageSupported(stage: number) {
     if (!this.props.match) {
       return false;
     }
     return true;
-    // const { botInfo } = this.props.match;
-    // if (!botInfo || !botInfo.support.stages.length) {
-    //   return true;
-    // }
-    // return botInfo.support.stages.indexOf(stage) >= 0;
   }
 
   render() {
@@ -303,6 +278,23 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         setState((state) => ({ ...state, version: state.version + 1 }))
       );
     }, []);
+
+    const {
+      match,
+      state: { G, ctx },
+    } = this.props;
+
+    const isHost = G.meta.host == match.playerID;
+    const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
+    const isReady = G.buffer.ready[match.playerID];
+    const isPreparing = ctx.phase == "prepare";
+    const canMatchStart =
+      G.meta.players.length == 2 &&
+      G.meta.players.every((i) => i == G.meta.host || G.buffer.ready[+i]);
+    console.log(canMatchStart);
+
+    const isControlDisabled = !isPreparing || isReady;
+    const isHostControlDisabled = isControlDisabled || !isHost;
 
     const mainPanel = useMemo(() => {
       const stageMenuItems = getStages().map((stage) => (
@@ -329,10 +321,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               select
               variant="standard"
               label="Stage"
-              disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
-              value={this.props.state.G.meta.stage}
+              disabled={isHostControlDisabled}
+              value={G.meta.stage}
               onChange={({ target }) =>
-                this.props.match.send("UpdateMeta", { stage: +target.value })
+                match.send("UpdateMeta", { stage: +target.value })
               }
             >
               {stageMenuItems}
@@ -344,7 +336,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               select
               variant="standard"
               label="Deck"
-              disabled={this.isForbidden() || this.isReady()}
+              disabled={isControlDisabled}
               value={-1}
               onChange={({ target }) =>
                 this.update({ deck: { ...decks[+target.value] } })
@@ -359,11 +351,15 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         </>
       );
     }, [
-      this.props.match,
-      this.props.state.ctx.phase,
-      this.props.state.G.meta.stage,
-      this.props.state.G.meta.host,
+      // controller
+      match,
+      // values
+      G.meta.stage,
       this.props.deck,
+      // validate control
+      isHostControlDisabled,
+      isControlDisabled,
+      // force update
       state.version,
     ]);
 
@@ -388,16 +384,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                   variant="standard"
                   type="number"
                   label="Redraw Quota"
-                  disabled={
-                    this.isForbidden({ hostOnly: true }) || this.isReady()
-                  }
-                  value={this.props.state.G.meta.redrawQuota}
+                  disabled={isHostControlDisabled}
+                  value={G.meta.redrawQuota}
                   onChange={({ target }) => {
                     const quota = +target.value;
                     if (0 <= quota && quota < 10) {
-                      this.props.match.send("UpdateMeta", {
-                        redrawQuota: quota,
-                      });
+                      match.send("UpdateMeta", { redrawQuota: quota });
                     }
                   }}
                 ></TextField>
@@ -407,19 +399,18 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         </Grid>
       ),
       [
-        this.props.match,
-        this.props.state.ctx.phase,
-        this.props.state.G.meta.redrawQuota,
-        this.props.state.G.meta.host,
+        // controller
+        match,
+        // value
+        G.meta.redrawQuota,
+        // validate control
+        isHostControlDisabled,
+        // open state
         state.settingsOpen,
       ]
     );
 
-    const readyKey = this.props.state.G.buffer.ready.map((e) => +e).join(":");
-
     const playersPanel = useMemo(() => {
-      const { G } = this.props.state;
-      const { match } = this.props;
       const { matchData } = match.client;
       const handleClose = () => {
         setState((state) => ({
@@ -427,8 +418,6 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
           playerMenuAnchorEl: null,
         }));
       };
-      const isHost = G.meta.host == match.playerID;
-      const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
       const selectedPlayerID = state.selectedPlayer.toString();
       const selectedPlayerIdx = G.meta.players.indexOf(selectedPlayerID);
       return (
@@ -477,7 +466,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               <MenuItem
                 onClick={() => {
                   console.assert(+selectedPlayerID != 0);
-                  match.send("UpdateMeta", { host: selectedPlayerID });
+                  match.send("UpdateHost", selectedPlayerID);
                   handleClose();
                 }}
               >
@@ -499,11 +488,13 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         </Grid>
       );
     }, [
-      this.props.match,
-      this.props.match.client.matchData.map((e) => +e.isConnected).join(":"),
-      this.props.state.G.meta.players.join(":"),
-      this.props.state.G.meta.host,
-      readyKey,
+      // controller
+      match,
+      match.client.matchData.map((e) => +e.isConnected).join(":"),
+      G.meta.players.join(":"),
+      G.meta.host,
+      G.buffer.ready.map((e) => +e).join(":"),
+      // state
       state.selectedPlayer,
       state.playerMenuAnchorEl,
     ]);
@@ -512,7 +503,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       const shareInviteLink = async () => {
         const url = new URL(System.url.origin);
         url.searchParams.append("connect", "player");
-        url.searchParams.append("match", this.props.match.matchID);
+        url.searchParams.append("match", match.matchID);
         if (navigator.clipboard) {
           await navigator.clipboard.writeText(url.href);
           MessageBar.success(`invite link copied: [${url.href}]`);
@@ -541,23 +532,30 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             <Grid item xs={6}>
               <BasicButton
                 fullWidth
-                selected={
-                  this.props.state.G.buffer.ready[this.props.match.playerID]
+                selected={isReady}
+                disabled={
+                  !isPreparing ||
+                  (isHost && !canMatchStart) ||
+                  (!isHost && isSpectator)
                 }
-                disabled={this.isForbidden()}
-                onClick={() => this.props.match.send("ToggleReady")}
+                onClick={() => match.send("ToggleReady")}
               >
-                Ready!
+                {isHost ? "Start!" : "Ready!"}
               </BasicButton>
             </Grid>
           </Grid>
         </Box>
       );
     }, [
-      this.props.match,
-      this.props.state.ctx.phase,
-      this.props.state.G.meta.host,
-      readyKey,
+      // controller
+      match,
+      // ready
+      isReady,
+      // validate control
+      isHost,
+      isSpectator,
+      isPreparing,
+      canMatchStart,
     ]);
 
     return (

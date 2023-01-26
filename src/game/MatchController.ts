@@ -30,14 +30,6 @@ const UpdateState: Move<IMatchState> = {
   ignoreStaleStateID: true,
 };
 
-const ToggleReady: Move<IMatchState> = {
-  move: ({ G, playerID }) => {
-    G.buffer.ready[playerID] = !G.buffer.ready[playerID];
-  },
-  client: false,
-  ignoreStaleStateID: true,
-};
-
 const PlayerMove: Move<IMatchState> = {
   move: ({ G, playerID }, move_: Omit<IPlayerMovement, "player">) => {
     const player = G.meta.players.indexOf(playerID);
@@ -81,12 +73,45 @@ const Redraw: Move<IMatchState> = {
   ignoreStaleStateID: true,
 };
 
+const ToggleReady: Move<IMatchState> = {
+  move: ({ G, playerID }) => {
+    if (G.meta.host != playerID) {
+      G.buffer.ready[playerID] = !G.buffer.ready[playerID];
+      return;
+    }
+    if (G.meta.players.length != 2) {
+      return INVALID_MOVE;
+    }
+    if (!G.meta.players.every((i) => i == playerID || G.buffer.ready[i])) {
+      return INVALID_MOVE;
+    }
+    G.buffer.ready[playerID] = true;
+  },
+  client: false,
+  ignoreStaleStateID: true,
+};
+
 const UpdateMeta: Move<IMatchState> = {
   move: ({ G, playerID }, meta: Partial<IMatchMeta>) => {
     if (playerID != G.meta.host) {
       return INVALID_MOVE;
     }
     Object.assign(G.meta, meta);
+  },
+  client: false,
+  ignoreStaleStateID: true,
+};
+
+const UpdateHost: Move<IMatchState> = {
+  move: ({ G, playerID }, dstPlayerID: string) => {
+    if (playerID != G.meta.host) {
+      return INVALID_MOVE;
+    }
+    if (G.daemon.players.indexOf(dstPlayerID) < 0) {
+      return INVALID_MOVE;
+    }
+    G.meta.host = dstPlayerID;
+    G.buffer.ready[dstPlayerID] = false;
   },
   client: false,
   ignoreStaleStateID: true,
@@ -202,13 +227,13 @@ export const MatchController: Game<IMatchState> = {
     },
 
     prepare: {
-      moves: { UpdateState, UpdateMeta, ToggleRole, ToggleReady },
+      moves: { UpdateState, UpdateMeta, UpdateHost, ToggleRole, ToggleReady },
       turn: {
         activePlayers: ActivePlayers.ALL,
       },
       endIf: ({ G }) =>
         G.meta.players.length == 2 &&
-        G.daemon.players.every((playerID) => G.buffer.ready[playerID]),
+        G.meta.players.every((i) => G.buffer.ready[i]),
       next: "beforeHandshake",
     },
 
