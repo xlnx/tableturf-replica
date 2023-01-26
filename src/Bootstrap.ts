@@ -1,10 +1,7 @@
-// install wm first
-import "./engine/WindowManager";
-
 import { WebfontLoaderPlugin } from "pixi-webfont-loader";
-import { Loader } from "pixi.js";
-import Manifest from "./assets/manifest.json";
+import { Loader } from "@pixi/loaders";
 import { System } from "./engine/System";
+import Manifest from "./assets/manifest.json";
 
 Loader.registerPlugin(WebfontLoaderPlugin);
 

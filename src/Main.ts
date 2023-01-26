@@ -1,3 +1,6 @@
+// install wm first
+import "./engine/WindowManager";
+
 import "./Main.less";
 
 import { ControlPanel } from "./ui/ControlPanel";
@@ -85,3 +88,8 @@ async function main() {
 }
 
 main().catch((err) => MessageBar.error(err));
+
+// import {} from "webm-wasm";
+// import webm from "webm-wasm";
+// console.log(webm);
+// const worker = new Worker("webm-wasm/dist/webm-worker.js");

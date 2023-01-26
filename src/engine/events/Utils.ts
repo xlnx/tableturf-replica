@@ -1,6 +1,7 @@
-import { DisplayObject, Point, Sprite } from "pixi.js";
+import { Container, DisplayObject, Point, Sprite } from "pixi.js";
 import { Component } from "../Component";
-import { PixiRootContainer } from "../System";
+
+export class PixiRootContainer extends Container {}
 
 function getGlobalBBox(obj: Component | Sprite): number[] {
   if (obj instanceof Sprite) {
