@@ -62,8 +62,9 @@ test("test_game_flow", async () => {
       })
     );
     expect(daemon.client.getState().ctx.phase).toEqual("prepare");
-    p1.send("ToggleReady");
     p2.send("ToggleReady");
+    await sleep();
+    p1.send("ToggleReady");
     await sleep();
 
     const state = daemon.client.getState();
