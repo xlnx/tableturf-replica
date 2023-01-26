@@ -7,6 +7,7 @@ import {
   MenuItem,
   Stack,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { Activity, ActivityPanel } from "../Activity";
 import { RootActivity } from "./RootActivity";
@@ -68,33 +69,35 @@ function PlayerAvatar({ online, name, role, host, self, onClick }) {
   );
   const [w, h] = [108, 96];
   return (
-    <Box sx={{ position: "relative", width: w, height: h }}>
-      {btn}
-      <StarIcon
-        sx={{
-          position: "absolute",
-          left: 4,
-          top: 4,
-          color: "white",
-          fontSize: "0.9rem",
-          opacity: host ? 1 : 0,
-          pointerEvents: "none",
-          transition: "all 200ms ease-out",
-        }}
-      />
-      {!self ? null : (
-        <ArrowDropDownIcon
+    <Tooltip followCursor placement="top" title={name}>
+      <Box sx={{ position: "relative", width: w, height: h }}>
+        {btn}
+        <StarIcon
           sx={{
             position: "absolute",
-            left: 5,
-            top: -70,
+            left: 4,
+            top: 4,
             color: "white",
-            fontSize: "3rem",
+            fontSize: "0.9rem",
+            opacity: host ? 1 : 0,
             pointerEvents: "none",
+            transition: "all 200ms ease-out",
           }}
         />
-      )}
-    </Box>
+        {!self ? null : (
+          <ArrowDropDownIcon
+            sx={{
+              position: "absolute",
+              left: 5,
+              top: -70,
+              color: "white",
+              fontSize: "3rem",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+      </Box>
+    </Tooltip>
   );
 }
 
@@ -258,36 +261,11 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     return ok;
   }
 
-  isReady() {
-    return (
-      this.props.match &&
-      this.props.state.G.buffer.ready[this.props.match.playerID]
-    );
-  }
-
-  isForbidden({ hostOnly = false, phase = "prepare" }: OperationInfo = {}) {
-    if (!this.props.match) {
-      return true;
-    }
-    if (phase && this.props.state.ctx.phase != phase) {
-      return true;
-    }
-    if (hostOnly && this.props.state.G.meta.host != this.props.match.playerID) {
-      return true;
-    }
-    return false;
-  }
-
   isStageSupported(stage: number) {
     if (!this.props.match) {
       return false;
     }
     return true;
-    // const { botInfo } = this.props.match;
-    // if (!botInfo || !botInfo.support.stages.length) {
-    //   return true;
-    // }
-    // return botInfo.support.stages.indexOf(stage) >= 0;
   }
 
   render() {
@@ -303,6 +281,21 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         setState((state) => ({ ...state, version: state.version + 1 }))
       );
     }, []);
+
+    const {
+      match,
+      state: { G, ctx },
+    } = this.props;
+
+    const isHost = G.meta.host == match.playerID;
+    const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
+    const isReady = G.buffer.ready[match.playerID];
+    const isPreparing = ctx.phase == "prepare";
+    const isControlDisabled = !isPreparing || isReady;
+    const isPlayersEnough = G.meta.players.length == 2;
+    const isPlayersReady = G.meta.players.every(
+      (i) => i == G.meta.host || G.buffer.ready[+i]
+    );
 
     const mainPanel = useMemo(() => {
       const stageMenuItems = getStages().map((stage) => (
@@ -324,50 +317,63 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       return (
         <>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              select
-              variant="standard"
-              label="Stage"
-              disabled={this.isForbidden({ hostOnly: true }) || this.isReady()}
-              value={this.props.state.G.meta.stage}
-              onChange={({ target }) =>
-                this.props.match.send("UpdateMeta", { stage: +target.value })
-              }
+            <Tooltip
+              followCursor
+              placement="top"
+              title={!isHost ? "This operation is host-only" : "Select a stage"}
             >
-              {stageMenuItems}
-            </TextField>
+              <TextField
+                fullWidth
+                select
+                variant="standard"
+                label="Stage"
+                disabled={isControlDisabled || !isHost}
+                value={G.meta.stage}
+                onChange={({ target }) =>
+                  match.send("UpdateMeta", { stage: +target.value })
+                }
+              >
+                {stageMenuItems}
+              </TextField>
+            </Tooltip>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              select
-              variant="standard"
-              label="Deck"
-              disabled={this.isForbidden() || this.isReady()}
-              value={-1}
-              onChange={({ target }) =>
-                this.update({ deck: { ...decks[+target.value] } })
-              }
-            >
-              <MenuItem value={-1} sx={{ display: "none" }}>
-                {this.props.deck.name + " [Snapshot]"}
-              </MenuItem>
-              {deckMenuItems}
-            </TextField>
+            <Tooltip followCursor placement="top" title={"Select your deck"}>
+              <TextField
+                fullWidth
+                select
+                variant="standard"
+                label="Deck"
+                disabled={isControlDisabled}
+                value={-1}
+                onChange={({ target }) =>
+                  this.update({ deck: { ...decks[+target.value] } })
+                }
+              >
+                <MenuItem value={-1} sx={{ display: "none" }}>
+                  {this.props.deck.name + " [Snapshot]"}
+                </MenuItem>
+                {deckMenuItems}
+              </TextField>
+            </Tooltip>
           </Grid>
         </>
       );
     }, [
-      this.props.match,
-      this.props.state.ctx.phase,
-      this.props.state.G.meta.stage,
+      // controller
+      match,
+      // values
+      G.meta.stage,
       this.props.deck,
+      // validate control
+      isHost,
+      isControlDisabled,
+      // force update
       state.version,
     ]);
 
-    const settingsPanel = useMemo(
-      () => (
+    const settingsPanel = useMemo(() => {
+      return (
         <Grid item xs={12} sx={{ p: 2 }}>
           <Collapsible
             label="Advanced Settings"
@@ -382,51 +388,96 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
           >
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  type="number"
-                  label="Redraw Quota"
-                  disabled={
-                    this.isForbidden({ hostOnly: true }) || this.isReady()
+                <Tooltip
+                  followCursor
+                  placement="top"
+                  title={
+                    !isHost
+                      ? "This operation is host-only"
+                      : "Decide how may times a player is allowed to redraw his hand"
                   }
-                  value={this.props.state.G.meta.redrawQuota}
-                  onChange={({ target }) => {
-                    const quota = +target.value;
-                    if (0 <= quota && quota < 10) {
-                      this.props.match.send("UpdateMeta", {
-                        redrawQuota: quota,
-                      });
-                    }
-                  }}
-                ></TextField>
+                >
+                  <TextField
+                    fullWidth
+                    variant="standard"
+                    type="number"
+                    label="Redraw Quota"
+                    disabled={isControlDisabled || !isHost}
+                    value={G.meta.redrawQuota}
+                    onChange={({ target }) => {
+                      const quota = +target.value;
+                      if (0 <= quota && quota < 10) {
+                        match.send("UpdateMeta", { redrawQuota: quota });
+                      }
+                    }}
+                  />
+                </Tooltip>
               </Grid>
             </Grid>
           </Collapsible>
         </Grid>
-      ),
-      [
-        this.props.match,
-        this.props.state.ctx.phase,
-        this.props.state.G.meta.redrawQuota,
-        state.settingsOpen,
-      ]
-    );
+      );
+    }, [
+      // controller
+      match,
+      // value
+      G.meta.redrawQuota,
+      // validate control
+      isHost,
+      isControlDisabled,
+      // open state
+      state.settingsOpen,
+    ]);
 
-    const playersPanel = useMemo(() => {
-      const { G } = this.props.state;
-      const { match } = this.props;
-      const { matchData } = match.client;
+    const playerSettingsPanel = useMemo(() => {
       const handleClose = () => {
         setState((state) => ({
           ...state,
           playerMenuAnchorEl: null,
         }));
       };
-      const isHost = G.meta.host == match.playerID;
-      const isSpectator = G.meta.players.indexOf(match.playerID) < 0;
       const selectedPlayerID = state.selectedPlayer.toString();
       const selectedPlayerIdx = G.meta.players.indexOf(selectedPlayerID);
+      return (
+        <Menu
+          anchorEl={state.playerMenuAnchorEl}
+          open={state.playerMenuAnchorEl != null}
+          onClose={handleClose}
+        >
+          {match.playerID == selectedPlayerID ? null : (
+            <MenuItem
+              onClick={() => {
+                console.assert(+selectedPlayerID != 0);
+                match.send("UpdateHost", selectedPlayerID);
+                handleClose();
+              }}
+            >
+              Make host
+            </MenuItem>
+          )}
+          <MenuItem
+            disabled={selectedPlayerIdx < 0 && G.meta.players.length >= 2}
+            onClick={() => {
+              match.send("ToggleRole", selectedPlayerID);
+              handleClose();
+            }}
+          >
+            {`Make ${selectedPlayerIdx < 0 ? "player" : "spectator"}`}
+          </MenuItem>
+        </Menu>
+      );
+    }, [
+      // controller
+      match,
+      // G
+      G.meta.players.join(":"),
+      // state
+      state.playerMenuAnchorEl,
+      state.selectedPlayer,
+    ]);
+
+    const playersPanel = useMemo(() => {
+      const { matchData } = match.client;
       return (
         <Grid item xs={12}>
           <Stack direction="row" spacing={3}>
@@ -452,6 +503,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                     host={playerID == G.meta.host}
                     self={playerID == match.playerID}
                     onClick={({ currentTarget }) =>
+                      isHost &&
                       setState((state) => ({
                         ...state,
                         selectedPlayer: id,
@@ -463,49 +515,23 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               );
             })}
           </Stack>
-          <Menu
-            anchorEl={state.playerMenuAnchorEl}
-            open={state.playerMenuAnchorEl != null}
-            onClose={handleClose}
-          >
-            <MenuItem>{matchData[selectedPlayerID].name}</MenuItem>
-            {!isHost || match.playerID == selectedPlayerID ? null : (
-              <MenuItem
-                onClick={() => {
-                  console.assert(+selectedPlayerID != 0);
-                  match.send("UpdateMeta", { host: selectedPlayerID });
-                  handleClose();
-                }}
-              >
-                Make host
-              </MenuItem>
-            )}
-            {!isHost ? null : (
-              <MenuItem
-                disabled={selectedPlayerIdx < 0 && G.meta.players.length >= 2}
-                onClick={() => {
-                  match.send("ToggleRole", selectedPlayerID);
-                  handleClose();
-                }}
-              >
-                {`Make ${selectedPlayerIdx < 0 ? "player" : "spectator"}`}
-              </MenuItem>
-            )}
-          </Menu>
         </Grid>
       );
     }, [
-      this.props.match,
-      this.props.state.G,
-      state.selectedPlayer,
-      state.playerMenuAnchorEl,
+      // controller
+      match,
+      // G
+      match.client.matchData.map((e) => +e.isConnected).join(":"),
+      G.meta.players.join(":"),
+      G.meta.host,
+      G.buffer.ready.map((e) => +e).join(":"),
     ]);
 
     const bottomPanel = useMemo(() => {
       const shareInviteLink = async () => {
         const url = new URL(System.url.origin);
         url.searchParams.append("connect", "player");
-        url.searchParams.append("match", this.props.match.matchID);
+        url.searchParams.append("match", match.matchID);
         if (navigator.clipboard) {
           await navigator.clipboard.writeText(url.href);
           MessageBar.success(`invite link copied: [${url.href}]`);
@@ -532,29 +558,53 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               </BasicButton>
             </Grid>
             <Grid item xs={6}>
-              <BasicButton
-                fullWidth
-                selected={
-                  this.props.state.G.buffer.ready[this.props.match.playerID]
+              <Tooltip
+                followCursor
+                placement="top"
+                title={
+                  !isPlayersEnough
+                    ? "Need two players to start a match"
+                    : !isPlayersReady
+                    ? "Waiting for other player to get ready"
+                    : "Waiting for host to start the match"
                 }
-                disabled={this.isForbidden()}
-                onClick={() => this.props.match.send("ToggleReady")}
               >
-                Ready!
-              </BasicButton>
+                <div>
+                  <BasicButton
+                    fullWidth
+                    selected={isReady}
+                    disabled={
+                      !isPreparing ||
+                      (isHost && !(isPlayersEnough && isPlayersReady)) ||
+                      (!isHost && isSpectator)
+                    }
+                    onClick={() => match.send("ToggleReady")}
+                  >
+                    {isHost ? "Start!" : "Ready!"}
+                  </BasicButton>
+                </div>
+              </Tooltip>
             </Grid>
           </Grid>
         </Box>
       );
     }, [
-      this.props.match,
-      this.props.state.ctx.phase,
-      JSON.stringify(this.props.state.G.buffer.ready),
+      // controller
+      match,
+      // ready
+      isReady,
+      // validate control
+      isHost,
+      isSpectator,
+      isPreparing,
+      isPlayersEnough,
+      isPlayersReady,
     ]);
 
     return (
       <div>
         <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+          {playerSettingsPanel}
           {playersPanel}
           {mainPanel}
           {settingsPanel}

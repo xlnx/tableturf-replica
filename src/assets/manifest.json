@@ -1,9 +1,11 @@
 {
   "empty_space.webp": "/textures/empty_space.webp",
+  "IconUp_00.webp": "/textures/IconUp_00.webp",
   "neutral_space.webp": "/textures/neutral_space.webp",
   "player1_special_space.webp": "/textures/player1_special_space.webp",
   "player1_trivial_space.webp": "/textures/player1_trivial_space.webp",
   "player2_special_space.webp": "/textures/player2_special_space.webp",
   "player2_trivial_space.webp": "/textures/player2_trivial_space.webp",
-  "pure_black.webp": "/textures/pure_black.webp"
+  "pure_black.webp": "/textures/pure_black.webp",
+  "Squid.webp": "/textures/Squid.webp"
 }

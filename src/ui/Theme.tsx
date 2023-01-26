@@ -238,6 +238,15 @@ export const Theme = createTheme({
     borderRadius: 16,
   },
   components: {
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          fontSize: "0.4rem",
+          userSelect: "none",
+          pointerEvents: "none",
+        },
+      },
+    },
     MuiTypography: {
       styleOverrides: {
         root: {
