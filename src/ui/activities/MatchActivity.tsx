@@ -362,6 +362,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       this.props.match,
       this.props.state.ctx.phase,
       this.props.state.G.meta.stage,
+      this.props.state.G.meta.host,
       this.props.deck,
       state.version,
     ]);
@@ -409,9 +410,12 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         this.props.match,
         this.props.state.ctx.phase,
         this.props.state.G.meta.redrawQuota,
+        this.props.state.G.meta.host,
         state.settingsOpen,
       ]
     );
+
+    const readyKey = this.props.state.G.buffer.ready.map((e) => +e).join(":");
 
     const playersPanel = useMemo(() => {
       const { G } = this.props.state;
@@ -496,7 +500,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       );
     }, [
       this.props.match,
-      this.props.state.G,
+      this.props.match.client.matchData.map((e) => +e.isConnected).join(":"),
+      this.props.state.G.meta.players.join(":"),
+      this.props.state.G.meta.host,
+      readyKey,
       state.selectedPlayer,
       state.playerMenuAnchorEl,
     ]);
@@ -549,7 +556,8 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     }, [
       this.props.match,
       this.props.state.ctx.phase,
-      JSON.stringify(this.props.state.G.buffer.ready),
+      this.props.state.G.meta.host,
+      readyKey,
     ]);
 
     return (
