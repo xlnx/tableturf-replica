@@ -8,7 +8,8 @@ import { AbstractRenderer, Application, Container, Sprite } from "pixi.js";
 import { Component } from "./Component";
 import { Window } from "./Window";
 import { Interaction } from "./Interaction";
-import { PixiRootContainer, System } from "./System";
+import { System } from "./System";
+import { PixiRootContainer } from "./events/Utils";
 
 console.log(`window.devicePixelRatio = ${window.devicePixelRatio}`);
 

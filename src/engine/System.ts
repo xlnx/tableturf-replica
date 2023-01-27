@@ -1,11 +1,7 @@
-import { Container, Loader, Texture, WRAP_MODES } from "pixi.js";
+import { Loader } from "@pixi/loaders";
+import { Texture } from "@pixi/core";
+import { WRAP_MODES } from "@pixi/constants";
 import { Platform } from "./Platform";
-import { getLogger } from "loglevel";
-
-const logger = getLogger("system");
-logger.setLevel("info");
-
-export class PixiRootContainer extends Container {}
 
 export class System extends Platform {
   static readonly url = new URL(window.location.href);

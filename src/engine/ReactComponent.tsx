@@ -1,14 +1,15 @@
-import React from "react";
+import { ReactNode, useMemo, Component } from "react";
 import { Awaiter } from "./Awaiter";
 
 export abstract class ReactComponent<Props = {}> extends Awaiter {
   private _ctx: any = { state: this.init() };
 
-  private _node: React.ReactNode = (() => {
+  private readonly f = () => {
     const self = this;
-    class Outer extends React.Component<{}, Props> {
+    class Outer extends Component<{}, Props> {
       state = { ...self._ctx.state };
-      Inner = () => <React.Fragment>{self.render()}</React.Fragment>;
+      // fp style hook apis work-around
+      Inner = () => <>{self.render()}</>;
       constructor(props) {
         super(props);
         self._ctx = {
@@ -23,16 +24,18 @@ export abstract class ReactComponent<Props = {}> extends Awaiter {
       componentDidUpdate(_, prevState: Readonly<Props>) {
         self.componentDidUpdate(prevState);
       }
-      render(): React.ReactNode {
+      render(): ReactNode {
         return <this.Inner />;
       }
     }
-    return <Outer />;
-  })();
+    // memorize for no-state
+    return useMemo(() => <Outer />, []);
+  };
+  private _node: ReactNode = (<this.f />);
 
   abstract init(): Props;
 
-  abstract render(): React.ReactNode;
+  abstract render(): ReactNode;
 
   componentDidMount() {}
 
