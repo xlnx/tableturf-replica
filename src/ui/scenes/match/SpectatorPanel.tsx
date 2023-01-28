@@ -1,4 +1,4 @@
-import { Box, Paper } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { Match } from "../../../game/Match";
 import { MatchDriver } from "../../../game/MatchDriver";
@@ -6,6 +6,7 @@ import { AlertDialog } from "../../components/AlertDialog";
 import { GUI } from "./GUI";
 import { Hands } from "./Hands";
 import { getCardById, moveBoard } from "../../../core/Tableturf";
+import { DeckPreview } from "./DeckPreview";
 
 interface SpectatorPanelProps {
   gui: GUI;
@@ -13,7 +14,8 @@ interface SpectatorPanelProps {
 }
 
 export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
-  private readonly hands = [new Hands(), new Hands()];
+  readonly hands = [new Hands(), new Hands()];
+  readonly preview = [new DeckPreview(), new DeckPreview()];
   private detach: any[] = [];
 
   init() {
@@ -27,6 +29,9 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
     super();
     this.hands.forEach((hands, i) => {
       hands.update({ player: i as IPlayerId });
+    });
+    this.preview.forEach((preview, i) => {
+      preview.update({ player: i as IPlayerId });
     });
   }
 
@@ -59,6 +64,34 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
             </Box>
           </Box>
         ))}
+        {this.preview.map((preview, i) => (
+          <Box key={i}>
+            <Button
+              sx={{
+                position: "absolute",
+                left: 600 + i * 620,
+                top: 960,
+                borderRadius: 9999,
+                backgroundColor: "rgba(0, 0, 0, 0.3)",
+                boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
+                p: 3,
+              }}
+              onClick={() => preview.update({ open: !preview.props.open })}
+            >
+              Deck
+            </Button>
+            <Box
+              sx={{
+                position: "absolute",
+                left: -8 + i * (1346 + 8),
+                width: 0,
+                height: 0,
+              }}
+            >
+              {preview.node}
+            </Box>
+          </Box>
+        ))}
       </Box>
     );
   }
@@ -85,8 +118,13 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       });
       await gui.reset(G, players, { flipCards: true });
       await Promise.all(
-        G.game.players.map(async ({ hand }, i) => {
+        G.game.players.map(async ({ hand, deck }, i) => {
           await this.hands[i].update({ cards: hand });
+          await this.preview[i].update({
+            open: false,
+            deck: [...hand, ...deck],
+            done: hand.slice(),
+          });
           if (G.buffer.moves[i]) {
             await uiUpdatePlayerMove(G, G.buffer.moves[i]);
           }
@@ -163,9 +201,13 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
           [0, 1].map(async (i) => {
             const cards = Array(4);
             const { hand } = G.buffer.history.slice(-1)[0][i];
-            cards[hand] = G.game.players[i].hand[hand];
+            const card = G.game.players[i].hand[hand];
+            cards[hand] = card;
             await this.hands[i].update({ mask: Array(4).fill(true) });
             await this.hands[i].uiUpdate(cards);
+            await this.preview[i].update({
+              done: [...this.preview[i].props.done, card],
+            });
           })
         );
       });
@@ -176,6 +218,7 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       const player = G.meta.players.indexOf(playerID);
       const cards = G.game.players[player].hand.slice();
       await this.hands[player].uiUpdate(cards);
+      await this.preview[player].update({ done: cards.slice() });
     };
 
     driver.on("redraw", async (playerID) => {
