@@ -13,7 +13,7 @@ interface DeckPreviewProps {
 }
 
 export class DeckPreview extends ReactComponent<DeckPreviewProps> {
-  init() {
+  init(): DeckPreviewProps {
     return {
       player: 0,
       open: false,
@@ -45,6 +45,7 @@ export class DeckPreview extends ReactComponent<DeckPreviewProps> {
             {this.props.deck.map((id) => (
               <Grid item xs={3} key={id}>
                 <CardSmall
+                  player={this.props.player}
                   width={122}
                   card={id}
                   active={this.props.done.indexOf(id) < 0}
