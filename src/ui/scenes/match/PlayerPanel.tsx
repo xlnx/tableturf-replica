@@ -32,6 +32,7 @@ interface MatchState {
 interface PlayerPanelProps {
   gui: GUI;
   enabled: boolean;
+  selected: number;
   action: Action;
   state: MatchState;
 }
@@ -42,10 +43,18 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
 
   private detach: any[] = [];
 
+  constructor() {
+    super();
+    this.hands.on("selected-change", () => {
+      this.update({ selected: this.hands.props.selected });
+    });
+  }
+
   init(): PlayerPanelProps {
     return {
       gui: null,
       enabled: true,
+      selected: -1,
       action: "trivial",
       state: null,
     };
@@ -57,8 +66,8 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
         return;
       }
       const card =
-        this.hands.props.selected >= 0
-          ? this.hands.props.cards[this.hands.props.selected]
+        this.props.selected >= 0
+          ? this.hands.props.cards[this.props.selected]
           : -1;
       if (this.props.action == "discard" && card >= 0) {
         return;
@@ -70,7 +79,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
         flip: true,
         preview: true,
       });
-    }, [this.hands.props.selected, this.props.enabled, this.props.action]);
+    }, [this.props.selected, this.props.enabled, this.props.action]);
 
     useEffect(() => {
       if (!this.props.state) {
