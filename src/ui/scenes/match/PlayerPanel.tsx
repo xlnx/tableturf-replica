@@ -1,8 +1,8 @@
-import { Box, Paper } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import { ReactComponent } from "../../../engine/ReactComponent";
 import { DarkButton } from "../../Theme";
 import { Hands } from "./Hands";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   enumerateBoardMoves,
   getCardById,
@@ -15,6 +15,8 @@ import { AlertDialog } from "../../components/AlertDialog";
 import { getLogger } from "loglevel";
 import { MessageBar } from "../../components/MessageBar";
 import { System } from "../../../engine/System";
+import { DeckPreview } from "./DeckPreview";
+import { MatchActivity } from "../../activities/MatchActivity";
 
 const logger = getLogger("player-panel");
 logger.setLevel("info");
@@ -35,7 +37,9 @@ interface PlayerPanelProps {
 }
 
 export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
-  private readonly hands = new Hands();
+  readonly hands = new Hands();
+  readonly preview = new DeckPreview();
+
   private detach: any[] = [];
 
   init(): PlayerPanelProps {
@@ -98,6 +102,78 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       });
     }, [this.props.enabled]);
 
+    const btnPanel = useMemo(
+      () => (
+        <div>
+          <DarkButton
+            disabled={!this.props.enabled}
+            selected={this.props.enabled && this.props.action == "discard"}
+            sx={{
+              position: "absolute",
+              left: 42,
+              top: 838,
+              width: 220,
+              height: 90,
+              "&.Mui-selected": {
+                backgroundColor: "#d2e332dd",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#d2e332ff",
+              },
+            }}
+            onClick={() =>
+              this.update({
+                action: this.props.action != "discard" ? "discard" : "trivial",
+              })
+            }
+          >
+            Pass
+          </DarkButton>
+          <DarkButton
+            disabled={!this.props.enabled}
+            selected={this.props.enabled && this.props.action == "special"}
+            sx={{
+              position: "absolute",
+              left: 292,
+              top: 838,
+              width: 220,
+              height: 90,
+              "&.Mui-selected": {
+                backgroundColor: "#d2e332dd",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "#d2e332ff",
+              },
+            }}
+            onClick={() =>
+              this.update({
+                action: this.props.action != "special" ? "special" : "trivial",
+              })
+            }
+          >
+            Special Attack!
+          </DarkButton>
+          <Button
+            sx={{
+              position: "absolute",
+              left: 570,
+              top: 215,
+              borderRadius: 9999,
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
+              p: 3,
+            }}
+            onClick={() =>
+              this.preview.update({ open: !this.preview.props.open })
+            }
+          >
+            Deck
+          </Button>
+        </div>
+      ),
+      [this.props.enabled, this.props.action]
+    );
+
     return (
       <Box
         sx={{
@@ -130,54 +206,17 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
             {this.hands.node}
           </Box>
         </Paper>
-        <DarkButton
-          disabled={!this.props.enabled}
-          selected={this.props.enabled && this.props.action == "discard"}
+        {btnPanel}
+        <Box
           sx={{
             position: "absolute",
-            left: 42,
-            top: 838,
-            width: 220,
-            height: 90,
-            "&.Mui-selected": {
-              backgroundColor: "#d2e332dd",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "#d2e332ff",
-            },
+            left: -8,
+            width: 0,
+            height: 0,
           }}
-          onClick={() =>
-            this.update({
-              action: this.props.action != "discard" ? "discard" : "trivial",
-            })
-          }
         >
-          Pass
-        </DarkButton>
-        <DarkButton
-          disabled={!this.props.enabled}
-          selected={this.props.enabled && this.props.action == "special"}
-          sx={{
-            position: "absolute",
-            left: 292,
-            top: 838,
-            width: 220,
-            height: 90,
-            "&.Mui-selected": {
-              backgroundColor: "#d2e332dd",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "#d2e332ff",
-            },
-          }}
-          onClick={() =>
-            this.update({
-              action: this.props.action != "special" ? "special" : "trivial",
-            })
-          }
-        >
-          Special Attack!
-        </DarkButton>
+          {this.preview.node}
+        </Box>
       </Box>
     );
   }
@@ -233,6 +272,11 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       await this.hands.update({
         cards,
         selected: -1,
+      });
+      await this.preview.update({
+        open: false,
+        deck: MatchActivity.props.deck.deck.slice(),
+        done: cards.slice(),
       });
       // give the browser 300ms to update layout
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -343,15 +387,18 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     const uiUpdate = async (G: IMatchState) => {
       const cards = Array(4);
       const { hand } = G.buffer.history.slice(-1)[0][player];
-      cards[hand] = G.game.players[player].hand[hand];
+      const card = G.game.players[player].hand[hand];
+      cards[hand] = card;
       await uiUpdateMask(G);
       await this.hands.uiUpdate(cards);
+      await this.preview.update({ done: [...this.preview.props.done, card] });
     };
 
     const uiRedraw = async (G: IMatchState) => {
       const cards = G.game.players[player].hand.slice();
       await uiUpdateMask(G);
       await this.hands.uiUpdate(cards);
+      await this.preview.update({ done: cards.slice() });
     };
 
     driver.on("redraw", async (playerID) => {
