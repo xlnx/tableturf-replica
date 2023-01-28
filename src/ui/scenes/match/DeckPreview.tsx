@@ -6,6 +6,7 @@ import { BasicButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
 
 interface DeckPreviewProps {
+  player: IPlayerId;
   open: boolean;
   deck: number[];
   done: number[];
@@ -14,6 +15,7 @@ interface DeckPreviewProps {
 export class DeckPreview extends ReactComponent<DeckPreviewProps> {
   init() {
     return {
+      player: 0,
       open: false,
       deck: [],
       done: [],
@@ -24,7 +26,7 @@ export class DeckPreview extends ReactComponent<DeckPreviewProps> {
     return (
       <Box
         className={
-          "deck-preview " +
+          `deck-preview-${this.props.player} ` +
           (this.props.open ? "deck-preview-open" : "deck-preview-closed")
         }
       >
@@ -34,7 +36,7 @@ export class DeckPreview extends ReactComponent<DeckPreviewProps> {
             p: 4,
             width: 580,
             height: 832,
-            top: 128,
+            top: 125,
             boxSizing: "border-box",
             boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
           }}

@@ -1,11 +1,17 @@
 @dt: 0.3s;
 
-.deck-preview-closed {
+.deck-preview-0.deck-preview-closed {
   transform: translateX(-64px);
   opacity: 0;
   pointer-events: none;
 }
 
-.deck-preview {
+.deck-preview-1.deck-preview-closed {
+  transform: translateX(64px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.deck-preview-0, .deck-preview-1 {
   transition: all @dt cubic-bezier(0.65, 0, 0.35, 1),
 }
