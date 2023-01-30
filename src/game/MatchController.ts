@@ -75,16 +75,20 @@ const Redraw: Move<IMatchState> = {
 
 const ToggleReady: Move<IMatchState> = {
   move: ({ G, playerID }) => {
+    // none-host
     if (G.meta.host != playerID) {
       G.buffer.ready[playerID] = !G.buffer.ready[playerID];
       return;
     }
+    // host, player not enough
     if (G.meta.players.length != 2) {
       return INVALID_MOVE;
     }
+    // host, some other player isn't ready
     if (!G.meta.players.every((i) => i == playerID || G.buffer.ready[i])) {
       return INVALID_MOVE;
     }
+    // host, ready
     G.buffer.ready[playerID] = true;
   },
   client: false,
@@ -232,8 +236,12 @@ export const MatchController: Game<IMatchState> = {
         activePlayers: ActivePlayers.ALL,
       },
       endIf: ({ G }) =>
+        // 2 players
         G.meta.players.length == 2 &&
-        G.meta.players.every((i) => G.buffer.ready[i]),
+        // every player is ready
+        G.meta.players.every((i) => G.buffer.ready[i]) &&
+        // host is ready
+        G.buffer.ready[G.meta.host],
       next: "beforeHandshake",
     },
 
