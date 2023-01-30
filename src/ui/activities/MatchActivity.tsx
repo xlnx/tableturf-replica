@@ -48,7 +48,7 @@ const styles = {
   },
 };
 
-function PlayerAvatar({ online, name, role, host, self, onClick }) {
+function PlayerAvatar({ online, name, role, ready, host, self, onClick }) {
   const btn = !online ? null : (
     <Button
       sx={{
@@ -92,6 +92,20 @@ function PlayerAvatar({ online, name, role, host, self, onClick }) {
               top: -70,
               color: "white",
               fontSize: "3rem",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        {!online || !ready ? null : (
+          <Box
+            sx={{
+              position: "absolute",
+              left: 60,
+              top: 60,
+              width: 50,
+              height: 50,
+              backgroundImage: "url(/textures/Check_00.webp)",
+              backgroundSize: "100% 100%",
               pointerEvents: "none",
             }}
           />
@@ -500,6 +514,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                     online={isConnected}
                     name={name}
                     role={role}
+                    ready={G.buffer.ready[id]}
                     host={playerID == G.meta.host}
                     self={playerID == match.playerID}
                     onClick={({ currentTarget }) =>
