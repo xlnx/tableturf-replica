@@ -72,13 +72,16 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       if (this.props.action == "discard" && card >= 0) {
         return;
       }
-      this.props.gui.uiUpdateSlots({
-        card,
-        discard: false,
-        show: card >= 0,
-        flip: true,
-        preview: true,
-      });
+      this.props.gui.uiUpdateSlots(
+        {
+          card,
+          discard: false,
+          show: card >= 0,
+          flip: true,
+          preview: true,
+        },
+        this.props.gui.props.slots[1]
+      );
     }, [this.props.selected, this.props.enabled, this.props.action]);
 
     useEffect(() => {
