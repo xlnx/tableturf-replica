@@ -460,6 +460,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         >
           {match.playerID == selectedPlayerID ? null : (
             <MenuItem
+              disabled={!isPreparing}
               onClick={() => {
                 console.assert(+selectedPlayerID != 0);
                 match.send("UpdateHost", selectedPlayerID);
@@ -470,7 +471,10 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
             </MenuItem>
           )}
           <MenuItem
-            disabled={selectedPlayerIdx < 0 && G.meta.players.length >= 2}
+            disabled={
+              !isPreparing ||
+              (selectedPlayerIdx < 0 && G.meta.players.length >= 2)
+            }
             onClick={() => {
               match.send("ToggleRole", selectedPlayerID);
               handleClose();
@@ -484,6 +488,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       // controller
       match,
       // G
+      isPreparing,
       G.meta.players.join(":"),
       // state
       state.playerMenuAnchorEl,
