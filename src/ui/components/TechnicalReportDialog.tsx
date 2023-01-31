@@ -28,7 +28,8 @@ class TechnicalReportDialog_0 extends ReactComponent<TechnicalReportDialogProps>
 
     const renderNavigator = () => {
       const { language, languages, userAgent, platform } = window.navigator;
-      let { connection, userAgentData } = window.navigator as any;
+      let { connection } = window.navigator as any;
+      const { userAgentData } = window.navigator as any;
       if (connection) {
         const { downlink, downlinkMax, effectiveType, rtt, saveData, type } =
           connection;
