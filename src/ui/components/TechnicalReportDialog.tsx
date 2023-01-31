@@ -7,6 +7,8 @@ import { BasicButton } from "../Theme";
 import { MessageBar } from "./MessageBar";
 import { DB } from "../../Database";
 import { WindowManager } from "../../engine/WindowManager";
+import { Platform } from "../../engine/Platform";
+import { System } from "../../engine/System";
 
 interface TechnicalReportDialogProps {
   open: boolean;
@@ -51,12 +53,17 @@ class TechnicalReportDialog_0 extends ReactComponent<TechnicalReportDialogProps>
 
     const renderApp = () => {
       return {
+        url: System.url.href,
         database: DB.read(),
         devicePixelRatio: window.devicePixelRatio,
         resolution: [
           WindowManager.renderer.width,
           WindowManager.renderer.height,
         ],
+        platform: {
+          isMobile: Platform.isMobile,
+          isWebkit: Platform.isWebKit,
+        },
         versions: {
           package: {
             git: __COMMIT_HASH__,
