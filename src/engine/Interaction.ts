@@ -55,6 +55,7 @@ export class Interaction {
       const evt = event.data.originalEvent;
       if (evt instanceof MouseEvent && evt.button != 0) {
         // only left btn is treated as mouse event
+        evt.preventDefault();
         return;
       }
       logger.debug("on pointerdown");
@@ -69,6 +70,7 @@ export class Interaction {
       const evt = event.data.originalEvent;
       if (evt instanceof MouseEvent && evt.button != 0) {
         // only left btn is treated as mouse event
+        evt.preventDefault();
         return;
       }
       logger.debug("on pointerup");
@@ -82,6 +84,7 @@ export class Interaction {
       const evt = event.data.originalEvent;
       if (evt instanceof MouseEvent && evt.button != 0) {
         // only left btn is treated as mouse event
+        evt.preventDefault();
         return;
       }
       logger.debug("on pointerupoutside");
@@ -93,6 +96,11 @@ export class Interaction {
     });
 
     window.addEventListener("wheel", (event: WheelEvent) => {
+      const e = event as any;
+      if (e.wheelDeltaY ? e.wheelDeltaY === -3 * e.deltaY : e.deltaMode === 0) {
+        // touchpad detected
+        return;
+      }
       const { clientX, clientY } = event;
       const { x, y } = root.getBoundingClientRect();
       const pos = new Point(clientX - x, clientY - y);
