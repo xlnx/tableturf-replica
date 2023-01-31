@@ -2,7 +2,7 @@ import { Window } from "../../../engine/Window";
 import { ColorPalette } from "../../ColorPalette";
 import { getLogger } from "loglevel";
 import { ReactNode } from "react";
-import { Box, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import { Theme } from "../../Theme";
 import { Match } from "../../../game/Match";
 import { PlayerPanel } from "./PlayerPanel";
@@ -27,6 +27,13 @@ class MatchWindow_0 extends Window {
     this.layout = this.gui.layout;
     this.playerPanel.update({ gui: this.gui });
     this.spectatorPanel.update({ gui: this.gui });
+
+    window.addEventListener("contextmenu", (evt) => {
+      // rough detection of right button
+      if (this.ui.visible && evt.button == 2) {
+        this.gui.board.uiRotateInput(1);
+      }
+    });
   }
 
   protected renderReact(): ReactNode {

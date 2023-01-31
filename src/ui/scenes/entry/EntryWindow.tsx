@@ -329,6 +329,13 @@ class EntryWindow_0 extends Window {
       acceptInput: true,
     });
     this.board.onInput((move) => this.panel.processMove(move));
+
+    window.addEventListener("contextmenu", (evt) => {
+      // rough detection of right button
+      if (this.ui.visible && evt.button == 2) {
+        this.board.uiRotateInput(1);
+      }
+    });
   }
 
   renderReact(): ReactNode {

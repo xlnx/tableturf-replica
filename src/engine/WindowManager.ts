@@ -36,6 +36,8 @@ class Canvas extends Component {
       powerPreference: "high-performance",
     });
 
+    this.app.view.oncontextmenu = () => false;
+
     this.app.stage = new PixiRootContainer();
     this.app.stage.addChild(this.ui);
 
