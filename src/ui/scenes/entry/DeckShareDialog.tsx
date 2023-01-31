@@ -313,7 +313,7 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
                 </Grid>
                 <Grid item xs={4}>
                   <BasicButton fullWidth onClick={() => this.props.resolve()}>
-                    Close
+                    Dismiss
                   </BasicButton>
                 </Grid>
               </Grid>

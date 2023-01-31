@@ -1,4 +1,11 @@
-import { Grid, Typography, Divider, IconButton } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Typography,
+  Divider,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { SettingsActivity } from "./SettingsActivity";
@@ -7,6 +14,8 @@ import { PublicMatchesActivity } from "./PublicMatchesActivity";
 import { MatchActivity } from "./MatchActivity";
 import { SocialIcon } from "react-social-icons";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import DeveloperModeIcon from "@mui/icons-material/DeveloperMode";
+import { TechnicalReportDialog } from "../components/TechnicalReportDialog";
 
 class RootActivity_0 extends Activity {
   init() {
@@ -62,6 +71,15 @@ class RootActivity_0 extends Activity {
               justifyContent: "flex-end",
             }}
           >
+            <Box sx={{ flexGrow: 1 }}>
+              <Tooltip title={"Technical report"}>
+                <IconButton
+                  onClick={() => TechnicalReportDialog.update({ open: true })}
+                >
+                  <DeveloperModeIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
             <IconButton
               onClick={() => window.open("https://discord.gg/fRT8ydhhxT")}
             >
