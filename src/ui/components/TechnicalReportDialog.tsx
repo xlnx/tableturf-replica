@@ -67,8 +67,8 @@ class TechnicalReportDialog_0 extends ReactComponent<TechnicalReportDialogProps>
         },
         versions: {
           package: {
-            git: __COMMIT_HASH__,
-            version: __APP_VERSION__,
+            // git: __COMMIT_HASH__,
+            // version: __APP_VERSION__,
           },
           react: React.version,
           pixijs: PixiVersion,
