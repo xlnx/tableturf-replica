@@ -68,6 +68,7 @@ class SettingsActivity_0 extends Activity<SettingsActivityProps> {
             <Grid item xs={6}>
               <BasicButton
                 fullWidth
+                disabled={!!nameError}
                 onClick={() => {
                   DB.update({ playerName: this.props.name });
                   MessageBar.success("your settings has been saved");
