@@ -58,7 +58,7 @@ const sorters = [
     cmp: stringComparator,
   },
   {
-    label: "Area",
+    label: "Block Count",
     key: ({ count }: ICard) => count.area,
     cmp: numberComparator,
   },
