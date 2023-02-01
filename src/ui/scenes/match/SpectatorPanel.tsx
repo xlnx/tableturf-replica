@@ -239,18 +239,22 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       await gui.hide();
     };
 
-    driver.on("finish", () => {
+    driver.on("finish", (playerID) => {
       if (!active) return;
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
-        await uiUpdate(G);
-        const li = G.game.board.count.area;
-        const e = li[0] - li[1];
-        const { matchData } = match.client;
-        console.log(matchData);
-        const [p1, p2] = G.meta.players.map((i) => matchData[+i].name);
+        let msg =
+          playerID == null
+            ? "Draw"
+            : `${match.client.matchData[playerID].name} win`;
+        if (G.game.round == 0) {
+          await uiUpdate(G);
+        } else {
+          const other = G.meta.players.find((e) => e != playerID);
+          msg = `${match.client.matchData[other].name} give up, ${match.client.matchData[playerID].name} win`;
+        }
         await AlertDialog.prompt({
-          msg: e == 0 ? "Draw" : `${e > 0 ? p1 : p2} win`,
+          msg,
           cancelMsg: null,
         });
         await exit();

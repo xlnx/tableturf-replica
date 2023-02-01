@@ -102,7 +102,7 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
           sx={{
             position: "absolute",
             left: 570,
-            top: 52,
+            top: 32,
           }}
         >
           {this.turnMeter.node}

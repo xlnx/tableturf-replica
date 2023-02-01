@@ -41,8 +41,7 @@ export class TurnMeter extends ReactComponent<TurnMeterProps> {
         sx={{
           position: "absolute",
           width: 180,
-          height: 180,
-          borderRadius: 9999,
+          height: 160,
           backgroundColor: "rgba(0, 0, 0, 0.3)",
           boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
           pointerEvents: "none",

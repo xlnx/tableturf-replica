@@ -42,6 +42,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
   readonly preview = new DeckPreview();
 
   private detach: any[] = [];
+  private match: Match;
 
   constructor() {
     super();
@@ -169,17 +170,40 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
             sx={{
               position: "absolute",
               left: 570,
-              top: 215,
-              borderRadius: 9999,
+              top: 200,
+              width: 180,
               backgroundColor: "rgba(0, 0, 0, 0.3)",
               boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
-              p: 3,
+              p: 1,
             }}
             onClick={() =>
               this.preview.update({ open: !this.preview.props.open })
             }
           >
-            Deck
+            Toggle Deck
+          </Button>
+          <Button
+            sx={{
+              position: "absolute",
+              left: 570,
+              top: 272,
+              width: 180,
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
+              p: 1,
+            }}
+            onClick={async () => {
+              const ok = await AlertDialog.prompt({
+                msg: "Give up and lose the match?",
+                okMsg: "OK",
+                cancelMsg: "Not now",
+              });
+              if (ok) {
+                this.match.send("GiveUp");
+              }
+            }}
+          >
+            Give Up
           </Button>
         </div>
       ),
@@ -240,6 +264,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     let player: IPlayerId = -1 as IPlayerId;
     let players: IPlayerId[] = [];
 
+    this.match = match;
     this.detach.forEach((f) => f());
     const driver = new MatchDriver(match);
 
@@ -443,16 +468,28 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       });
     };
 
-    driver.on("finish", () => {
+    driver.on("finish", (playerID) => {
       if (player < 0) return;
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
-        await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
-        G0 = G;
-        const li = G.game.board.count.area;
-        const e = li[players[0]] - li[players[1]];
+        // normal finish
+        let msg =
+          playerID == null
+            ? "Draw"
+            : `You ${playerID == match.playerID ? "win" : "lose"}`;
+        if (G.game.round == 0) {
+          await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
+          G0 = G;
+        } else {
+          if (playerID == match.playerID) {
+            const other = G.meta.players.find((e) => e != playerID);
+            msg = `${match.client.matchData[other].name} give up, you win`;
+          } else {
+            msg = "You give up";
+          }
+        }
         await AlertDialog.prompt({
-          msg: e == 0 ? "Draw" : `You ${e > 0 ? "win" : "lose"}`,
+          msg,
           cancelMsg: null,
         });
         await exit();
