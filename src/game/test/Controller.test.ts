@@ -215,12 +215,81 @@ test("test_transfer_host", async () => {
   p2.stop();
 });
 
+test("test_give_up", async () => {
+  const p1 = await client.createMatch({ playerName: "p1" });
+  const daemon = gateway.matches.get(p1.matchID);
+  await sleep();
+  const p2 = await client.joinMatch(p1.matchID, { playerName: "p2" });
+  await sleep();
+
+  const d1 = new MockMatchDriver(p1);
+  const d2 = new MockMatchDriver(p1);
+
+  for (let j = 0; j < 2; ++j) {
+    expect(daemon.client.getState().ctx.phase).toEqual("prepare");
+    p2.send("ToggleReady");
+    await sleep();
+    p1.send("ToggleReady");
+    await sleep();
+
+    let state = daemon.client.getState();
+    expect(state.ctx.phase).toEqual("handshake");
+    p1.send("Handshake", { deck: StarterDeck.slice() });
+    p2.send("Handshake", { deck: StarterDeck.slice() });
+    await sleep();
+
+    state = daemon.client.getState();
+    expect(state.ctx.phase).toEqual("play");
+    p1.send("PlayerMove", { action: "discard", hand: 0 });
+    await sleep();
+
+    p2.send("GiveUp");
+    await sleep();
+
+    state = daemon.client.getState();
+    expect(state.ctx.phase).toEqual("prepare");
+
+    const li = [
+      expect.objectContaining({ event: "start" }),
+      expect.objectContaining({ event: "round", args: [12] }),
+      expect.objectContaining({
+        event: "move",
+        args: [p1.playerID, expect.anything()],
+      }),
+      expect.objectContaining({
+        event: "giveup",
+        args: [p2.playerID],
+      }),
+      expect.objectContaining({
+        event: "finish",
+        args: [p1.playerID],
+      }),
+    ];
+
+    expect(d1.events).toEqual(li);
+    expect(d2.events).toEqual(li);
+
+    [d1, d2].forEach((driver) => driver.events.splice(0, driver.events.length));
+  }
+
+  p1.stop();
+  p2.stop();
+});
+
 class MockMatchDriver extends MatchDriver {
   readonly events: any[] = [];
 
   constructor(match: Match) {
     super(match);
-    for (const event of ["start", "round", "redraw", "move", "finish"]) {
+    for (const event of [
+      "start",
+      "round",
+      "redraw",
+      "move",
+      "giveup",
+      "finish",
+      "abort",
+    ]) {
       this.on(event as any, this.emitEvent.bind(this, event));
     }
   }

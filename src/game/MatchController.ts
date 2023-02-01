@@ -73,6 +73,18 @@ const Redraw: Move<IMatchState> = {
   ignoreStaleStateID: true,
 };
 
+const GiveUp: Move<IMatchState> = {
+  move: ({ G, playerID }) => {
+    const player = G.meta.players.indexOf(playerID);
+    if (player == -1) {
+      return INVALID_MOVE;
+    }
+    G.buffer.giveUp[player] = true;
+  },
+  client: false,
+  ignoreStaleStateID: true,
+};
+
 const ToggleReady: Move<IMatchState> = {
   move: ({ G, playerID }) => {
     // none-host
@@ -178,9 +190,10 @@ export const MatchController: Game<IMatchState> = {
       timeQuotaSec: null,
     },
     buffer: {
-      moves: [],
       ready: [],
       redrawQuota: [],
+      giveUp: [],
+      moves: [],
       cards: [],
       history: [],
     },
@@ -269,6 +282,7 @@ export const MatchController: Game<IMatchState> = {
         G.buffer = {
           ready: Array(N + 1).fill(false),
           redrawQuota: Array(2).fill(G.meta.redrawQuota),
+          giveUp: Array(2).fill(false),
           moves: Array(2).fill(null),
           cards: [],
           history: [],
@@ -278,7 +292,7 @@ export const MatchController: Game<IMatchState> = {
     },
 
     play: {
-      moves: { UpdateState, PlayerMove, Redraw },
+      moves: { UpdateState, PlayerMove, Redraw, GiveUp },
       turn: {
         activePlayers: ActivePlayers.ALL,
         endIf: ({ G }) => G.buffer.moves.every((e) => e),
@@ -295,7 +309,13 @@ export const MatchController: Game<IMatchState> = {
           }
         },
       },
-      endIf: ({ G }) => G.game.round == 0 || G.meta.players.length < 2,
+      endIf: ({ G }) =>
+        // game ends
+        G.game.round == 0 ||
+        // some player left
+        G.meta.players.length < 2 ||
+        // some player give up
+        G.buffer.giveUp.some((e) => e),
       next: "beforePrepare",
     },
   },

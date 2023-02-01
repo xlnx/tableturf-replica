@@ -26,7 +26,9 @@ interface IMatchMeta {
 // write = {everyone}
 interface IBufferState {
   ready: boolean[]; // playerID -> ready
+  // [p1, p2] -> ...
   redrawQuota: number[];
+  giveUp: boolean[];
   moves: IPlayerMovement[];
   cards: number[][];
   history: IPlayerMovement[][];
