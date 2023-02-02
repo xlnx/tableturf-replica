@@ -2,14 +2,8 @@ import { ClientState } from "boardgame.io/dist/types/src/client/client";
 import { EventDispatcher } from "./EventDispatcher";
 import { Match } from "./Match";
 
-type Event =
-  | "start"
-  | "round"
-  | "redraw"
-  | "move"
-  | "giveup"
-  | "finish"
-  | "abort";
+type Event = "start" | "round" | "redraw" | "move" | "finish" | "abort";
+type FinishReason = "normal" | "tle" | "giveup";
 
 export class MatchDriver extends EventDispatcher<Event> {
   private readonly moves: boolean[] = Array(2).fill(false);
@@ -18,16 +12,17 @@ export class MatchDriver extends EventDispatcher<Event> {
   constructor(readonly match: Match) {
     super();
     match.on("update", this.handleUpdate.bind(this));
-    const { G, ctx } = match.client.getState();
-    G.buffer.moves.forEach((move, i) => (this.moves[i] = !!move));
+    const state = match.client.getState();
+    if (state) {
+      state.G.buffer.moves.forEach((move, i) => (this.moves[i] = !!move));
+    }
   }
 
   on(event: "start", handler: () => any);
   on(event: "round", handler: (round: number) => any);
   on(event: "redraw", handler: (playerID: string) => any);
   on(event: "move", handler: (playerID: string, move: IPlayerMovement) => any);
-  on(event: "giveup", handler: (playerID: string) => any);
-  on(event: "finish", handler: (winPlayerID: string) => any);
+  on(event: "finish", handler: (winnerID: string, reason: FinishReason) => any);
   on(event: "abort", handler: () => any);
 
   on(event: Event, handler: any) {
@@ -73,23 +68,30 @@ export class MatchDriver extends EventDispatcher<Event> {
     };
     G.buffer.moves.forEach(checkMoveUpdate);
 
-    // exit play phase
-    if (ctx.phase != "play") {
-      // game terminated
-      if (G.game.round > 0) {
-        const [a, b] = G.buffer.giveUp;
-        // only someone can give up
+    // game terminated, may be caused by three reasons
+    // * someone disconnected -> abort
+    // * someone give up -> finish(winner, "giveup")
+    // * someone tle -> finish(winner, "tle")
+    if (ctx.phase != "play" && G.game.round > 0) {
+      const [a, b] = G.buffer.giveUp;
+      const [p1, p2] = G.meta.players;
+      if (G.buffer.tle) {
+        // someone tle
+        const [m1, m2] = G.buffer.moves;
+        // someone must not moved
+        console.assert(!m1 || !m2);
+        const winnerID = !m1 && !m2 ? null : m1 ? p1 : p2;
+        this.dispatchEvent("finish", winnerID, "tle");
+      } else if (a || b) {
+        // only one can give up
         console.assert(!(a && b));
-        if (!a && !b) {
-          // someone disconnected
-          this.dispatchEvent("abort");
-        } else {
-          const [p1, p2] = G.meta.players;
-          this.dispatchEvent("giveup", a ? p1 : p2);
-          this.dispatchEvent("finish", a ? p2 : p1);
-        }
-        return;
+        const winnerID = a ? p2 : p1;
+        this.dispatchEvent("finish", winnerID, "giveup");
+      } else {
+        // someone disconnected
+        this.dispatchEvent("abort");
       }
+      return;
     }
 
     // enter next round
@@ -103,7 +105,8 @@ export class MatchDriver extends EventDispatcher<Event> {
         // normal end
         const [a, b] = G.game.board.count.area;
         const [p1, p2] = G.meta.players;
-        this.dispatchEvent("finish", a > b ? p1 : b > a ? p2 : null);
+        const winnerID = a > b ? p1 : b > a ? p2 : null;
+        this.dispatchEvent("finish", winnerID, "normal");
       }
     }
   }
