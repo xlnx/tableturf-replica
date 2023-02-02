@@ -203,7 +203,7 @@ export const MatchController: Game<IMatchState> = {
       players: [],
       stage: 3,
       redrawQuota: 1,
-      stepTimeQuotaSec: null,
+      turnTimeQuotaSec: 0,
     },
     buffer: {
       ready: [],

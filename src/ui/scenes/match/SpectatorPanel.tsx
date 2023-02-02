@@ -239,7 +239,7 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       await gui.hide();
     };
 
-    driver.on("finish", (playerID) => {
+    driver.on("finish", (playerID, reason) => {
       if (!active) return;
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
@@ -247,11 +247,25 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
           playerID == null
             ? "Draw"
             : `${match.client.matchData[playerID].name} win`;
-        if (G.game.round == 0) {
-          await uiUpdate(G);
-        } else {
-          const other = G.meta.players.find((e) => e != playerID);
-          msg = `${match.client.matchData[other].name} give up, ${match.client.matchData[playerID].name} win`;
+        switch (reason) {
+          case "normal":
+            await uiUpdate(G);
+            break;
+          case "giveup":
+          case "tle":
+            if (playerID == null) {
+              console.assert(reason == "tle");
+              msg = "Both players time out, draw";
+            } else {
+              const name = match.client.matchData[playerID].name;
+              const other = G.meta.players.find((e) => e != playerID);
+              const otherName = match.client.matchData[other].name;
+              const what = reason == "giveup" ? "give up" : "time out";
+              msg = `${otherName} ${what}, ${name} win`;
+            }
+            break;
+          default:
+            console.error(`invalid reason: ${reason}`);
         }
         await AlertDialog.prompt({
           msg,

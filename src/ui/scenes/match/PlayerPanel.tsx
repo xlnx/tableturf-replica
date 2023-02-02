@@ -468,7 +468,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       });
     };
 
-    driver.on("finish", (playerID) => {
+    driver.on("finish", (playerID, reason) => {
       if (player < 0) return;
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
@@ -477,16 +477,33 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
           playerID == null
             ? "Draw"
             : `You ${playerID == match.playerID ? "win" : "lose"}`;
-        if (G.game.round == 0) {
-          await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
-          G0 = G;
-        } else {
-          if (playerID == match.playerID) {
-            const other = G.meta.players.find((e) => e != playerID);
-            msg = `${match.client.matchData[other].name} give up, you win`;
-          } else {
-            msg = "You give up";
-          }
+        switch (reason) {
+          case "normal":
+            await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
+            G0 = G;
+            break;
+          case "giveup":
+          case "tle":
+            if (playerID == null) {
+              console.assert(reason == "tle");
+              msg = "Both players time out, draw";
+            } else {
+              const other = G.meta.players.find((e) => e != playerID);
+              const otherName = match.client.matchData[other].name;
+              if (playerID == match.playerID) {
+                // you win
+                const what = reason == "giveup" ? "give up" : "time out";
+                msg = `${otherName} ${what}, you win`;
+              } else {
+                msg =
+                  reason == "giveup"
+                    ? "You give up"
+                    : `You time out, ${otherName} win`;
+              }
+            }
+            break;
+          default:
+            console.error(`invalid reason: ${reason}`);
         }
         await AlertDialog.prompt({
           msg,

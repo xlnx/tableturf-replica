@@ -312,6 +312,16 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     );
 
     const mainPanel = useMemo(() => {
+      const ttlMenuItems = [15, 30, 60, 120, 300, 0].map((ttl) => (
+        <MenuItem value={ttl} key={ttl}>
+          {!ttl
+            ? "Unlimited"
+            : ttl < 60
+            ? `${ttl} sec`
+            : `${Math.round(ttl / 60)} min`}
+        </MenuItem>
+      ));
+
       // main street, thunder point, x marks the garden, square squared, lakefront property, double gemini, river drift, box seats
       const stageMenuItems = [3, 6, 7, 5, 2, 1, 4, 0]
         .map(getStageById)
@@ -331,8 +341,26 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
           {name}
         </MenuItem>
       ));
+
       return (
         <>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              select
+              variant="standard"
+              label="Turn Time Limit"
+              disabled={isControlDisabled || !isHost}
+              value={G.meta.turnTimeQuotaSec}
+              onChange={({ target }) =>
+                match.send("UpdateMeta", {
+                  turnTimeQuotaSec: +target.value,
+                })
+              }
+            >
+              {ttlMenuItems}
+            </TextField>
+          </Grid>
           <Grid item xs={12}>
             <Tooltip
               followCursor
@@ -380,6 +408,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       // controller
       match,
       // values
+      G.meta.turnTimeQuotaSec,
       G.meta.stage,
       this.props.deck,
       // validate control
@@ -401,7 +430,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                 settingsOpen: !state.settingsOpen,
               }))
             }
-            maxBodyHeight={100}
+            maxBodyHeight={180}
           >
             <Grid container spacing={2}>
               <Grid item xs={12}>

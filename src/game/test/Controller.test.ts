@@ -279,7 +279,7 @@ test("test_tle", async () => {
   const daemon = gateway.matches.get(p1.matchID);
   await sleep();
 
-  p1.send("UpdateMeta", { stepTimeQuotaSec: 0.5 });
+  p1.send("UpdateMeta", { turnTimeQuotaSec: 0.5 });
   await sleep();
 
   const p2 = await client.joinMatch(p1.matchID, { playerName: "p2" });

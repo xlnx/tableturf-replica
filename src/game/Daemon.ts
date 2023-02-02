@@ -121,8 +121,9 @@ export class Daemon extends Client {
       this.countdown.cancel();
       this.countdown = null;
     }
-    const dt = this.client.getState().G.meta.stepTimeQuotaSec;
-    if (dt == null) {
+    const dt = this.client.getState().G.meta.turnTimeQuotaSec;
+    if (!dt) {
+      // ttl not specified
       return;
     }
     this.countdown = new Countdown(dt, () => {

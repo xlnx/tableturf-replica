@@ -15,7 +15,7 @@ interface IMatchMeta {
   players: string[]; // playerID[2]
   stage: number;
   redrawQuota: number;
-  stepTimeQuotaSec: number | null;
+  turnTimeQuotaSec: number;
 }
 
 // buffer state
