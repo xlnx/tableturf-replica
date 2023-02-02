@@ -185,7 +185,7 @@ export const MatchController: Game<IMatchState> = {
     meta: {
       host: "",
       players: [],
-      stage: 1,
+      stage: 3,
       redrawQuota: 1,
       timeQuotaSec: null,
     },

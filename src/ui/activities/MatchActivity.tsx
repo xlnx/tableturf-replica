@@ -18,7 +18,7 @@ import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
 import { MatchWindow } from "../scenes/match/MatchWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
-import { getStages } from "../../core/Tableturf";
+import { getStageById, getStages } from "../../core/Tableturf";
 import { isDeckValid } from "../../Terms";
 import { I18n } from "../../i18n/I18n";
 import { DB } from "../../Database";
@@ -312,15 +312,18 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     );
 
     const mainPanel = useMemo(() => {
-      const stageMenuItems = getStages().map((stage) => (
-        <MenuItem
-          value={stage.id}
-          key={stage.id}
-          disabled={!this.isStageSupported(stage.id)}
-        >
-          {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
-        </MenuItem>
-      ));
+      // main street, thunder point, x marks the garden, square squared, lakefront property, double gemini, river drift, box seats
+      const stageMenuItems = [3, 6, 7, 5, 2, 1, 4, 0]
+        .map(getStageById)
+        .map((stage) => (
+          <MenuItem
+            value={stage.id}
+            key={stage.id}
+            disabled={!this.isStageSupported(stage.id)}
+          >
+            {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
+          </MenuItem>
+        ));
 
       const decks = DB.read().decks.slice();
       const deckMenuItems = decks.map(({ name, deck }, i) => (
