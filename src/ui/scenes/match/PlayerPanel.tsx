@@ -401,7 +401,6 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       if (move) {
         match.send("PlayerMove", move);
       }
-      gui.panel.timeMeter.stop();
     };
 
     const queryRedraw = async (G: IMatchState) => {
