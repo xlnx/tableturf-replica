@@ -208,6 +208,7 @@ export const MatchController: Game<IMatchState> = {
     buffer: {
       ready: [],
       redrawQuota: [],
+      timestamp: "",
       tle: false,
       giveUp: [],
       moves: [],
@@ -299,6 +300,7 @@ export const MatchController: Game<IMatchState> = {
         G.buffer = {
           ready: Array(N + 1).fill(false),
           redrawQuota: Array(2).fill(G.meta.redrawQuota),
+          timestamp: new Date().toISOString(),
           tle: false,
           giveUp: Array(2).fill(false),
           moves: Array(2).fill(null),
@@ -324,6 +326,7 @@ export const MatchController: Game<IMatchState> = {
             G.buffer.moves = Array(2).fill(null);
             G.buffer.cards.push(cards);
             G.buffer.history.push(moves);
+            G.buffer.timestamp = new Date().toISOString();
           }
         },
       },

@@ -25,6 +25,7 @@ interface IBufferState {
   ready: boolean[]; // playerID -> ready
   // [p1, p2] -> ...
   redrawQuota: number[];
+  timestamp: string; // turn start time in iso string
   tle: boolean;
   giveUp: boolean[];
   moves: IPlayerMovement[];

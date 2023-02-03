@@ -28,7 +28,6 @@ class Countdown {
 export class Daemon extends Client {
   private joinable = false;
   private readonly playerCredentials: string[] = [];
-  private readonly driver: MatchDriver;
 
   private countdown: Countdown;
 
@@ -36,8 +35,34 @@ export class Daemon extends Client {
     super(opts);
     this.on("player-join", this.handlePlayerJoinMatch.bind(this));
     this.on("player-leave", this.handlePlayerLeaveMatch.bind(this));
-    this.driver = new MatchDriver(this);
-    this.driver.on("round", this.handleNewRound.bind(this));
+
+    const driver = new MatchDriver(this);
+
+    driver.on("round", (round) => {
+      // handle timer here
+      if (this.countdown) {
+        // cancel previous countdown
+        this.countdown.cancel();
+        this.countdown = null;
+      }
+      const dt = this.client.getState().G.meta.turnTimeQuotaSec;
+      if (!dt) {
+        // ttl not specified
+        return;
+      }
+      this.countdown = new Countdown(dt, () => {
+        // sync state with boardgame.io
+        this.send("HandleRoundTle", round);
+      });
+    });
+
+    driver.on("finish", () => {
+      this.countdown.cancel();
+    });
+
+    driver.on("abort", () => {
+      this.countdown.cancel();
+    });
   }
 
   isJoinable() {
@@ -112,23 +137,5 @@ export class Daemon extends Client {
       this.joinable = false;
       leave.then(() => this.stop());
     }
-  }
-
-  private handleNewRound(round: number) {
-    // handle timer here
-    if (this.countdown) {
-      // cancel previous countdown
-      this.countdown.cancel();
-      this.countdown = null;
-    }
-    const dt = this.client.getState().G.meta.turnTimeQuotaSec;
-    if (!dt) {
-      // ttl not specified
-      return;
-    }
-    this.countdown = new Countdown(dt, () => {
-      // sync state with boardgame.io
-      this.send("HandleRoundTle", round);
-    });
   }
 }
