@@ -38,13 +38,17 @@ export class Daemon extends Client {
 
     const driver = new MatchDriver(this);
 
-    driver.on("round", (round) => {
-      // handle timer here
+    const cancelCountdown = () => {
       if (this.countdown) {
         // cancel previous countdown
         this.countdown.cancel();
         this.countdown = null;
       }
+    };
+
+    driver.on("round", (round) => {
+      // handle timer here
+      cancelCountdown();
       const dt = this.client.getState().G.meta.turnTimeQuotaSec;
       if (!dt) {
         // ttl not specified
@@ -57,11 +61,11 @@ export class Daemon extends Client {
     });
 
     driver.on("finish", () => {
-      this.countdown.cancel();
+      cancelCountdown();
     });
 
     driver.on("abort", () => {
-      this.countdown.cancel();
+      cancelCountdown();
     });
   }
 
