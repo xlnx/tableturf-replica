@@ -170,23 +170,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
             sx={{
               position: "absolute",
               left: 570,
-              top: 200,
-              width: 180,
-              backgroundColor: "rgba(0, 0, 0, 0.3)",
-              boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
-              p: 1,
-            }}
-            onClick={() =>
-              this.preview.update({ open: !this.preview.props.open })
-            }
-          >
-            Toggle Deck
-          </Button>
-          <Button
-            sx={{
-              position: "absolute",
-              left: 570,
-              top: 272,
+              top: 210,
               width: 180,
               backgroundColor: "rgba(0, 0, 0, 0.3)",
               boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
@@ -204,6 +188,22 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
             }}
           >
             Give Up
+          </Button>
+          <Button
+            sx={{
+              position: "absolute",
+              left: 570,
+              top: 292,
+              width: 180,
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              boxShadow: "2px 2px rgba(0, 0, 0, 0.4)",
+              p: 1,
+            }}
+            onClick={() =>
+              this.preview.update({ open: !this.preview.props.open })
+            }
+          >
+            Toggle Deck
           </Button>
         </div>
       ),
@@ -297,6 +297,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       gui.board.update({ acceptInput: false });
       gui.board.uiUpdateOverlay(null);
       gui.szMeter.position.set(-315, 5);
+      gui.szMeter.position.set(-315, 65);
       gui.szMeter.roots.forEach((e) => e.position.set(0, 0));
       gui.spCutInAnim.position.set(0, 0);
       await gui.update({
