@@ -90,7 +90,7 @@ export class TimeMeter extends ReactComponent<TimeMeterProps> {
           sx={{
             textAlign: "center",
             justifyContent: "center",
-            color: timeSec > 0 && timeSec <= 10 ? "#f04833" : "white",
+            color: timeSec >= 0 && timeSec <= 10 ? "#f04833" : "white",
             fontFamily: "Splatoon2",
             textShadow: "2px 2px black",
             fontSize: 44,
