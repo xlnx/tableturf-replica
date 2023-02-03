@@ -396,17 +396,18 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       return move;
     };
 
-    const queryMovement = (G) => async () => {
+    const queryMovement = async (G) => {
       const move = await uiQueryPlayerMovement(G.game);
       if (move) {
         match.send("PlayerMove", move);
       }
+      gui.panel.timeMeter.stop();
     };
 
-    const queryRedraw = (G: IMatchState) => async () => {
+    const queryRedraw = async (G: IMatchState) => {
       const quota = G.buffer.redrawQuota[player];
       if (quota <= 0) {
-        gui.uiNonBlocking(queryMovement(G));
+        gui.uiNonBlocking(async () => await queryMovement(G));
         return;
       }
       const ok = await AlertDialog.prompt({
@@ -417,7 +418,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       if (ok) {
         match.send("Redraw");
       } else {
-        gui.uiNonBlocking(queryMovement(G));
+        gui.uiNonBlocking(async () => await queryMovement(G));
       }
     };
 
@@ -444,12 +445,14 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
         const { G } = match.client.getState();
         gui.uiBlocking(async () => await uiRedraw(G));
         G0 = G;
-        await queryRedraw(G)();
+        await queryRedraw(G);
       }
     });
 
     driver.on("round", (round) => {
       if (player < 0) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       if (round != 12) {
         gui.uiBlocking(async () => {
@@ -457,9 +460,19 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
           G0 = G;
         });
       }
-      if (round != 0) {
-        gui.uiNonBlocking(round == 12 ? queryRedraw(G) : queryMovement(G));
-      }
+      gui.uiNonBlocking(async () => {
+        if (G.meta.turnTimeQuotaSec > 0) {
+          gui.panel.timeMeter.start(
+            G.buffer.timestamp,
+            G.meta.turnTimeQuotaSec
+          );
+        }
+        if (round == 12) {
+          await queryRedraw(G);
+        } else {
+          await queryMovement(G);
+        }
+      });
     });
 
     const exit = async () => {
@@ -468,8 +481,10 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       });
     };
 
-    driver.on("finish", (playerID) => {
+    driver.on("finish", (playerID, reason) => {
       if (player < 0) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
         // normal finish
@@ -477,16 +492,33 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
           playerID == null
             ? "Draw"
             : `You ${playerID == match.playerID ? "win" : "lose"}`;
-        if (G.game.round == 0) {
-          await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
-          G0 = G;
-        } else {
-          if (playerID == match.playerID) {
-            const other = G.meta.players.find((e) => e != playerID);
-            msg = `${match.client.matchData[other].name} give up, you win`;
-          } else {
-            msg = "You give up";
-          }
+        switch (reason) {
+          case "normal":
+            await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
+            G0 = G;
+            break;
+          case "giveup":
+          case "tle":
+            if (playerID == null) {
+              console.assert(reason == "tle");
+              msg = "Both players time out, draw";
+            } else {
+              const other = G.meta.players.find((e) => e != playerID);
+              const otherName = match.client.matchData[other].name;
+              if (playerID == match.playerID) {
+                // you win
+                const what = reason == "giveup" ? "give up" : "time out";
+                msg = `${otherName} ${what}, you win`;
+              } else {
+                msg =
+                  reason == "giveup"
+                    ? "You give up"
+                    : `You time out, ${otherName} win`;
+              }
+            }
+            break;
+          default:
+            console.error(`invalid reason: ${reason}`);
         }
         await AlertDialog.prompt({
           msg,
@@ -498,6 +530,8 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
 
     driver.on("abort", async () => {
       if (player < 0) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       gui.uiBlocking(async () => {
         await AlertDialog.prompt({
           msg: "Match aborted",

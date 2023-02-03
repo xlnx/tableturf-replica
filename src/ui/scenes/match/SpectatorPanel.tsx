@@ -229,29 +229,55 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     driver.on("round", (round) => {
       if (!active) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       if (round != 12) {
         gui.uiBlocking(async () => await uiUpdate(G));
       }
+      gui.uiNonBlocking(async () => {
+        if (G.meta.turnTimeQuotaSec > 0) {
+          gui.panel.timeMeter.start(
+            G.buffer.timestamp,
+            G.meta.turnTimeQuotaSec
+          );
+        }
+      });
     });
 
     const exit = async () => {
       await gui.hide();
     };
 
-    driver.on("finish", (playerID) => {
+    driver.on("finish", (playerID, reason) => {
       if (!active) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
         let msg =
           playerID == null
             ? "Draw"
             : `${match.client.matchData[playerID].name} win`;
-        if (G.game.round == 0) {
-          await uiUpdate(G);
-        } else {
-          const other = G.meta.players.find((e) => e != playerID);
-          msg = `${match.client.matchData[other].name} give up, ${match.client.matchData[playerID].name} win`;
+        switch (reason) {
+          case "normal":
+            await uiUpdate(G);
+            break;
+          case "giveup":
+          case "tle":
+            if (playerID == null) {
+              console.assert(reason == "tle");
+              msg = "Both players time out, draw";
+            } else {
+              const name = match.client.matchData[playerID].name;
+              const other = G.meta.players.find((e) => e != playerID);
+              const otherName = match.client.matchData[other].name;
+              const what = reason == "giveup" ? "give up" : "time out";
+              msg = `${otherName} ${what}, ${name} win`;
+            }
+            break;
+          default:
+            console.error(`invalid reason: ${reason}`);
         }
         await AlertDialog.prompt({
           msg,
@@ -263,6 +289,8 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     driver.on("abort", async () => {
       if (!active) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       gui.uiBlocking(async () => {
         await AlertDialog.prompt({
           msg: "Match aborted",

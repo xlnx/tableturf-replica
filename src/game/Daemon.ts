@@ -2,19 +2,71 @@ import { LobbyAPI } from "boardgame.io";
 import { Client, ClientConnectOptions } from "./Client";
 import { LobbyClient } from "boardgame.io/client";
 import { MatchController } from "./MatchController";
+import { MatchDriver } from "./MatchDriver";
 import loglevel from "loglevel";
 
 const logger = loglevel.getLogger("daemon");
 logger.setLevel("debug");
 
+class Countdown {
+  private canceled = false;
+
+  constructor(timeSec: number, callback: () => void) {
+    setTimeout(() => {
+      // the event may have already been canceled
+      if (!this.canceled) {
+        callback();
+      }
+    }, timeSec * 1000);
+  }
+
+  cancel() {
+    this.canceled = true;
+  }
+}
+
 export class Daemon extends Client {
   private joinable = false;
   private readonly playerCredentials: string[] = [];
+
+  private countdown: Countdown;
 
   constructor(private readonly lobby: LobbyClient, opts: ClientConnectOptions) {
     super(opts);
     this.on("player-join", this.handlePlayerJoinMatch.bind(this));
     this.on("player-leave", this.handlePlayerLeaveMatch.bind(this));
+
+    const driver = new MatchDriver(this);
+
+    const cancelCountdown = () => {
+      if (this.countdown) {
+        // cancel previous countdown
+        this.countdown.cancel();
+        this.countdown = null;
+      }
+    };
+
+    driver.on("round", (round) => {
+      // handle timer here
+      cancelCountdown();
+      const dt = this.client.getState().G.meta.turnTimeQuotaSec;
+      if (!dt) {
+        // ttl not specified
+        return;
+      }
+      this.countdown = new Countdown(dt, () => {
+        // sync state with boardgame.io
+        this.send("HandleRoundTle", round);
+      });
+    });
+
+    driver.on("finish", () => {
+      cancelCountdown();
+    });
+
+    driver.on("abort", () => {
+      cancelCountdown();
+    });
   }
 
   isJoinable() {

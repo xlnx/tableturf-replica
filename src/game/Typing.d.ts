@@ -15,10 +15,7 @@ interface IMatchMeta {
   players: string[]; // playerID[2]
   stage: number;
   redrawQuota: number;
-  timeQuotaSec?: {
-    step: number;
-    game: number;
-  };
+  turnTimeQuotaSec: number;
 }
 
 // buffer state
@@ -28,6 +25,8 @@ interface IBufferState {
   ready: boolean[]; // playerID -> ready
   // [p1, p2] -> ...
   redrawQuota: number[];
+  timestamp: string; // turn start time in iso string
+  tle: boolean;
   giveUp: boolean[];
   moves: IPlayerMovement[];
   cards: number[][];
