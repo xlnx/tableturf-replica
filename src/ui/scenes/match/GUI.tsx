@@ -16,6 +16,7 @@ import { EntryWindow } from "../entry/EntryWindow";
 import { SpMeter } from "./SpMeter";
 import { Box } from "@mui/material";
 import { TurnMeter } from "./TurnMeter";
+import { TimeMeter } from "./TimeMeter";
 
 const logger = getLogger("gui");
 logger.setLevel("info");
@@ -52,6 +53,7 @@ const emptySlot = {
 class GUIPanel extends ReactComponent<GUIPanelProps> {
   readonly spMeter = [new SpMeter(), new SpMeter()];
   readonly turnMeter = new TurnMeter();
+  readonly timeMeter = new TimeMeter();
 
   init(): GUIPanelProps {
     return {
@@ -106,6 +108,15 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
           }}
         >
           {this.turnMeter.node}
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            left: 365,
+            top: 32,
+          }}
+        >
+          {this.timeMeter.node}
         </Box>
         {this.spMeter.map((e, i) => (
           <Box

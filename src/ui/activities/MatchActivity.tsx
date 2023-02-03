@@ -312,7 +312,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
     );
 
     const mainPanel = useMemo(() => {
-      const ttlMenuItems = [15, 30, 60, 120, 300, 0].map((ttl) => (
+      const ttlMenuItems = [30, 60, 120, 300, 0].map((ttl) => (
         <MenuItem value={ttl} key={ttl}>
           {!ttl
             ? "Unlimited"
