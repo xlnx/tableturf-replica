@@ -229,10 +229,20 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     driver.on("round", (round) => {
       if (!active) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       if (round != 12) {
         gui.uiBlocking(async () => await uiUpdate(G));
       }
+      gui.uiNonBlocking(async () => {
+        if (G.meta.turnTimeQuotaSec > 0) {
+          gui.panel.timeMeter.start(
+            G.buffer.timestamp,
+            G.meta.turnTimeQuotaSec
+          );
+        }
+      });
     });
 
     const exit = async () => {
@@ -241,6 +251,8 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     driver.on("finish", (playerID, reason) => {
       if (!active) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
         let msg =
@@ -277,6 +289,8 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
 
     driver.on("abort", async () => {
       if (!active) return;
+      gui.panel.timeMeter.stop();
+      gui.panel.timeMeter.update({ timeSec: -1 });
       gui.uiBlocking(async () => {
         await AlertDialog.prompt({
           msg: "Match aborted",
