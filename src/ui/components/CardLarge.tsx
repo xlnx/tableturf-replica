@@ -200,7 +200,7 @@ function renderSvg(card: ICard, player: IPlayerId) {
               values: spMeter,
             }}
             width={160 / 2}
-            padding={8}
+            padding={0.3}
           />
         </g>
         <g
@@ -404,7 +404,7 @@ function renderWebKit(card: ICard, player: IPlayerId) {
             values: spMeter,
           }}
           width={160 / 2}
-          padding={8}
+          padding={0.3}
         />
       </div>
       <div
