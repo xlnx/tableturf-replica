@@ -7,7 +7,6 @@ import { BoardComponent } from "../../BoardComponent";
 import { ColorPalette } from "../../ColorPalette";
 import { SpCutInAnimation } from "../../SpCutInAnimation";
 import { SzMeterComponent } from "../../SzMeterComponent";
-import { CardSlot } from "./CardSlot";
 import { ReactNode } from "react";
 import { InkResetAnimation } from "../../InkResetAnimation";
 import { ActivityPanel } from "../../Activity";
@@ -21,34 +20,10 @@ import { TimeMeter } from "./TimeMeter";
 const logger = getLogger("gui");
 logger.setLevel("info");
 
-interface SlotState {
-  card: number;
-  discard: boolean;
-  show: boolean;
-  preview: boolean;
-  flip: boolean;
-}
-
-interface GUIResetOptions {
-  flipCards?: boolean;
-}
-
 interface GUIPanelProps {
   G: IMatchState;
   player: IPlayerId;
-  slots: SlotState[];
-  visibility: {
-    slots: boolean;
-  };
 }
-
-const emptySlot = {
-  card: -1,
-  discard: false,
-  show: false,
-  flip: false,
-  preview: true,
-};
 
 class GUIPanel extends ReactComponent<GUIPanelProps> {
   readonly spMeter = [new SpMeter(), new SpMeter()];
@@ -59,10 +34,6 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
     return {
       G: null,
       player: 0,
-      slots: [emptySlot, emptySlot],
-      visibility: {
-        slots: true,
-      },
     };
   }
 
@@ -76,30 +47,6 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
   render() {
     return (
       <div>
-        <div
-          style={{
-            position: "absolute",
-            top: 315,
-            left: 1585,
-            pointerEvents: "none",
-            visibility: this.props.visibility.slots ? "visible" : "hidden",
-          }}
-        >
-          {this.props.slots.map(({ card, discard, show, flip, preview }, i) => (
-            <div style={{ position: "absolute" }} key={i}>
-              <CardSlot
-                card={card}
-                discard={discard}
-                width={292}
-                player={i as IPlayerId}
-                dy={220 * (1 - 2 * i)}
-                preview={preview}
-                show={show}
-                flip={flip}
-              />
-            </div>
-          ))}
-        </div>
         <Box
           sx={{
             position: "absolute",
@@ -132,12 +79,9 @@ class GUIPanel extends ReactComponent<GUIPanelProps> {
 }
 
 export class GUI {
-  match: Match;
-
   readonly board: BoardComponent;
   readonly szMeter: SzMeterComponent;
   readonly spCutInAnim: SpCutInAnimation;
-
   readonly panel = new GUIPanel();
 
   private uiTask = new Promise<void>((resolve) => resolve());
@@ -192,12 +136,19 @@ export class GUI {
         height: 1040,
       },
     });
+
+    this.spCutInAnim = new SpCutInAnimation();
+    this.spCutInAnim.scaleToFit(this.layout.width, this.layout.height);
+    window.addChild(this.spCutInAnim);
+  }
+
+  bind(match: Match) {
     this.board.onUpdateInput((e, ok) => {
       if (!ok) {
         this.szMeter.update({ preview: false });
       } else {
-        const { G } = this.match.client.getState();
-        const player = G.meta.players.indexOf(this.match.playerID);
+        const { G } = match.client.getState();
+        const player = G.meta.players.indexOf(match.playerID);
         const { count } = moveBoard(G.game.board, [e]);
         this.szMeter.update({
           preview: true,
@@ -206,13 +157,12 @@ export class GUI {
         });
       }
     });
-
-    this.spCutInAnim = new SpCutInAnimation();
-    this.spCutInAnim.scaleToFit(this.layout.width, this.layout.height);
-    window.addChild(this.spCutInAnim);
   }
 
   render(): ReactNode {
+    (window as any).displayProps = () => {
+      console.log(this.board.props);
+    };
     return this.panel.node;
   }
 
@@ -232,23 +182,18 @@ export class GUI {
     this.uiTask.then(task);
   }
 
-  uiUpdateSlots(s1?: SlotState, s2?: SlotState) {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.update({ slots: [s1 || emptySlot, s2 || emptySlot] });
-  }
-
   async uiUpdate(
-    G: IMatchState,
-    G0: IMatchState,
+    game: IGameState,
+    game0: IGameState,
+    moves: IPlayerMovement[],
+    cards: number[],
     players: IPlayerId[],
-    task: () => Promise<void> = async () => {}
+    phases: { [key: number]: () => Promise<void> } = {}
   ) {
     const sleep = (t: number) =>
       new Promise((resolve) => setTimeout(resolve, t * 1000));
 
     const dt = 0.8;
-    const moves = G.buffer.history.slice(-1)[0];
-    const cards = G.buffer.cards.slice(-1)[0];
 
     // play sp animations
     if (moves.some((e) => e.action == "special")) {
@@ -261,44 +206,31 @@ export class GUI {
         this.panel.spMeter.map(async (meter, i) => {
           await meter.update({
             preview: -1,
-            count: G.game.players[players[i]].count.special,
+            count: game.players[players[i]].count.special,
           });
         })
       );
     }
 
     // show cards
-    let slots = this.props.slots.map((_, i) => {
-      return {
-        card: cards[players[i]],
-        discard: moves[players[i]].action == "discard",
-        show: true,
-        preview: false,
-        flip: true,
-      };
-    });
-    logger.log(slots);
-    await this.update({ slots });
-    await sleep(0.3);
+    phases[2] && (await phases[2]());
 
     // put cards
-    for (const li of G.game.prevMoves) {
+    for (const li of game.prevMoves) {
       await sleep(dt);
       await this.board.uiPlaceCards(li);
     }
 
     // update sp fire
     if (
-      G.game.board.count.special.some(
-        (v, i) => v != G0.game.board.count.special[i]
-      )
+      game.board.count.special.some((v, i) => v != game0.board.count.special[i])
     ) {
       await sleep(dt);
       this.board.uiUpdateFire();
     }
 
     // update counters
-    const count = players.map((i) => G.game.players[i].count);
+    const count = players.map((i) => game.players[i].count);
     await sleep(dt);
     await Promise.all([
       this.szMeter.uiUpdate(count[0].area, count[1].area),
@@ -307,52 +239,25 @@ export class GUI {
     ]);
 
     // game may terminate here
-    if (G.game.round == 0) {
+    if (game.round == 0) {
       return;
     }
 
     // prepare for next round
-    slots = slots.map(({ card, discard }) => ({
-      card,
-      discard,
-      show: false,
-      preview: false,
-      flip: true,
-    }));
-    await this.update({ slots });
-    await Promise.all([
-      task(),
-      this.panel.turnMeter.uiUpdate(G.game.round),
-      sleep(0.3),
-    ]);
-    this.uiUpdateSlots();
+    phases[3] && (await phases[3]());
+
+    const li = [this.panel.turnMeter.uiUpdate(game.round)];
+    phases[4] && li.push(phases[4]());
+    await Promise.all(li);
   }
 
-  async reset(
-    G: IMatchState,
-    players: IPlayerId[],
-    { flipCards = false }: GUIResetOptions = {}
-  ) {
+  async reset(game: IGameState, players: { id: IPlayerId; name: string }[]) {
     this.board.update({
-      playerId: players[0],
+      playerId: players[0].id,
       acceptInput: false,
     });
-    this.board.uiReset(G.game.board);
-    const [s1, s2] = G.buffer.moves.map((move, i) => {
-      if (move == null) {
-        return null;
-      }
-      const { hand, action } = move;
-      return {
-        card: G.game.players[i].hand[hand],
-        discard: action == "discard",
-        show: flipCards,
-        preview: false,
-        flip: flipCards,
-      };
-    });
-    this.uiUpdateSlots(s1, s2);
-    const count = players.map((i) => G.game.players[i].count);
+    this.board.uiReset(game.board);
+    const count = players.map(({ id }) => game.players[id].count);
     this.szMeter.update({
       value1: count[0].area,
       value2: count[1].area,
@@ -360,13 +265,13 @@ export class GUI {
     await Promise.all(
       this.panel.spMeter.map((meter, i) =>
         meter.update({
-          name: this.match.client.matchData[G.meta.players[players[i]]].name,
+          name: players[i].name,
           preview: -1,
           count: count[i].special,
         })
       )
     );
-    this.panel.turnMeter.update({ count: G.game.round });
+    this.panel.turnMeter.update({ count: game.round });
   }
 
   async show(task: () => Promise<void> = async () => {}) {

@@ -7,6 +7,11 @@ import { GUI } from "./GUI";
 import { Hands } from "./Hands";
 import { getCardById, moveBoard } from "../../../core/Tableturf";
 import { DeckPreview } from "./DeckPreview";
+import { getLogger } from "loglevel";
+import { ReplayListActivity } from "../../activities/ReplayListActivity";
+
+const logger = getLogger("spectator-panel");
+logger.setLevel("info");
 
 interface SpectatorPanelProps {
   gui: GUI;
@@ -97,26 +102,33 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
   }
 
   bind(match: Match) {
+    if (match == null) {
+      this.update({ active: false });
+      return;
+    }
+
     const { gui } = this.props;
 
     let G0 = match.client.getState().G;
     const players: IPlayerId[] = [0, 1];
+    let playerNames: string[] = [];
     let active = false;
 
     this.detach.forEach((f) => f());
     const driver = new MatchDriver(match);
 
     const uiReset = async (G: IMatchState) => {
+      gui.board.scale.set(1);
       gui.board.position.set(8, -16);
       gui.board.update({ acceptInput: false });
       gui.board.uiUpdateOverlay(null);
       gui.szMeter.position.set(-500, 300);
       gui.szMeter.roots[1].position.set(980, 190);
       gui.spCutInAnim.position.set(-86, 0);
-      await gui.update({
-        visibility: { slots: false },
-      });
-      await gui.reset(G, players, { flipCards: true });
+      await gui.reset(
+        G.game,
+        players.map((id) => ({ id, name: playerNames[id] }))
+      );
       await Promise.all(
         G.game.players.map(async ({ hand, deck }, i) => {
           await this.hands[i].update({ cards: hand });
@@ -173,6 +185,9 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       const { G } = match.client.getState();
       G0 = G;
       active = G.meta.players.indexOf(match.playerID) < 0;
+      playerNames = players.map(
+        (i) => match.client.matchData[G.meta.players[i]].name
+      );
       this.update({ active });
       if (!active) return;
       gui.show(async () => await uiReset(G));
@@ -196,21 +211,30 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       await Promise.all(
         gui.panel.spMeter.map((meter, i) => meter.update({ preview: -1 }))
       );
-      await gui.uiUpdate(G, G0, players, async () => {
-        await Promise.all(
-          [0, 1].map(async (i) => {
-            const cards = Array(4);
-            const { hand } = G.buffer.history.slice(-1)[0][i];
-            const card = G.game.players[i].hand[hand];
-            cards[hand] = card;
-            await this.hands[i].update({ mask: Array(4).fill(true) });
-            await this.hands[i].uiUpdate(cards);
-            await this.preview[i].update({
-              done: [...this.preview[i].props.done, card],
-            });
-          })
-        );
-      });
+      await gui.uiUpdate(
+        G.game,
+        G0.game,
+        G.buffer.prevMoves,
+        G.buffer.cards.slice(-1)[0],
+        players,
+        {
+          "4": async () => {
+            await Promise.all(
+              [0, 1].map(async (i) => {
+                const cards = Array(4);
+                const { hand } = G.buffer.prevMoves[i];
+                const card = G.game.players[i].hand[hand];
+                cards[hand] = card;
+                await this.hands[i].update({ mask: Array(4).fill(true) });
+                await this.hands[i].uiUpdate(cards);
+                await this.preview[i].update({
+                  done: [...this.preview[i].props.done, card],
+                });
+              })
+            );
+          },
+        }
+      );
       G0 = G;
     };
 
@@ -249,31 +273,30 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       await gui.hide();
     };
 
-    driver.on("finish", (playerID, reason) => {
+    driver.on("finish", (replay) => {
       if (!active) return;
       gui.panel.timeMeter.stop();
       gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
+        const winnerID = G.meta.players[replay.winner];
         let msg =
-          playerID == null
-            ? "Draw"
-            : `${match.client.matchData[playerID].name} win`;
+          winnerID == null ? "Draw" : `${playerNames[replay.winner]} win`;
+        const { finishReason: reason } = replay;
         switch (reason) {
           case "normal":
             await uiUpdate(G);
             break;
           case "giveup":
           case "tle":
-            if (playerID == null) {
+            if (winnerID == null) {
               console.assert(reason == "tle");
               msg = "Both players time out, draw";
             } else {
-              const name = match.client.matchData[playerID].name;
-              const other = G.meta.players.find((e) => e != playerID);
-              const otherName = match.client.matchData[other].name;
               const what = reason == "giveup" ? "give up" : "time out";
-              msg = `${otherName} ${what}, ${name} win`;
+              msg = `${playerNames[1 - replay.winner]} ${what}, ${
+                playerNames[replay.winner]
+              } win`;
             }
             break;
           default:
@@ -283,6 +306,7 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
           msg,
           cancelMsg: null,
         });
+        ReplayListActivity.addReplay({ ...replay, players: playerNames });
         await exit();
       });
     });

@@ -81,6 +81,11 @@ const Redraw: Move<IMatchState> = {
     const { players } = G.game;
     let { hand, deck } = players[player];
     deck = random.Shuffle(hand.concat(deck));
+    // TODO: support partial redraw
+    G.replay.redraws[player].push({
+      hands: [0, 1, 2, 3],
+      deck: deck.slice(),
+    });
     hand = deck.splice(0, 4);
     players[player] = { ...players[player], hand, deck };
     G.buffer.redrawQuota[player] -= 1;
@@ -212,8 +217,8 @@ export const MatchController: Game<IMatchState> = {
       tle: false,
       giveUp: [],
       moves: [],
+      prevMoves: [],
       cards: [],
-      history: [],
     },
   }),
 
@@ -226,6 +231,7 @@ export const MatchController: Game<IMatchState> = {
     if (ctx.phase != "play") {
       return G;
     }
+    delete G.replay;
     const player = G.meta.players.indexOf(playerID);
     if (player == -1) {
       return G;
@@ -246,7 +252,6 @@ export const MatchController: Game<IMatchState> = {
       buffer: {
         ...buffer,
         moves: buffer.moves.map((e) => (e ? {} : null)),
-        history: buffer.history.slice(-1),
       },
     };
   },
@@ -296,7 +301,8 @@ export const MatchController: Game<IMatchState> = {
     beforePlay: {
       endIf: () => true,
       onEnd: ({ G, random }) => {
-        G.game = initGame(G.meta.stage, G.daemon.decks.map(random.Shuffle));
+        const decks = G.daemon.decks.map(random.Shuffle);
+        G.game = initGame(G.meta.stage, decks.slice());
         G.buffer = {
           ready: Array(N + 1).fill(false),
           redrawQuota: Array(2).fill(G.meta.redrawQuota),
@@ -304,8 +310,19 @@ export const MatchController: Game<IMatchState> = {
           tle: false,
           giveUp: Array(2).fill(false),
           moves: Array(2).fill(null),
+          prevMoves: [],
           cards: [],
-          history: [],
+        };
+        G.replay = {
+          players: [],
+          winner: null,
+          finishReason: "normal",
+          startTime: new Date().toISOString(),
+          finishTime: "",
+          stage: G.meta.stage,
+          decks,
+          redraws: [[], []],
+          moves: [],
         };
       },
       next: "play",
@@ -324,9 +341,10 @@ export const MatchController: Game<IMatchState> = {
             );
             G.game = moveGame(G.game, moves);
             G.buffer.moves = Array(2).fill(null);
+            G.buffer.prevMoves = moves;
             G.buffer.cards.push(cards);
-            G.buffer.history.push(moves);
             G.buffer.timestamp = new Date().toISOString();
+            G.replay.moves.push(moves);
           }
         },
       },
@@ -339,6 +357,31 @@ export const MatchController: Game<IMatchState> = {
         G.buffer.giveUp.some((e) => e) ||
         // tle
         G.buffer.tle,
+      onEnd: ({ G }) => {
+        if (G.game.round == 0) {
+          const [a, b] = G.game.board.count.area;
+          G.replay.winner = a > b ? 0 : b > a ? 1 : null;
+          return;
+        }
+        const [a, b] = G.buffer.giveUp;
+        if (G.buffer.tle) {
+          const [m1, m2] = G.buffer.moves;
+          // someone must not moved
+          console.assert(!m1 || !m2);
+          G.replay.finishReason = "tle";
+          G.replay.winner = !m1 && !m2 ? null : m1 ? 0 : 1;
+        } else if (a || b) {
+          // only one can give up
+          console.assert(!(a && b));
+          G.replay.finishReason = "giveup";
+          G.replay.winner = a ? 1 : 0;
+        } else {
+          // some player left
+          console.assert(G.meta.players.length < 2);
+          G.replay = null;
+          return;
+        }
+      },
       next: "beforePrepare",
     },
   },

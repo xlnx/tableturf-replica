@@ -10,12 +10,13 @@ import { Activity } from "../Activity";
 import { BasicButton } from "../Theme";
 import { SettingsActivity } from "./SettingsActivity";
 import { JoinMatchActivity } from "./JoinMatchActivity";
-import { PublicMatchesActivity } from "./PublicMatchesActivity";
+import { PublicMatchListActivity } from "./PublicMatchListActivity";
 import { MatchActivity } from "./MatchActivity";
 import { SocialIcon } from "react-social-icons";
+import { TechnicalReportDialog } from "../components/TechnicalReportDialog";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import DeveloperModeIcon from "@mui/icons-material/DeveloperMode";
-import { TechnicalReportDialog } from "../components/TechnicalReportDialog";
+import { ReplayListActivity } from "./ReplayListActivity";
 
 class RootActivity_0 extends Activity {
   init() {
@@ -40,8 +41,16 @@ class RootActivity_0 extends Activity {
             </BasicButton>
           </Grid>
           <Grid item xs={12}>
-            <BasicButton fullWidth onClick={() => PublicMatchesActivity.show()}>
+            <BasicButton
+              fullWidth
+              onClick={() => PublicMatchListActivity.show()}
+            >
               Public Match List
+            </BasicButton>
+          </Grid>
+          <Grid item xs={12}>
+            <BasicButton fullWidth onClick={() => ReplayListActivity.show()}>
+              Replay List
             </BasicButton>
           </Grid>
           <Grid item xs={12}>

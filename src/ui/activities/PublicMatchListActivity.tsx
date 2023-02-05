@@ -8,12 +8,12 @@ import { Gateway } from "../Gateway";
 import { LobbyAPI } from "boardgame.io";
 import { MessageBar } from "../components/MessageBar";
 
-interface PublicMatchesActivityProps {
+interface PublicMatchListActivityProps {
   matches: LobbyAPI.Match[];
   prevQueryDate: Date;
 }
 
-class PublicMatchesActivity_0 extends Activity<PublicMatchesActivityProps> {
+class PublicMatchListActivity_0 extends Activity<PublicMatchListActivityProps> {
   init() {
     return {
       zIndex: 1,
@@ -53,7 +53,7 @@ class PublicMatchesActivity_0 extends Activity<PublicMatchesActivityProps> {
   render() {
     return (
       <div>
-        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+        <Grid container spacing={2} sx={{ p: 2, flexGrow: 1 }}>
           {this.props.matches.map(({ matchID, setupData: { matchName } }) => (
             <Grid item xs={12} key={matchID}>
               <Button
@@ -96,4 +96,4 @@ class PublicMatchesActivity_0 extends Activity<PublicMatchesActivityProps> {
   }
 }
 
-export const PublicMatchesActivity = new PublicMatchesActivity_0();
+export const PublicMatchListActivity = new PublicMatchListActivity_0();

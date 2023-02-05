@@ -17,11 +17,11 @@ import { MessageBar } from "../../components/MessageBar";
 import { System } from "../../../engine/System";
 import { DeckPreview } from "./DeckPreview";
 import { MatchActivity } from "../../activities/MatchActivity";
+import { ReplayListActivity } from "../../activities/ReplayListActivity";
+import { CardSlot } from "./CardSlot";
 
 const logger = getLogger("player-panel");
 logger.setLevel("info");
-
-type Action = "discard" | "trivial" | "special";
 
 interface MatchState {
   player: IPlayerId;
@@ -29,13 +29,30 @@ interface MatchState {
   handSpMask: boolean[];
 }
 
+interface SlotState {
+  card: number;
+  discard: boolean;
+  show: boolean;
+  preview: boolean;
+  flip: boolean;
+}
+
 interface PlayerPanelProps {
   gui: GUI;
   enabled: boolean;
   selected: number;
-  action: Action;
+  action: "discard" | "trivial" | "special";
   state: MatchState;
+  slots: SlotState[];
 }
+
+const emptySlots: SlotState[] = Array(2).fill({
+  card: -1,
+  discard: false,
+  show: false,
+  flip: false,
+  preview: true,
+});
 
 export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
   readonly hands = new Hands();
@@ -58,6 +75,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       selected: -1,
       action: "trivial",
       state: null,
+      slots: emptySlots,
     };
   }
 
@@ -73,16 +91,18 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       if (this.props.action == "discard" && card >= 0) {
         return;
       }
-      this.props.gui.uiUpdateSlots(
-        {
-          card,
-          discard: false,
-          show: card >= 0,
-          flip: true,
-          preview: true,
-        },
-        this.props.gui.props.slots[1]
-      );
+      this.update({
+        slots: [
+          {
+            card,
+            discard: false,
+            show: card >= 0,
+            flip: true,
+            preview: true,
+          },
+          this.props.slots[1],
+        ],
+      });
     }, [this.props.selected, this.props.enabled, this.props.action]);
 
     useEffect(() => {
@@ -219,6 +239,29 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
               : "hidden",
         }}
       >
+        <div
+          style={{
+            position: "absolute",
+            top: 315,
+            left: 1585,
+            pointerEvents: "none",
+          }}
+        >
+          {this.props.slots.map(({ card, discard, show, flip, preview }, i) => (
+            <div style={{ position: "absolute" }} key={i}>
+              <CardSlot
+                card={card}
+                discard={discard}
+                width={292}
+                player={i as IPlayerId}
+                dy={220 * (1 - 2 * i)}
+                preview={preview}
+                show={show}
+                flip={flip}
+              />
+            </div>
+          ))}
+        </div>
         <Paper
           sx={{
             position: "absolute",
@@ -258,15 +301,24 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
   }
 
   bind(match: Match) {
+    if (match == null) {
+      this.update({ state: null });
+      return;
+    }
+
     const { gui } = this.props;
 
     let G0 = match.client.getState().G;
     let player: IPlayerId = -1 as IPlayerId;
     let players: IPlayerId[] = [];
+    let playerNames: string[] = [];
 
     this.match = match;
     this.detach.forEach((f) => f());
     const driver = new MatchDriver(match);
+
+    const sleep = (t: number) =>
+      new Promise((resolve) => setTimeout(resolve, t * 1000));
 
     const uiUpdateMask = async (G: IMatchState) => {
       const { game } = G;
@@ -293,6 +345,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     };
 
     const uiReset = async (G: IMatchState) => {
+      gui.board.scale.set(1);
       gui.board.position.set(194, -16);
       gui.board.update({ acceptInput: false });
       gui.board.uiUpdateOverlay(null);
@@ -300,10 +353,11 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       gui.szMeter.position.set(-315, 65);
       gui.szMeter.roots.forEach((e) => e.position.set(0, 0));
       gui.spCutInAnim.position.set(0, 0);
-      await gui.update({
-        visibility: { slots: true },
-      });
-      await gui.reset(G, players);
+      await this.update({ slots: emptySlots });
+      await gui.reset(
+        G.game,
+        players.map((id) => ({ id, name: playerNames[id] }))
+      );
       await uiUpdateMask(G);
       const playerState = G.game.players[player];
       const cards = playerState.hand;
@@ -325,6 +379,9 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       G0 = G;
       player = G.meta.players.indexOf(match.playerID) as IPlayerId;
       players = [player, (1 - player) as IPlayerId];
+      playerNames = players.map(
+        (i) => match.client.matchData[G.meta.players[i]].name
+      );
       if (player < 0) return;
       gui.show(async () => await uiReset(G));
     });
@@ -332,7 +389,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
     driver.on("move", (playerID) => {
       if (player < 0) return;
       gui.uiNonBlocking(async () => {
-        const slots = gui.props.slots.slice();
+        const slots = this.props.slots.slice();
         slots[+(playerID != match.playerID)] = {
           card: -1,
           discard: false,
@@ -340,7 +397,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
           preview: false,
           flip: false,
         };
-        await gui.update({ slots });
+        await this.update({ slots });
       });
     });
 
@@ -424,7 +481,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
 
     const uiUpdate = async (G: IMatchState) => {
       const cards = Array(4);
-      const { hand } = G.buffer.history.slice(-1)[0][player];
+      const { hand } = G.buffer.prevMoves[player];
       const card = G.game.players[player].hand[hand];
       cards[hand] = card;
       await uiUpdateMask(G);
@@ -437,6 +494,40 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       await uiUpdateMask(G);
       await this.hands.uiUpdate(cards);
       await this.preview.update({ done: cards.slice() });
+    };
+
+    const uiShowCards = async (G: IMatchState) => {
+      const moves = G.buffer.prevMoves;
+      const cards = G.buffer.cards.slice(-1)[0];
+      const slots = this.props.slots.map((_, i) => {
+        return {
+          card: cards[players[i]],
+          discard: moves[players[i]].action == "discard",
+          show: true,
+          preview: false,
+          flip: true,
+        };
+      });
+      logger.log(slots);
+      await this.update({ slots });
+      await sleep(0.3);
+    };
+
+    const uiHideCards = async () => {
+      await Promise.all([
+        sleep(0.3),
+        (async () => {
+          const slots = this.props.slots.map(({ card, discard }) => ({
+            card,
+            discard,
+            show: false,
+            preview: false,
+            flip: true,
+          }));
+          await this.update({ slots });
+        })(),
+      ]);
+      await this.update({ slots: emptySlots });
     };
 
     driver.on("redraw", async (playerID) => {
@@ -456,7 +547,18 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       const { G } = match.client.getState();
       if (round != 12) {
         gui.uiBlocking(async () => {
-          await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
+          await gui.uiUpdate(
+            G.game,
+            G0.game,
+            G.buffer.prevMoves,
+            G.buffer.cards.slice(-1)[0],
+            players,
+            {
+              "2": async () => await uiShowCards(G),
+              "3": async () => await uiHideCards(),
+              "4": async () => await uiUpdate(G),
+            }
+          );
           G0 = G;
         });
       }
@@ -481,31 +583,43 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       });
     };
 
-    driver.on("finish", (playerID, reason) => {
+    driver.on("finish", (replay) => {
       if (player < 0) return;
       gui.panel.timeMeter.stop();
       gui.panel.timeMeter.update({ timeSec: -1 });
       const { G } = match.client.getState();
       gui.uiBlocking(async () => {
+        const winnerID = G.meta.players[replay.winner];
         // normal finish
         let msg =
-          playerID == null
+          winnerID == null
             ? "Draw"
-            : `You ${playerID == match.playerID ? "win" : "lose"}`;
+            : `You ${winnerID == match.playerID ? "win" : "lose"}`;
+        const { finishReason: reason } = replay;
         switch (reason) {
           case "normal":
-            await gui.uiUpdate(G, G0, players, async () => await uiUpdate(G));
+            await gui.uiUpdate(
+              G.game,
+              G0.game,
+              G.buffer.prevMoves,
+              G.buffer.cards.slice(-1)[0],
+              players,
+              {
+                "2": async () => await uiShowCards(G),
+                "3": async () => await uiHideCards(),
+                "4": async () => await uiUpdate(G),
+              }
+            );
             G0 = G;
             break;
           case "giveup":
           case "tle":
-            if (playerID == null) {
+            if (winnerID == null) {
               console.assert(reason == "tle");
               msg = "Both players time out, draw";
             } else {
-              const other = G.meta.players.find((e) => e != playerID);
-              const otherName = match.client.matchData[other].name;
-              if (playerID == match.playerID) {
+              const otherName = playerNames[1 - replay.winner];
+              if (winnerID == match.playerID) {
                 // you win
                 const what = reason == "giveup" ? "give up" : "time out";
                 msg = `${otherName} ${what}, you win`;
@@ -524,6 +638,7 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
           msg,
           cancelMsg: null,
         });
+        ReplayListActivity.addReplay({ ...replay, players: playerNames });
         await exit();
       });
     });

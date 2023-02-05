@@ -70,19 +70,18 @@ function ActivityBody({ activity }: ActivityBodyProps) {
             </Box>
           )
         }
-      ></CardHeader>
-      <Divider></Divider>
-      <Box sx={{ flexGrow: 1, pt: 2 }}>
-        <Box
-          className="activity-content-root"
-          sx={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          {activity.node}
-        </Box>
+      />
+      <Divider />
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          minHeight: 0,
+          flexGrow: 1,
+          pt: 2,
+        }}
+      >
+        {activity.node}
       </Box>
     </Paper>
   );

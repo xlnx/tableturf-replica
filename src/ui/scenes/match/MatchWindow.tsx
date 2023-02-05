@@ -8,6 +8,7 @@ import { Match } from "../../../game/Match";
 import { PlayerPanel } from "./PlayerPanel";
 import { SpectatorPanel } from "./SpectatorPanel";
 import { GUI } from "./GUI";
+import { ReplayPanel } from "./ReplayPanel";
 
 const logger = getLogger("game-play");
 logger.setLevel("info");
@@ -17,6 +18,7 @@ class MatchWindow_0 extends Window {
 
   readonly playerPanel = new PlayerPanel();
   readonly spectatorPanel = new SpectatorPanel();
+  readonly replayPanel = new ReplayPanel();
 
   constructor() {
     super({
@@ -27,6 +29,7 @@ class MatchWindow_0 extends Window {
     this.layout = this.gui.layout;
     this.playerPanel.update({ gui: this.gui });
     this.spectatorPanel.update({ gui: this.gui });
+    this.replayPanel.update({ gui: this.gui });
 
     window.addEventListener("contextmenu", (evt) => {
       // rough detection of right button
@@ -42,14 +45,18 @@ class MatchWindow_0 extends Window {
         {this.gui.render()}
         {this.playerPanel.node}
         {this.spectatorPanel.node}
+        {this.replayPanel.node}
       </ThemeProvider>
     );
   }
 
-  bind(match: Match) {
-    this.gui.match = match;
+  async bind(e: Match | IMatchReplay) {
+    const match = e instanceof Match ? e : null;
+    const replay = !(e instanceof Match) ? e : null;
+    this.gui.bind(match);
     this.playerPanel.bind(match);
     this.spectatorPanel.bind(match);
+    await this.replayPanel.bind(replay);
   }
 }
 
