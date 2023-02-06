@@ -97,18 +97,18 @@ test("test_game_flow", async () => {
       expect(state.G.buffer).toEqual(
         expect.objectContaining({
           moves: Array(2).fill(null),
-          history: Array.from(Array(i + 1).keys()).map((j) => [
+          prevMoves: [
             {
               player: 0,
               action: "discard",
-              hand: j % 4,
+              hand: i % 4,
             },
             {
               player: 1,
               action: "discard",
-              hand: (j + 1) % 4,
+              hand: (i + 1) % 4,
             },
-          ]),
+          ],
         })
       );
 
@@ -143,7 +143,15 @@ test("test_game_flow", async () => {
       );
     }
     li.push(
-      expect.objectContaining({ event: "finish", args: [null, "normal"] })
+      expect.objectContaining({
+        event: "finish",
+        args: [
+          expect.objectContaining({
+            winner: null,
+            finishReason: "normal",
+          }),
+        ],
+      })
     );
 
     expect(d1.events).toEqual(li);
@@ -260,7 +268,12 @@ test("test_give_up", async () => {
       }),
       expect.objectContaining({
         event: "finish",
-        args: [p1.playerID, "giveup"],
+        args: [
+          expect.objectContaining({
+            winner: 0,
+            finishReason: "giveup",
+          }),
+        ],
       }),
     ];
 
@@ -327,7 +340,12 @@ test("test_tle", async () => {
         : []),
       expect.objectContaining({
         event: "finish",
-        args: [j == 0 ? p1.playerID : null, "tle"],
+        args: [
+          expect.objectContaining({
+            winner: j == 0 ? 0 : null,
+            finishReason: "tle",
+          }),
+        ],
       }),
     ];
 

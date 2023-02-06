@@ -60,8 +60,8 @@ export function SquareTilemap({
     values,
   } = rect;
   const wi = 24;
-  const dx = wi + padding;
-  const dy = wi + padding;
+  const dx = wi * (1 + padding);
+  const dy = wi * (1 + padding);
 
   let url = tilemapCache.get(id);
   if (!url) {

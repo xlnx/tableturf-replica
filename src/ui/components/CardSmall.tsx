@@ -114,7 +114,7 @@ export function CardSmall({
               values: Array(card.count.special).fill(Spaces.SPECIAL),
             }}
             width={88}
-            padding={8}
+            padding={0.3}
           />
         </div>
       </div>

@@ -1,4 +1,38 @@
-// import type { ClientState } from "boardgame.io/dist/types/src/client/client";
+/**
+ * Match Driver Typings
+ */
+declare type IMatchDriverEvent =
+  | "start"
+  | "round"
+  | "redraw"
+  | "move"
+  | "finish"
+  | "abort";
+declare type IMatchFinishReason = "normal" | "tle" | "giveup";
+
+interface IPlayerRedraw {
+  hands: number[];
+  deck: number[];
+}
+
+/**
+ * Match Replay Typings
+ */
+interface IMatchReplay {
+  players: string[];
+  winner: IPlayerId | null;
+  finishReason: IMatchFinishReason;
+  startTime: string;
+  finishTime: string;
+  stage: number;
+  decks: number[][];
+  redraws: IPlayerRedraw[][];
+  moves: IPlayerMovement[][];
+}
+
+/**
+ * Match State Typings
+ */
 
 // daemon state
 // write = {daemon}
@@ -29,8 +63,8 @@ interface IBufferState {
   tle: boolean;
   giveUp: boolean[];
   moves: IPlayerMovement[];
+  prevMoves: IPlayerMovement[];
   cards: number[][];
-  history: IPlayerMovement[][];
 }
 
 interface IMatchState {
@@ -38,10 +72,9 @@ interface IMatchState {
   game?: IGameState;
   meta: IMatchMeta;
   buffer: IBufferState;
+  replay?: IMatchReplay;
 }
 
 interface IHandshake {
   deck: number[];
 }
-
-// declare type IMatchControllerState = Exclude<ClientState<IMatchState>, null>;

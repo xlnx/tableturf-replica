@@ -1,0 +1,23 @@
+message RedrawDefV1 {
+  required int32 hands = 1;
+  repeated int32 deck = 2;
+}
+
+message ReplayDefV1 {
+  required string playerAlpha = 1;
+  required string playerBravo = 2;
+  required int32 result = 3;
+  required int64 timestamp = 4;
+  optional int32 elapsed = 5;
+  required int32 stage = 6;
+  repeated int32 decksAlpha = 7;
+  repeated int32 decksBravo = 8;
+  repeated RedrawDefV1 redrawsAlpha = 9;
+  repeated RedrawDefV1 redrawsBravo = 10;
+  repeated int32 moves = 11;
+}
+
+message ReplayDef {
+  required int32 version = 1;
+  optional ReplayDefV1 v1 = 2;
+}

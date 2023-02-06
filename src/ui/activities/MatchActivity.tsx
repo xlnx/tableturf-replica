@@ -115,11 +115,6 @@ function PlayerAvatar({ online, name, role, ready, host, self, onClick }) {
   );
 }
 
-interface OperationInfo {
-  hostOnly?: boolean;
-  phase?: string;
-}
-
 interface MatchActivityProps {
   match: Match;
   state: ClientState<IMatchState>;
@@ -130,11 +125,6 @@ interface MatchActivityProps {
 const defaultDeck: IDeckData = {
   name: "Starter Deck",
   deck: StarterDeck.slice(),
-};
-
-const autoDeck: IDeckData = {
-  name: "[Auto]",
-  deck: null,
 };
 
 class MatchActivity_0 extends Activity<MatchActivityProps> {
@@ -255,7 +245,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       manualExit: false,
     });
 
-    MatchWindow.bind(match);
+    await MatchWindow.bind(match);
 
     // give the browser 300ms to compute layout
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -273,13 +263,6 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       this.props.match.stop();
     }
     return ok;
-  }
-
-  isStageSupported(stage: number) {
-    if (!this.props.match) {
-      return false;
-    }
-    return true;
   }
 
   render() {
@@ -326,11 +309,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
       const stageMenuItems = [3, 6, 7, 5, 2, 1, 4, 0]
         .map(getStageById)
         .map((stage) => (
-          <MenuItem
-            value={stage.id}
-            key={stage.id}
-            disabled={!this.isStageSupported(stage.id)}
-          >
+          <MenuItem value={stage.id} key={stage.id}>
             {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
           </MenuItem>
         ));

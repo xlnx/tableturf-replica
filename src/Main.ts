@@ -17,6 +17,8 @@ import { ActivityPanel } from "./ui/Activity";
 import { getCardById } from "./core/Tableturf";
 import { DeckPanel } from "./ui/scenes/entry/DeckPanel";
 import { MatchActivity } from "./ui/activities/MatchActivity";
+import { ReplayListActivity } from "./ui/activities/ReplayListActivity";
+import { ReplayActivity } from "./ui/activities/ReplayActivity";
 
 const logger = getLogger("main");
 logger.setLevel("debug");
@@ -49,6 +51,7 @@ async function main() {
   const connect = System.args.get("connect");
   const url = System.args.get("url");
   const match = System.args.get("match");
+  const replay = System.args.get("replay");
 
   if (deck) {
     const cards: number[] = JSON.parse(deck);
@@ -71,6 +74,13 @@ async function main() {
     //   }
     //   MessageBar.error("not enough parameters: [connect=bot]");
     //   return;
+    case "replay":
+      if (replay) {
+        await ReplayActivity.loadReplay(replay);
+        return;
+      }
+      MessageBar.error("not enough parameters: [connect=replay]");
+      return;
     case "player":
       if (url) {
         await JoinMatchActivity.connect(url);
