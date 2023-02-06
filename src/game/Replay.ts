@@ -9,12 +9,12 @@ import Long from "long";
 function toBase64Url(buffer: Uint8Array): string {
   return btoa(String.fromCharCode.apply(null, buffer))
     .split("=")[0]
-    .replaceAll("+", "-")
-    .replaceAll("/", "_");
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 }
 
 function fromBase64Url(base64url: string): Uint8Array {
-  let str = base64url.replaceAll("-", "+").replaceAll("_", "/");
+  let str = base64url.replace(/-/g, "+").replace(/_/g, "/");
   switch (str.length % 4) {
     case 0:
       break;
