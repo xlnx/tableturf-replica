@@ -8,11 +8,13 @@ import { getStageById } from "../../core/Tableturf";
 import { BasicButton } from "../Theme";
 import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
+import { LoadingDialog } from "../components/LoadingDialog";
 
-function formatUrl(replay: IMatchReplay) {
+async function formatUrl(replay: IMatchReplay) {
+  const { encodeReplay } = await import("../../game/Replay");
   const url = new URL(System.url.origin);
   url.searchParams.append("connect", "replay");
-  url.searchParams.append("replay", btoa(JSON.stringify(replay)));
+  url.searchParams.append("replay", encodeReplay(replay));
   return url.href;
 }
 
@@ -48,11 +50,31 @@ class ReplayActivity_0 extends Activity<ReplayActivityProps> {
     ]);
   }
 
+  async loadReplay(base64: string) {
+    try {
+      const task = async () => {
+        const { decodeReplay } = await import("../../game/Replay");
+        const replay = decodeReplay(base64);
+        await this.start(replay);
+        ReplayListActivity.addReplay(replay);
+      };
+      await LoadingDialog.wait({
+        task: task(),
+        message: "Loading Replay...",
+      });
+    } catch (err) {
+      MessageBar.error(err);
+    }
+  }
+
   render() {
     const { replay } = this.props;
 
     const handleCopyLink = async () => {
-      const url = formatUrl(replay);
+      const url = await LoadingDialog.wait({
+        task: formatUrl(replay),
+        message: "Compressing Replay...",
+      });
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
         MessageBar.success(`replay link copied: [${url}]`);
@@ -77,14 +99,6 @@ class ReplayActivity_0 extends Activity<ReplayActivityProps> {
           <Grid item xs={6}>
             <BasicButton fullWidth onClick={handleCopyLink}>
               Share Replay Link
-            </BasicButton>
-          </Grid>
-          <Grid item xs={6}>
-            <BasicButton
-              fullWidth
-              // onClick={() => match.send("ToggleReady")}
-            >
-              Save
             </BasicButton>
           </Grid>
         </Grid>

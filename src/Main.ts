@@ -76,14 +76,7 @@ async function main() {
     //   return;
     case "replay":
       if (replay) {
-        try {
-          // FIXME: validate schema
-          const obj: IMatchReplay = JSON.parse(atob(replay));
-          await ReplayActivity.start(obj);
-          ReplayListActivity.addReplay(obj);
-        } catch (err) {
-          MessageBar.error(err);
-        }
+        await ReplayActivity.loadReplay(replay);
         return;
       }
       MessageBar.error("not enough parameters: [connect=replay]");
