@@ -189,7 +189,7 @@ export class GUI {
     cards: number[],
     players: IPlayerId[],
     phases: { [key: number]: () => Promise<void> } = {},
-    terminate: boolean = true
+    terminate = true
   ) {
     const sleep = (t: number) =>
       new Promise((resolve) => setTimeout(resolve, t * 1000));
