@@ -188,7 +188,8 @@ export class GUI {
     moves: IPlayerMovement[],
     cards: number[],
     players: IPlayerId[],
-    phases: { [key: number]: () => Promise<void> } = {}
+    phases: { [key: number]: () => Promise<void> } = {},
+    terminate: boolean = true
   ) {
     const sleep = (t: number) =>
       new Promise((resolve) => setTimeout(resolve, t * 1000));
@@ -239,7 +240,7 @@ export class GUI {
     ]);
 
     // game may terminate here
-    if (game.round == 0) {
+    if (terminate && game.round == 0) {
       return;
     }
 

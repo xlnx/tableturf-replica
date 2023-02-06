@@ -85,6 +85,9 @@ export class ReplayPanel extends ReactComponent<ReplayPanelProps> {
           [0, 1],
           {
             "4": async () => {
+              if (game.round == 0) {
+                return;
+              }
               await Promise.all(
                 [0, 1].map(async (i) => {
                   const cards = Array(4);
@@ -99,7 +102,8 @@ export class ReplayPanel extends ReactComponent<ReplayPanelProps> {
                 })
               );
             },
-          }
+          },
+          false
         );
         play();
       });
