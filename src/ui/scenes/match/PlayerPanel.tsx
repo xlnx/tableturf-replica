@@ -378,11 +378,11 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
       const { G } = match.client.getState();
       G0 = G;
       player = G.meta.players.indexOf(match.playerID) as IPlayerId;
+      if (player < 0) return;
       players = [player, (1 - player) as IPlayerId];
       playerNames = players.map(
         (i) => match.client.matchData[G.meta.players[i]].name
       );
-      if (player < 0) return;
       gui.show(async () => await uiReset(G));
     });
 

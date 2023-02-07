@@ -65,6 +65,11 @@ async function main() {
     return;
   }
 
+  if (replay) {
+    await ReplayActivity.loadReplay(replay);
+    return;
+  }
+
   switch (connect) {
     // case "bot":
     //   if (url) {
@@ -74,13 +79,6 @@ async function main() {
     //   }
     //   MessageBar.error("not enough parameters: [connect=bot]");
     //   return;
-    case "replay":
-      if (replay) {
-        await ReplayActivity.loadReplay(replay);
-        return;
-      }
-      MessageBar.error("not enough parameters: [connect=replay]");
-      return;
     case "player":
       if (url) {
         await JoinMatchActivity.connect(url);

@@ -4,9 +4,9 @@ import cors from "@koa/cors";
 import koaBody from "koa-body";
 import Router from "@koa/router";
 import { Origins, Server } from "boardgame.io/server";
-import { LobbyClient } from "boardgame.io/client";
 import { MatchController } from "./MatchController";
-import { Daemon } from "./Daemon";
+import { Lobby } from "./Lobby";
+import { Logger } from "./Logger";
 
 function isOriginAllowed(
   origin: string,
@@ -46,7 +46,7 @@ export class Gateway {
   private gatewayInstance: any;
   private server;
 
-  readonly matches = new Map<string, Daemon>();
+  lobby: Lobby;
 
   kill() {
     if (this.serverInstance) {
@@ -109,72 +109,54 @@ export class Gateway {
       })
     );
 
-    const gameName = MatchController.name;
-    const lobby = new LobbyClient({ server: `http://localhost:${apiPort}` });
+    this.lobby = new Lobby({
+      lobbyApiAddr: `http://localhost:${apiPort}`,
+      gameAddr: `${https ? "https" : "http"}://localhost:${port}`,
+    });
 
     const router = new Router();
 
-    const createDaemon = async (matchID: string) => {
-      const { playerID, playerCredentials } = await lobby.joinMatch(
-        gameName,
-        matchID,
-        {
-          playerID: "0",
-          playerName: "$daemon",
-        }
-      );
-      const daemon = new Daemon(lobby, {
-        server: `${https ? "https" : "http"}://localhost:${port}`,
-        matchID,
-        playerID,
-        credentials: playerCredentials,
-      });
-      await daemon.start();
-      this.matches.set(matchID, daemon);
-      return daemon;
-    };
-
+    // FIXME: handle 500
+    // FIXME: validate args
     router.get("/match/list", koaBody(), async (ctx) => {
-      const { matches } = await lobby.listMatches(gameName);
-      ctx.body = {
-        matches: matches.filter((match) => this.matches.has(match.matchID)),
-      };
+      Logger.log(`[${ctx.ip}] -> /match/list`);
+      try {
+        ctx.body = await this.lobby.listMatch();
+      } catch (err) {
+        ctx.throw(404, err.toString());
+      }
     });
 
     router.get("/match/:id", koaBody(), async (ctx) => {
-      const matchID = ctx.params.id;
-      if (!this.matches.has(matchID)) {
-        ctx.throw(404, "Match " + matchID + " not found");
+      Logger.log(`[${ctx.ip}] -> /match/${ctx.params.id}`);
+      try {
+        ctx.body = await this.lobby.getMatch(ctx.params.id);
+      } catch (err) {
+        ctx.throw(404, err.toString());
       }
-      ctx.body = await lobby.getMatch(gameName, matchID);
     });
 
     router.post("/match/create", koaBody(), async (ctx) => {
-      const { matchName = "match", ...body } = ctx.request
-        .body as ICreateMatchBody;
-      const { matchID } = await lobby.createMatch(gameName, {
-        numPlayers: 5,
-        setupData: { matchName },
-      });
-      const daemon = await createDaemon(matchID);
-      const join = await daemon.joinMatch(matchID, body);
-      ctx.body = { matchID, ...join };
+      Logger.log(`[${ctx.ip}] -> /match/create`);
+      try {
+        ctx.body = await this.lobby.createMatch(
+          ctx.request.body as ICreateMatchBody
+        );
+      } catch (err) {
+        ctx.throw(404, err.toString());
+      }
     });
 
     router.post("/match/:id/join", koaBody(), async (ctx) => {
-      const matchID = ctx.params.id;
-      const daemon = this.matches.get(matchID);
-      if (!daemon) {
-        ctx.throw(404, "Match " + matchID + " not found");
+      Logger.log(`[${ctx.ip}] -> /match/${ctx.params.id}/join`);
+      try {
+        ctx.body = await this.lobby.joinMatch(
+          ctx.params.id,
+          ctx.request.body as IJoinMatchBody
+        );
+      } catch (err) {
+        ctx.throw(404, `Match [${ctx.params.id}] is full up`);
       }
-      if (!daemon.isJoinable()) {
-        ctx.throw(404, "Match " + matchID + " is not joinable");
-      }
-      const join = await daemon.joinMatch(
-        matchID,
-        ctx.request.body as IJoinMatchBody
-      );
-      ctx.body = { ...join };
     });
 
     app.use(router.routes()).use(router.allowedMethods());

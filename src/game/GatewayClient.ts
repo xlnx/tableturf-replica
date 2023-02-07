@@ -73,7 +73,11 @@ export class GatewayClient {
       }
 
       // details
-      throw new Error(`HTTP status ${response.status}`);
+      if (response.status == 404) {
+        throw new Error(details);
+      } else {
+        throw new Error(`HTTP status ${response.status}`);
+      }
     }
 
     return response.json();

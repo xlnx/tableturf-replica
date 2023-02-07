@@ -131,7 +131,10 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       );
       await Promise.all(
         G.game.players.map(async ({ hand, deck }, i) => {
-          await this.hands[i].update({ cards: hand });
+          await this.hands[i].update({
+            cards: hand,
+            mask: Array(4).fill(true),
+          });
           await this.preview[i].update({
             open: false,
             deck: [...hand, ...deck],
@@ -185,11 +188,11 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       const { G } = match.client.getState();
       G0 = G;
       active = G.meta.players.indexOf(match.playerID) < 0;
+      this.update({ active });
+      if (!active) return;
       playerNames = players.map(
         (i) => match.client.matchData[G.meta.players[i]].name
       );
-      this.update({ active });
-      if (!active) return;
       gui.show(async () => await uiReset(G));
     };
 

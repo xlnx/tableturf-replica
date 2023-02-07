@@ -18,7 +18,7 @@ import { MessageBar } from "../components/MessageBar";
 import { System } from "../../engine/System";
 import { MatchWindow } from "../scenes/match/MatchWindow";
 import { InkResetAnimation } from "../InkResetAnimation";
-import { getStageById, getStages } from "../../core/Tableturf";
+import { getStageById } from "../../core/Tableturf";
 import { isDeckValid } from "../../Terms";
 import { I18n } from "../../i18n/I18n";
 import { DB } from "../../Database";
@@ -64,7 +64,7 @@ function PlayerAvatar({ online, name, role, ready, host, self, onClick }) {
       }}
       onClick={onClick}
     >
-      {name.substring(0, 2).toUpperCase()}
+      {!name || name.substring(0, 2).toUpperCase()}
     </Button>
   );
   const [w, h] = [108, 96];
