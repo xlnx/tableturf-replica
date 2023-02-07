@@ -185,11 +185,11 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       const { G } = match.client.getState();
       G0 = G;
       active = G.meta.players.indexOf(match.playerID) < 0;
+      this.update({ active });
+      if (!active) return;
       playerNames = players.map(
         (i) => match.client.matchData[G.meta.players[i]].name
       );
-      this.update({ active });
-      if (!active) return;
       gui.show(async () => await uiReset(G));
     };
 
