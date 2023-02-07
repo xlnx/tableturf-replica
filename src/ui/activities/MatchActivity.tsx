@@ -64,7 +64,7 @@ function PlayerAvatar({ online, name, role, ready, host, self, onClick }) {
       }}
       onClick={onClick}
     >
-      {name.substring(0, 2).toUpperCase()}
+      {!name || name.substring(0, 2).toUpperCase()}
     </Button>
   );
   const [w, h] = [108, 96];
