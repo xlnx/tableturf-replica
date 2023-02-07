@@ -5,6 +5,7 @@ import { BoardComponent } from "../../BoardComponent";
 import { ColorPalette } from "../../ColorPalette";
 import {
   getCardById,
+  getStageById,
   initGame,
   isBoardMoveValid,
   moveBoard,
@@ -20,6 +21,8 @@ import {
   Box,
   Paper,
   List,
+  MenuItem,
+  TextField,
   ThemeProvider,
   Typography,
   styled,
@@ -27,7 +30,6 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Theme, BasicButton } from "../../Theme";
 import { ReactComponent } from "../../../engine/ReactComponent";
-// import { StarterDeck } from "../../../Game";
 import { getLogger } from "loglevel";
 import { rectToString } from "../../../core/Utils";
 import { CardVaultPanel } from "./CardVaultPanel";
@@ -165,7 +167,7 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
           sx={{
             position: "absolute",
             width: 350,
-            maxHeight: 690,
+            maxHeight: 600,
             left: 1550,
             top: 16,
             overflow: "auto",
@@ -217,8 +219,18 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
         width: 220,
         height: 90,
       }));
-      const y0 = 750;
-      const h = 100;
+
+      const y0 = 650;
+      const h = 105;
+
+      const stageMenuItems = [3, 6, 7, 5, 2, 1, 4, 0]
+        .map(getStageById)
+        .map((stage) => (
+          <MenuItem value={stage.id} key={stage.id}>
+            {I18n.localize("CommonMsg/MiniGame/MiniGameMapName", stage.name)}
+          </MenuItem>
+        ));
+
       return (
         <>
           <MyBtn
@@ -251,9 +263,23 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
           >
             Undo
           </MyBtn>
+          <TextField
+            select
+            label="Test Stage"
+            value={this.props.stage}
+            sx={{
+              position: "absolute",
+              left: 1510,
+              top: y0 + h * 3,
+              width: 360,
+            }}
+            onChange={({ target }) => this.reset({ stage: +target.value })}
+          >
+            {stageMenuItems}
+          </TextField>
         </>
       );
-    }, []);
+    }, [this.props.stage]);
 
     return (
       <div>
