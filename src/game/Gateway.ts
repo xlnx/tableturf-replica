@@ -118,24 +118,40 @@ export class Gateway {
     // FIXME: handle 500
     // FIXME: validate args
     router.get("/match/list", koaBody(), async (ctx) => {
-      ctx.body = await this.lobby.listMatch();
+      try {
+        ctx.body = await this.lobby.listMatch();
+      } catch (err) {
+        ctx.throw(404, err.toString());
+      }
     });
 
     router.get("/match/:id", koaBody(), async (ctx) => {
-      ctx.body = await this.lobby.getMatch(ctx.params.id);
+      try {
+        ctx.body = await this.lobby.getMatch(ctx.params.id);
+      } catch (err) {
+        ctx.throw(404, err.toString());
+      }
     });
 
     router.post("/match/create", koaBody(), async (ctx) => {
-      ctx.body = await this.lobby.createMatch(
-        ctx.request.body as ICreateMatchBody
-      );
+      try {
+        ctx.body = await this.lobby.createMatch(
+          ctx.request.body as ICreateMatchBody
+        );
+      } catch (err) {
+        ctx.throw(404, err.toString());
+      }
     });
 
     router.post("/match/:id/join", koaBody(), async (ctx) => {
-      ctx.body = await this.lobby.joinMatch(
-        ctx.params.id,
-        ctx.request.body as IJoinMatchBody
-      );
+      try {
+        ctx.body = await this.lobby.joinMatch(
+          ctx.params.id,
+          ctx.request.body as IJoinMatchBody
+        );
+      } catch (err) {
+        ctx.throw(404, `Match [${ctx.params.id}] is full up`);
+      }
     });
 
     app.use(router.routes()).use(router.allowedMethods());
