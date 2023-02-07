@@ -131,7 +131,10 @@ export class SpectatorPanel extends ReactComponent<SpectatorPanelProps> {
       );
       await Promise.all(
         G.game.players.map(async ({ hand, deck }, i) => {
-          await this.hands[i].update({ cards: hand });
+          await this.hands[i].update({
+            cards: hand,
+            mask: Array(4).fill(true),
+          });
           await this.preview[i].update({
             open: false,
             deck: [...hand, ...deck],
