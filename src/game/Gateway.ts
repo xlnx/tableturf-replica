@@ -6,6 +6,7 @@ import Router from "@koa/router";
 import { Origins, Server } from "boardgame.io/server";
 import { MatchController } from "./MatchController";
 import { Lobby } from "./Lobby";
+import { Logger } from "./Logger";
 
 function isOriginAllowed(
   origin: string,
@@ -118,6 +119,7 @@ export class Gateway {
     // FIXME: handle 500
     // FIXME: validate args
     router.get("/match/list", koaBody(), async (ctx) => {
+      Logger.log(`[${ctx.ip}] -> /match/list`);
       try {
         ctx.body = await this.lobby.listMatch();
       } catch (err) {
@@ -126,6 +128,7 @@ export class Gateway {
     });
 
     router.get("/match/:id", koaBody(), async (ctx) => {
+      Logger.log(`[${ctx.ip}] -> /match/${ctx.params.id}`);
       try {
         ctx.body = await this.lobby.getMatch(ctx.params.id);
       } catch (err) {
@@ -134,6 +137,7 @@ export class Gateway {
     });
 
     router.post("/match/create", koaBody(), async (ctx) => {
+      Logger.log(`[${ctx.ip}] -> /match/create`);
       try {
         ctx.body = await this.lobby.createMatch(
           ctx.request.body as ICreateMatchBody
@@ -144,6 +148,7 @@ export class Gateway {
     });
 
     router.post("/match/:id/join", koaBody(), async (ctx) => {
+      Logger.log(`[${ctx.ip}] -> /match/${ctx.params.id}/join`);
       try {
         ctx.body = await this.lobby.joinMatch(
           ctx.params.id,

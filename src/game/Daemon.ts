@@ -3,10 +3,7 @@ import { Client, ClientConnectOptions } from "./Client";
 import { LobbyClient } from "boardgame.io/client";
 import { MatchController } from "./MatchController";
 import { MatchDriver } from "./MatchDriver";
-import loglevel from "loglevel";
-
-const logger = loglevel.getLogger("daemon");
-logger.setLevel("debug");
+import { Logger } from "./Logger";
 
 class Countdown {
   private canceled = false;
@@ -55,6 +52,9 @@ export class Daemon extends Client {
       }
       this.send("UpdateState", { daemon, meta });
       this.ready = true;
+      Logger.log(
+        `[${this.client.matchData[+playerID].name}] joined [${this.matchID}]`
+      );
     });
 
     this.on("player-leave", (playerID) => {
@@ -80,6 +80,9 @@ export class Daemon extends Client {
       ) {
         leave.then(() => this.stop());
       }
+      Logger.log(
+        `[${this.client.matchData[+playerID].name}] left [${this.matchID}]`
+      );
     });
 
     /* set up match driver */
@@ -108,12 +111,18 @@ export class Daemon extends Client {
       });
     });
 
+    driver.on("start", () => {
+      Logger.log(`[${this.matchID}] game started`);
+    });
+
     driver.on("finish", () => {
       cancelCountdown();
+      Logger.log(`[${this.matchID}] game finished`);
     });
 
     driver.on("abort", () => {
       cancelCountdown();
+      Logger.log(`[${this.matchID}] game aborted`);
     });
   }
 
@@ -151,7 +160,7 @@ export class Daemon extends Client {
 
   async start(): Promise<void> {
     await super.start();
-    logger.log(`daemon[${this.matchID}] started`);
+    Logger.log(`[${this.matchID}] daemon started`);
   }
 
   async stop(): Promise<void> {
@@ -164,6 +173,6 @@ export class Daemon extends Client {
     } catch (e) {
       //
     }
-    logger.log(`daemon[${this.matchID}] stopped`);
+    Logger.log(`[${this.matchID}] daemon stopped`);
   }
 }
