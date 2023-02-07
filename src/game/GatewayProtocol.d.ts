@@ -3,8 +3,17 @@ declare type ICreateMatchBody = IJoinMatchBody & {
   // password?: string;
 };
 
+declare type ICreateMatchResponse = IJoinMatchResponse & {
+  matchID: string;
+};
+
 declare interface IJoinMatchBody {
   playerName: string;
+}
+
+declare interface IJoinMatchResponse {
+  playerID: string;
+  playerCredentials: string;
 }
 
 declare interface ILeaveMatchBody {

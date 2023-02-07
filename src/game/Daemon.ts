@@ -25,24 +25,72 @@ class Countdown {
   }
 }
 
+interface DaemonOptions {
+  lobby: LobbyClient;
+  server: string;
+  matchID: string;
+}
+
 export class Daemon extends Client {
-  private joinable = false;
+  readonly createTime = new Date();
+  private ready = false;
+
   private readonly playerCredentials: string[] = [];
 
-  private countdown: Countdown;
-
-  constructor(private readonly lobby: LobbyClient, opts: ClientConnectOptions) {
+  private constructor(
+    private readonly lobby: LobbyClient,
+    opts: ClientConnectOptions
+  ) {
     super(opts);
-    this.on("player-join", this.handlePlayerJoinMatch.bind(this));
-    this.on("player-leave", this.handlePlayerLeaveMatch.bind(this));
 
+    /* set up meta handlers */
+    this.on("player-join", (playerID) => {
+      let { daemon, meta } = this.client.getState().G;
+      daemon = { ...daemon, players: [...daemon.players, playerID] };
+      if (meta.players.length < 2) {
+        meta = { ...meta, players: [...meta.players, playerID] };
+      }
+      if (meta.host == "") {
+        meta = { ...meta, host: playerID };
+      }
+      this.send("UpdateState", { daemon, meta });
+      this.ready = true;
+    });
+
+    this.on("player-leave", (playerID) => {
+      let { daemon, meta } = this.client.getState().G;
+      const players = daemon.players.slice();
+      players.splice(players.indexOf(playerID), 1);
+      daemon = { ...daemon, players };
+      if (meta.players.indexOf(playerID) != -1) {
+        const players = meta.players.slice();
+        players.splice(players.indexOf(playerID), 1);
+        meta = { ...meta, players };
+      }
+      if (meta.host == playerID) {
+        meta = { ...meta, host: players[0] || "" };
+      }
+      this.send("UpdateState", { daemon, meta });
+      const leave = this.lobby.leaveMatch(MatchController.name, this.matchID, {
+        playerID,
+        credentials: this.playerCredentials[+playerID],
+      });
+      if (
+        this.client.matchData.slice(1).every(({ isConnected }) => !isConnected)
+      ) {
+        leave.then(() => this.stop());
+      }
+    });
+
+    /* set up match driver */
     const driver = new MatchDriver(this);
 
+    let countdown: Countdown;
     const cancelCountdown = () => {
-      if (this.countdown) {
+      if (countdown) {
         // cancel previous countdown
-        this.countdown.cancel();
-        this.countdown = null;
+        countdown.cancel();
+        countdown = null;
       }
     };
 
@@ -54,7 +102,7 @@ export class Daemon extends Client {
         // ttl not specified
         return;
       }
-      this.countdown = new Countdown(dt, () => {
+      countdown = new Countdown(dt, () => {
         // sync state with boardgame.io
         this.send("HandleRoundTle", round);
       });
@@ -69,21 +117,35 @@ export class Daemon extends Client {
     });
   }
 
-  isJoinable() {
-    return this.joinable;
+  static async create({ lobby, ...opts }: DaemonOptions) {
+    const { playerID, playerCredentials: credentials } = await lobby.joinMatch(
+      MatchController.name,
+      opts.matchID,
+      {
+        playerID: "0",
+        playerName: "$daemon",
+      }
+    );
+    const daemon = new Daemon(lobby, {
+      ...opts,
+      playerID,
+      credentials,
+    });
+    await daemon.start();
+    return daemon;
   }
 
-  async joinMatch(
-    matchID: string,
-    body: IJoinMatchBody
-  ): Promise<LobbyAPI.JoinedMatch> {
+  isReady() {
+    return this.ready;
+  }
+
+  async requestJoinMatch(body: IJoinMatchBody): Promise<LobbyAPI.JoinedMatch> {
     const { playerID, playerCredentials } = await this.lobby.joinMatch(
       MatchController.name,
-      matchID,
+      this.client.matchID,
       body
     );
     this.playerCredentials[+playerID] = playerCredentials;
-    this.joinable = true;
     return { playerID, playerCredentials };
   }
 
@@ -103,43 +165,5 @@ export class Daemon extends Client {
       //
     }
     logger.log(`daemon[${this.matchID}] stopped`);
-  }
-
-  private handlePlayerJoinMatch(playerID: string) {
-    let { daemon, meta } = this.client.getState().G;
-    daemon = { ...daemon, players: [...daemon.players, playerID] };
-    if (meta.players.length < 2) {
-      meta = { ...meta, players: [...meta.players, playerID] };
-    }
-    if (meta.host == "") {
-      meta = { ...meta, host: playerID };
-    }
-    this.send("UpdateState", { daemon, meta });
-  }
-
-  private handlePlayerLeaveMatch(playerID: string) {
-    let { daemon, meta } = this.client.getState().G;
-    const players = daemon.players.slice();
-    players.splice(players.indexOf(playerID), 1);
-    daemon = { ...daemon, players };
-    if (meta.players.indexOf(playerID) != -1) {
-      const players = meta.players.slice();
-      players.splice(players.indexOf(playerID), 1);
-      meta = { ...meta, players };
-    }
-    if (meta.host == playerID) {
-      meta = { ...meta, host: players[0] || "" };
-    }
-    this.send("UpdateState", { daemon, meta });
-    const leave = this.lobby.leaveMatch(MatchController.name, this.matchID, {
-      playerID,
-      credentials: this.playerCredentials[+playerID],
-    });
-    if (
-      this.client.matchData.slice(1).every(({ isConnected }) => !isConnected)
-    ) {
-      this.joinable = false;
-      leave.then(() => this.stop());
-    }
   }
 }

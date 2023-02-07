@@ -30,7 +30,7 @@ afterAll(() => gateway.kill());
 
 test("test_game_flow", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  const daemon = gateway.matches.get(p1.matchID);
+  const daemon = gateway.lobby.matches.get(p1.matchID);
   await sleep();
 
   expect(daemon.client.getState().G).toEqual(
@@ -180,7 +180,7 @@ test("test_game_flow", async () => {
 
 test("test_transfer_host", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  const daemon = gateway.matches.get(p1.matchID);
+  const daemon = gateway.lobby.matches.get(p1.matchID);
   await sleep();
 
   p1.send("UpdateMeta", { stage: 3 });
@@ -227,7 +227,7 @@ test("test_transfer_host", async () => {
 
 test("test_give_up", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  const daemon = gateway.matches.get(p1.matchID);
+  const daemon = gateway.lobby.matches.get(p1.matchID);
   await sleep();
   const p2 = await client.joinMatch(p1.matchID, { playerName: "p2" });
   await sleep();
@@ -289,7 +289,7 @@ test("test_give_up", async () => {
 
 test("test_tle", async () => {
   const p1 = await client.createMatch({ playerName: "p1" });
-  const daemon = gateway.matches.get(p1.matchID);
+  const daemon = gateway.lobby.matches.get(p1.matchID);
   await sleep();
 
   p1.send("UpdateMeta", { turnTimeQuotaSec: 0.5 });
