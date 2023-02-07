@@ -13,7 +13,6 @@ import { LoadingDialog } from "../components/LoadingDialog";
 async function formatUrl(replay: IMatchReplay) {
   const { encodeReplay } = await import("../../game/Replay");
   const url = new URL(System.url.origin);
-  url.searchParams.append("connect", "replay");
   url.searchParams.append("replay", encodeReplay(replay));
   return url.href;
 }
