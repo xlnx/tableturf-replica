@@ -1,5 +1,6 @@
 import { getLogger } from "loglevel";
 import { System } from "../../engine/System";
+import { Base64String } from "./Base64String";
 
 const logger = getLogger("tilemap");
 logger.setLevel("info");
@@ -46,7 +47,6 @@ const imgs = [
 ];
 
 const canvas = document.createElement("canvas");
-const tilemapCache = new Map<string, string>();
 
 export function SquareTilemap({
   id,
@@ -63,8 +63,11 @@ export function SquareTilemap({
   const dx = wi * (1 + padding);
   const dy = wi * (1 + padding);
 
-  let url = tilemapCache.get(id);
-  if (!url) {
+  let base64: string;
+  const img = window.localStorage.getItem(id);
+  if (img) {
+    base64 = Base64String.decompressFromUTF16(img);
+  } else {
     canvas.width = w * dx;
     canvas.height = h * dy;
     const ctx = canvas.getContext("2d");
@@ -82,8 +85,12 @@ export function SquareTilemap({
         ctx.globalAlpha = 1;
       }
     }
-    url = canvas.toDataURL();
-    tilemapCache.set(id, url);
+    base64 = canvas.toDataURL("image/webp").split(",")[1];
+    try {
+      window.localStorage.setItem(id, Base64String.compressToUTF16(base64));
+    } catch (err) {
+      //
+    }
   }
 
   return (
@@ -92,7 +99,7 @@ export function SquareTilemap({
         className={`tilemap-${id}`}
         width={w * dx}
         height={h * dy}
-        xlinkHref={url}
+        xlinkHref={`data:image/webp;base64,${base64}`}
         preserveAspectRatio="none"
         style={{
           transformBox: "fill-box",

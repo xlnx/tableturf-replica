@@ -193,7 +193,7 @@ function renderSvg(card: ICard, player: IPlayerId) {
           style={{ transform: "translate(94px, 422px)" }}
         >
           <SquareTilemap
-            id={`card-large-sp-${card.id}-${player}`}
+            id={`card-large-sp-${card.count.special}-${player}`}
             player={player}
             rect={{
               size: [5, 2],
@@ -397,7 +397,7 @@ function renderWebKit(card: ICard, player: IPlayerId) {
         }}
       >
         <SquareTilemap
-          id={`card-large-sp-${card.id}-${player}`}
+          id={`card-large-sp-${card.count.special}-${player}`}
           player={player}
           rect={{
             size: [5, 2],

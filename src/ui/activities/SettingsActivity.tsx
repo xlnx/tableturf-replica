@@ -1,5 +1,5 @@
 import { Activity } from "../Activity";
-import { Box, Grid, TextField, FormHelperText } from "@mui/material";
+import { Box, Grid, TextField, FormHelperText, Tooltip } from "@mui/material";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
 import { DB } from "../../Database";
@@ -52,6 +52,25 @@ class SettingsActivity_0 extends Activity<SettingsActivityProps> {
                 {nameError}
               </FormHelperText>
             )}
+          </Grid>
+          <Grid item xs={12}>
+            <Tooltip
+              title={
+                "If you encounter any rendering glitch, try clearing the renderer cache and refresh the page"
+              }
+            >
+              <div>
+                <BasicButton
+                  fullWidth
+                  onClick={() => {
+                    window.localStorage.clear();
+                    MessageBar.success("renderer cache has been cleared");
+                  }}
+                >
+                  Clear Renderer Cache
+                </BasicButton>
+              </div>
+            </Tooltip>
           </Grid>
         </Grid>
         <Box

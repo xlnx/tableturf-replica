@@ -241,7 +241,7 @@ export const Theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          fontSize: "0.4rem",
+          fontSize: "0.5rem",
           userSelect: "none",
           pointerEvents: "none",
         },

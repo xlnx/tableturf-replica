@@ -107,7 +107,7 @@ export function CardSmall({
           }}
         >
           <SquareTilemap
-            id={`card-small-sp-${card.id}-${player}`}
+            id={`card-small-sp-${card.count.special}-${player}`}
             player={player}
             rect={{
               size: [5, 2],
