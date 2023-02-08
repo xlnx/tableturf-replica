@@ -72,6 +72,7 @@ export function Card({
           }}
         >
           <div
+            className="card-body-inner"
             style={{
               position: "relative",
               width: layout.width,
@@ -81,10 +82,6 @@ export function Card({
               overflow: "hidden",
               transform: `scale(${width / layout.width})`,
               transformOrigin: "top left",
-              boxShadow:
-                active && selected
-                  ? "4px 4px rgba(0, 0, 0, 0.5)"
-                  : "2px 2px rgba(0, 0, 0, 0.2)",
             }}
           >
             {children}

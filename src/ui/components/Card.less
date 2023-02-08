@@ -29,3 +29,12 @@
 .card-selected .card-body {
   transform: rotate(-2deg);
 }
+
+.card-body-inner {
+  box-shadow: 2px 2px rgba(0, 0, 0, 0.2);
+  transition: box-shadow @dt ease-out;
+}
+
+.card-selected .card-body-inner {
+  box-shadow: 4px 4px rgba(0, 0, 0, 0.5);
+}
