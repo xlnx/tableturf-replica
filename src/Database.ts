@@ -6,7 +6,7 @@ import { calibrateDeck } from "./Terms";
 const logger = getLogger("database");
 logger.setLevel("debug");
 
-const maxDeckCount = 8;
+const maxDeckCount = 16;
 
 const defaultData: IRootData = {
   playerName: "Player",
