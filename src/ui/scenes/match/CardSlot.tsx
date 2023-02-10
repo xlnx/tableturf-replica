@@ -110,11 +110,7 @@ export function CardSlot({
               >
                 {card <= 0 ? null : (
                   <div style={{ position: "absolute", pointerEvents: "none" }}>
-                    <CardLarge
-                      width={layout.width}
-                      card={card}
-                      player={player}
-                    />
+                    <CardLarge card={card} player={player} />
                   </div>
                 )}
                 <div

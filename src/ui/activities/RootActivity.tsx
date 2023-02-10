@@ -75,12 +75,12 @@ class RootActivity_0 extends Activity {
           <Grid
             item
             xs={12}
-            sx={{
+            style={{
               display: "flex",
               justifyContent: "flex-end",
             }}
           >
-            <Box sx={{ flexGrow: 1 }}>
+            <div style={{ flexGrow: 1 }}>
               <Tooltip title={"Technical report"}>
                 <IconButton
                   onClick={() => TechnicalReportDialog.update({ open: true })}
@@ -88,7 +88,7 @@ class RootActivity_0 extends Activity {
                   <DeveloperModeIcon />
                 </IconButton>
               </Tooltip>
-            </Box>
+            </div>
             <IconButton
               onClick={() => window.open("https://discord.gg/fRT8ydhhxT")}
             >
@@ -106,11 +106,15 @@ class RootActivity_0 extends Activity {
             </IconButton>
           </Grid>
           <Grid item xs={12}>
-            <Divider sx={{ width: "100%" }} />
+            <Divider style={{ width: "100%" }} />
           </Grid>
-          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+          <Grid
+            item
+            xs={12}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
             <Typography
-              sx={{
+              style={{
                 color: "grey",
                 fontSize: 16,
                 fontFamily: "ui-sans-serif,system-ui",

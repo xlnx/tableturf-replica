@@ -5,7 +5,6 @@ import { Dialog } from "./Dialog";
 import { Box, Grid, CardHeader, Divider } from "@mui/material";
 import { BasicButton } from "../Theme";
 import { MessageBar } from "./MessageBar";
-import { DB } from "../../Database";
 import { WindowManager } from "../../engine/WindowManager";
 import { Platform } from "../../engine/Platform";
 import { System } from "../../engine/System";
@@ -55,9 +54,8 @@ class TechnicalReportDialog_0 extends ReactComponent<TechnicalReportDialogProps>
     const renderApp = () => {
       return {
         url: System.url.href,
-        database: DB.read(),
         devicePixelRatio: window.devicePixelRatio,
-        resolution: [
+        resolution: WindowManager.renderer && [
           WindowManager.renderer.width,
           WindowManager.renderer.height,
         ],

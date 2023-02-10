@@ -15,7 +15,6 @@ logger.setLevel("info");
 
 interface CardLargeProps {
   card: number;
-  width: number;
   player?: IPlayerId;
   active?: boolean;
   selected?: boolean;
@@ -343,7 +342,6 @@ function renderWebKit(card: ICard, player: IPlayerId) {
 
 export function CardLarge({
   card: cardId,
-  width,
   player = 0,
   active = true,
   selected = false,
@@ -369,12 +367,10 @@ export function CardLarge({
     } else {
       return renderSvg(card, player);
     }
-  }, [cardId, width, player]);
+  }, [cardId, player]);
 
   return (
     <Card
-      // width={width}
-      // layout={layout}
       className="card-large"
       active={active}
       selected={selected}

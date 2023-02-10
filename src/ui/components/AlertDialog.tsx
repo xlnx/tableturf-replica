@@ -1,4 +1,4 @@
-import React from "react";
+import { ReactNode } from "react";
 import { CardHeader, Divider, Grid } from "@mui/material";
 import { ReactComponent } from "../../engine/ReactComponent";
 import { Dialog } from "./Dialog";
@@ -46,7 +46,7 @@ class AlertDialog_0 extends ReactComponent<AlertDialogProps> {
     }
   }
 
-  render(): React.ReactNode {
+  render(): ReactNode {
     const handleInput = async (ok: boolean) => {
       this.props.onInput(ok);
       await this.update({ open: false });

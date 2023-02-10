@@ -1,6 +1,6 @@
 import "./LoadingDialog.less";
 
-import React from "react";
+import { ReactNode } from "react";
 import { Typography } from "@mui/material";
 import { ReactComponent } from "../../engine/ReactComponent";
 import { Dialog } from "./Dialog";
@@ -32,24 +32,12 @@ class LoadingDialog_0 extends ReactComponent<LoadingDialogProps> {
     }
   }
 
-  render(): React.ReactNode {
+  render(): ReactNode {
     return (
       <Dialog open={this.props.open}>
         <Typography component={"span"} fontSize={"1.5rem"}>
-          <div
-            style={{
-              boxSizing: "content-box",
-              display: "inline-flex",
-              padding: "0.5rem",
-            }}
-          >
-            <div
-              className="loading-circle"
-              style={{
-                width: "1.5rem",
-                height: "1.5rem",
-              }}
-            ></div>
+          <div className="loading-circle-margin">
+            <div className="loading-circle" />
           </div>
           {this.props.msg}
         </Typography>

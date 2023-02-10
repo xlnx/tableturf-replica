@@ -1,11 +1,10 @@
+import "./MessageBar.less";
+
 import React from "react";
 import { v4 } from "uuid";
 import { ReactComponent } from "../../engine/ReactComponent";
 import { Box, List, Paper, Typography } from "@mui/material";
-import { ResponsiveBox } from "../Theme";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-
-import "./MessageBar.less";
 
 type MessageLevel = "error" | "warning" | "info" | "success";
 
@@ -17,7 +16,7 @@ interface Message {
 
 function MessageBarImpl<T extends { msg: Message }>({ msg }: T) {
   return (
-    <ResponsiveBox sx={{ right: 0, marginLeft: "auto", marginRight: 0 }}>
+    <div className="msg-bar-inner">
       <Paper
         sx={(theme) => ({
           "&.MuiPaper-root": {
@@ -27,7 +26,7 @@ function MessageBarImpl<T extends { msg: Message }>({ msg }: T) {
       >
         <Typography sx={{ p: 2, userSelect: "none" }}>{msg.text}</Typography>
       </Paper>
-    </ResponsiveBox>
+    </div>
   );
 }
 

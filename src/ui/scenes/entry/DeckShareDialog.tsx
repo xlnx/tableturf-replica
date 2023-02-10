@@ -99,9 +99,7 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
         <Grid item xs={2.4} key={card}>
           <Box sx={{ p: 1 }}>
             {state.portrait ? (
-              <div style={{ pointerEvents: "none" }}>
-                <CardLarge width={100} card={card} />
-              </div>
+              <></>
             ) : (
               <div style={{ pointerEvents: "none" }}>
                 <CardSmall

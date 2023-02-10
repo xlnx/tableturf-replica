@@ -1,6 +1,7 @@
+import "./MatchActivity.less";
+
 import { useEffect, useMemo, useState } from "react";
 import {
-  Box,
   Button,
   Grid,
   Menu,
@@ -30,6 +31,7 @@ import StarIcon from "@mui/icons-material/Star";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { EntryWindow } from "../scenes/entry/EntryWindow";
 import { Gateway } from "../Gateway";
+
 import { LoadingDialog } from "../components/LoadingDialog";
 
 const logger = getLogger("main-dialog");
@@ -51,13 +53,10 @@ const styles = {
 function PlayerAvatar({ online, name, role, ready, host, self, onClick }) {
   const btn = !online ? null : (
     <Button
+      className="match-activity-player-avatar"
       sx={{
-        width: "100%",
-        height: "100%",
-        fontSize: "1.5rem",
         backgroundColor: Color.fromHex(styles[role].backgroundColor).darken(0.2)
           .hexSharp,
-        transition: "all 200ms ease-out",
         "&:hover": {
           backgroundColor: styles[role].backgroundColor,
         },
@@ -67,50 +66,21 @@ function PlayerAvatar({ online, name, role, ready, host, self, onClick }) {
       {!name || name.substring(0, 2).toUpperCase()}
     </Button>
   );
-  const [w, h] = [108, 96];
   return (
     <Tooltip followCursor placement="top" title={name}>
-      <Box sx={{ position: "relative", width: w, height: h }}>
+      <div className="match-activity-player-avatar-margin">
         {btn}
         <StarIcon
-          sx={{
-            position: "absolute",
-            left: 4,
-            top: 4,
-            color: "white",
-            fontSize: "0.9rem",
-            opacity: host ? 1 : 0,
-            pointerEvents: "none",
-            transition: "all 200ms ease-out",
-          }}
+          className="match-activity-player-avatar-host-mark"
+          style={{ opacity: host ? 1 : 0 }}
         />
         {!self ? null : (
-          <ArrowDropDownIcon
-            sx={{
-              position: "absolute",
-              left: 5,
-              top: -70,
-              color: "white",
-              fontSize: "3rem",
-              pointerEvents: "none",
-            }}
-          />
+          <ArrowDropDownIcon className="match-activity-player-avatar-self-mark" />
         )}
         {!online || !ready ? null : (
-          <Box
-            sx={{
-              position: "absolute",
-              left: 60,
-              top: 60,
-              width: 50,
-              height: 50,
-              backgroundImage: "url(/textures/Check_00.webp)",
-              backgroundSize: "100% 100%",
-              pointerEvents: "none",
-            }}
-          />
+          <div className="match-activity-player-avatar-ready-mark" />
         )}
-      </Box>
+      </div>
     </Tooltip>
   );
 }
@@ -374,7 +344,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                   this.update({ deck: { ...decks[+target.value] } })
                 }
               >
-                <MenuItem value={-1} sx={{ display: "none" }}>
+                <MenuItem className="display-none" value={-1}>
                   {this.props.deck.name + " [Snapshot]"}
                 </MenuItem>
                 {deckMenuItems}
@@ -399,7 +369,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     const settingsPanel = useMemo(() => {
       return (
-        <Grid item xs={12} sx={{ p: 2 }}>
+        <Grid item xs={12} style={{ padding: 16 }}>
           <Collapsible
             label="Advanced Settings"
             open={state.settingsOpen}
@@ -525,7 +495,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                 }
               }
               return (
-                <Box key={id}>
+                <div key={id}>
                   <PlayerAvatar
                     online={isConnected}
                     name={name}
@@ -542,7 +512,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
                       }))
                     }
                   />
-                </Box>
+                </div>
               );
             })}
           </Stack>
@@ -572,14 +542,14 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
         }
       };
       return (
-        <Box
-          sx={{
+        <div
+          style={{
             boxSizing: "border-box",
             position: "absolute",
             bottom: 0,
             left: 0,
             width: "100%",
-            p: 2,
+            padding: 16,
           }}
         >
           <Grid container spacing={4} justifyContent={"flex-end"}>
@@ -617,7 +587,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
               </Tooltip>
             </Grid>
           </Grid>
-        </Box>
+        </div>
       );
     }, [
       // controller
@@ -634,7 +604,7 @@ class MatchActivity_0 extends Activity<MatchActivityProps> {
 
     return (
       <div>
-        <Grid container spacing={4} sx={{ p: 2, flexGrow: 1 }}>
+        <Grid container spacing={4} style={{ padding: 16, flexGrow: 1 }}>
           {playerSettingsPanel}
           {playersPanel}
           {mainPanel}

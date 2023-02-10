@@ -17,7 +17,6 @@ import { ActivityPanel } from "./ui/Activity";
 import { getCardById } from "./core/Tableturf";
 import { DeckPanel } from "./ui/scenes/entry/DeckPanel";
 import { MatchActivity } from "./ui/activities/MatchActivity";
-import { ReplayListActivity } from "./ui/activities/ReplayListActivity";
 import { ReplayActivity } from "./ui/activities/ReplayActivity";
 
 const logger = getLogger("main");
@@ -96,8 +95,3 @@ async function main() {
 }
 
 main().catch((err) => MessageBar.error(err));
-
-// import {} from "webm-wasm";
-// import webm from "webm-wasm";
-// console.log(webm);
-// const worker = new Worker("webm-wasm/dist/webm-worker.js");

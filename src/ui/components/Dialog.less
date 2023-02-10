@@ -1,0 +1,30 @@
+div.dialog-backdrop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 999999;
+  background-color: #0000009f;
+  transition: opacity 200ms ease-in-out;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+div.dialog-open {
+  visibility: inherit;
+  opacity: 1;
+  pointer-events: inherit;
+}
+
+div.dialog-margin {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+div.dialog-body {
+  width: max-content;
+  padding: 32px;
+}

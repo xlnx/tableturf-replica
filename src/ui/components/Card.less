@@ -44,7 +44,7 @@ div.card-overlay {
   opacity: 0;
   transition: 
     opacity @dt @ease-in-out-expo, 
-    background-color @dt cubic-bezier(0,1,0,1);
+    background-color @dt @ease-in-out-expo;
 }
 
 div.card-active:hover div.card-overlay,
@@ -55,5 +55,5 @@ div.card-selected div.card-overlay {
 
 div.card-inactive div.card-overlay {
   background-color: black;
-  opacity: 0.5
+  opacity: 0.5;
 }

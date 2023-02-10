@@ -76,22 +76,32 @@ export class Hands extends ReactComponent<HandsProps> {
       li.push(
         <Grid item xs={this.props.xs} key={i}>
           <Box
-            sx={{ width: this.props.wi }}
+            sx={{
+              width: this.props.wi,
+              height: (this.props.wi * 196) / 153,
+            }}
             ref={(el) => (this.cardsRef.current[i] = el)}
           >
-            <CardSmall
-              player={this.props.player}
-              card={card || 1}
-              // width={this.props.wi}
-              active={this.props.mask[i] && this.props.enabled}
-              selected={this.props.selected == i}
-              onClick={() => {
-                this.dispatchEvent("click", i);
-                if (this.props.selected != i) {
-                  this.update({ selected: i });
-                }
+            <div
+              style={{
+                transformOrigin: "top left",
+                transform: `scale(${this.props.wi / 153})`,
               }}
-            ></CardSmall>
+            >
+              <CardSmall
+                player={this.props.player}
+                card={card || 1}
+                // width={this.props.wi}
+                active={this.props.mask[i] && this.props.enabled}
+                selected={this.props.selected == i}
+                onClick={() => {
+                  this.dispatchEvent("click", i);
+                  if (this.props.selected != i) {
+                    this.update({ selected: i });
+                  }
+                }}
+              />
+            </div>
           </Box>
         </Grid>
       );

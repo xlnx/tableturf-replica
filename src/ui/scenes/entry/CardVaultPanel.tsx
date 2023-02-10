@@ -194,17 +194,17 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
           <Grid item>
             <Tooltip title="Share">
               <IconButton onClick={() => DeckShareDialog.prompt()}>
-                <ShareIcon sx={{ fontSize: "2rem" }} />
+                <ShareIcon className="card-vault-icon-btn-svg" />
               </IconButton>
             </Tooltip>
             <Tooltip title="Save As">
               <IconButton onClick={() => DeckSaveDialog.prompt()}>
-                <SaveIcon sx={{ fontSize: "2rem" }} />
+                <SaveIcon className="card-vault-icon-btn-svg" />
               </IconButton>
             </Tooltip>
             <Tooltip title="Quit Edit">
               <IconButton onClick={handleQuitEdit}>
-                <ExitToAppIcon sx={{ fontSize: "2rem" }} />
+                <ExitToAppIcon className="card-vault-icon-btn-svg" />
               </IconButton>
             </Tooltip>
           </Grid>
@@ -224,55 +224,38 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
         }
         await DeckPanel.update({ cards: [...cards, card] });
       };
+      const key = (id) => (index[id] != null ? -1e6 + index[id] : id);
       return (
-        <Box
-          sx={{
-            position: "relative",
-            overflow: "auto",
-            height: 0,
-            flex: 1,
-          }}
-        >
-          <div
-            style={{
-              transformOrigin: "top left",
-              transform: `scale(${180 / 344})`,
-            }}
-          >
-            {getCards().map((card) => {
-              const idx = index[card.id];
-              return (
+        <Grid className="overflow-auto" container spacing={2}>
+          {getCards()
+            .map(({ id }) => id)
+            .sort((a, b) => key(a) - key(b))
+            .map((id) => (
+              <Grid item xs={2} key={id}>
                 <div
                   className={
-                    "card-margin " + (idx != null ? "" : "card-margin-hidden")
+                    "card-vault-card-large-margin " +
+                    (index[id] != null ? "" : "card-vault-card-large-hidden")
                   }
-                  key={card.id}
-                  style={{
-                    transform: `translate(
-                        ${(idx % 6) * 100}%, 
-                        ${Math.floor(idx / 6) * 480}px
-                      )`,
-                  }}
                 >
                   <CardLarge
-                    width={180}
-                    card={card.id}
-                    active={this.props.excludeCards.indexOf(card.id) < 0}
-                    onClick={handleCardClick(card.id)}
+                    card={id}
+                    active={this.props.excludeCards.indexOf(id) < 0}
+                    onClick={handleCardClick(id)}
                   />
                 </div>
-              );
-            })}
-          </div>
-        </Box>
+              </Grid>
+            ))}
+        </Grid>
       );
     }, [state.cards, this.props.excludeCards]);
 
     return (
-      <Box
-        className={`card-vault ${
-          this.props.open ? "card-vault-open" : "card-vault-closed"
-        }`}
+      <div
+        className={
+          "card-vault " +
+          (this.props.open ? "card-vault-open" : "card-vault-closed")
+        }
       >
         <Paper
           sx={{
@@ -284,21 +267,14 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
             p: 4,
             boxSizing: "border-box",
             boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {topBar}
-            {cardPanel}
-          </Box>
+          {topBar}
+          {cardPanel}
         </Paper>
-      </Box>
+      </div>
     );
   }
 }

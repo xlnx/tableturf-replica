@@ -1,7 +1,8 @@
+import "./Theme.less";
+
 import { ReactNode, useRef, useState } from "react";
 import {
   Box,
-  styled,
   createTheme,
   Grid,
   Typography,
@@ -17,43 +18,36 @@ import ToggleButton, { ToggleButtonTypeMap } from "@mui/material/ToggleButton";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
-export const ResponsiveBox = styled(Box)(() => ({
-  width: "max-content",
-  height: "max-content",
-}));
-
-const buttonStyles = {
-  borderWidth: 3,
-  backgroundColor: "#ffffff00",
-  transition: "background-color 0.2s",
-  textShadow: "2px 2px black",
-  "&:hover :not(.Mui-selected)": {
-    backgroundColor: "#ffffff11",
-  },
-  "&.Mui-selected": {
-    backgroundColor: "#ffffff55",
-  },
-};
-
 export function BasicButton<T extends ToggleButtonTypeMap["props"]>({
   children,
   sx,
   ...rest
 }: Partial<T>) {
   return (
-    <ToggleButton value="" sx={{ ...buttonStyles, ...sx }} {...rest}>
+    <ToggleButton className="basic-btn" value="" sx={{ ...sx }} {...rest}>
       {children}
     </ToggleButton>
   );
 }
 
 export const TransparentButton = BasicButton;
-export const DarkButton = styled(BasicButton)(({ theme }) => ({
-  backgroundColor: "#000000ee",
-  "&:hover": {
-    backgroundColor: "#2f2f2fee",
-  },
-}));
+
+export function DarkButton<T extends ToggleButtonTypeMap["props"]>({
+  children,
+  sx,
+  ...rest
+}: Partial<T>) {
+  return (
+    <ToggleButton
+      className="basic-btn dark-btn"
+      value=""
+      sx={{ ...sx }}
+      {...rest}
+    >
+      {children}
+    </ToggleButton>
+  );
+}
 
 interface SplitButtonProps {
   items: {

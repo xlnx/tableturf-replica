@@ -1,25 +1,29 @@
 @dt: 0.3s;
 
-.card-vault-closed {
+div.card-vault-closed {
   transform: translateX(64px);
   opacity: 0;
   pointer-events: none;
 }
 
-.card-vault {
+div.card-vault {
   transition: all @dt cubic-bezier(0.65, 0, 0.35, 1),
 }
 
-div.card-margin {
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 8px;
-  opacity: 1;
-  pointer-events: inherit;
+div.card-vault-card-large-margin {
+  width: 180px;
+  height: 251px;
 }
 
-div.card-margin-hidden {
+div.card-vault-card-large-margin div.card {
+  transform: scale(0.52326);
+}
+
+div.card-vault-card-large-hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+svg.card-vault-icon-btn-svg {
+  font-size: 2rem;
 }

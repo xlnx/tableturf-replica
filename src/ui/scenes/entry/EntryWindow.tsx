@@ -25,7 +25,6 @@ import {
   TextField,
   ThemeProvider,
   Typography,
-  styled,
 } from "@mui/material";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Theme, BasicButton } from "../../Theme";
@@ -214,12 +213,6 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
     );
 
     const btnPanel = useMemo(() => {
-      const MyBtn = styled(BasicButton)(() => ({
-        position: "absolute",
-        width: 220,
-        height: 90,
-      }));
-
       const y0 = 650;
       const h = 105;
 
@@ -233,8 +226,11 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
 
       return (
         <>
-          <MyBtn
+          <BasicButton
             sx={{
+              position: "absolute",
+              width: 220,
+              height: 90,
               left: 1650,
               top: y0 + h * 0,
             }}
@@ -244,25 +240,31 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
             }}
           >
             Edit Deck
-          </MyBtn>
-          <MyBtn
+          </BasicButton>
+          <BasicButton
             sx={{
+              position: "absolute",
+              width: 220,
+              height: 90,
               left: 1650,
               top: y0 + h * 1,
             }}
             onClick={() => this.reset()}
           >
             Reset
-          </MyBtn>
-          <MyBtn
+          </BasicButton>
+          <BasicButton
             sx={{
+              position: "absolute",
+              width: 220,
+              height: 90,
               left: 1650,
               top: y0 + h * 2,
             }}
             onClick={() => this.undo()}
           >
             Undo
-          </MyBtn>
+          </BasicButton>
           <TextField
             select
             label="Test Stage"

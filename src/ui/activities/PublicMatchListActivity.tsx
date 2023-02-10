@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { Grid, Box, CardHeader, Button } from "@mui/material";
+import { Grid, CardHeader, Button } from "@mui/material";
 import { Activity } from "../Activity";
 import { RootActivity } from "./RootActivity";
 import { BasicButton } from "../Theme";
@@ -53,7 +52,7 @@ class PublicMatchListActivity_0 extends Activity<PublicMatchListActivityProps> {
   render() {
     return (
       <div>
-        <Grid container spacing={2} sx={{ p: 2, flexGrow: 1 }}>
+        <Grid container spacing={2} style={{ padding: 16, flexGrow: 1 }}>
           {this.props.matches.map(({ matchID, setupData: { matchName } }) => (
             <Grid item xs={12} key={matchID}>
               <Button
@@ -65,14 +64,14 @@ class PublicMatchListActivity_0 extends Activity<PublicMatchListActivityProps> {
             </Grid>
           ))}
         </Grid>
-        <Box
-          sx={{
+        <div
+          style={{
             boxSizing: "border-box",
             position: "absolute",
             bottom: 0,
             left: 0,
             width: "100%",
-            p: 2,
+            padding: 16,
           }}
         >
           <Grid container spacing={4} justifyContent={"flex-end"}>
@@ -90,7 +89,7 @@ class PublicMatchListActivity_0 extends Activity<PublicMatchListActivityProps> {
               </BasicButton>
             </Grid>
           </Grid>
-        </Box>
+        </div>
       </div>
     );
   }
