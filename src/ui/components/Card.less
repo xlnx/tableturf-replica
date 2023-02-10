@@ -1,7 +1,45 @@
 @ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
 @dt: 0.2s;
 
-.card-overlay {
+div.card {
+  user-select: none;
+  transform-origin: top left;
+}
+
+div.card-body {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform-origin: center;
+  transition: rotate @dt @ease-in-out-expo;
+}
+
+div.card-active:hover div.card-body,
+div.card-selected div.card-body {
+  transform: rotate(-2deg);
+}
+
+div.card-body-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #9ea28c;
+  box-shadow: 2px 2px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transform-origin: center;
+  transition: box-shadow @dt ease-out;
+}
+
+div.card-selected div.card-body-inner {
+  box-shadow: 4px 4px rgba(0, 0, 0, 0.5);
+}
+
+div.card-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   background-color: transparent;
   opacity: 0;
   transition: 
@@ -9,32 +47,13 @@
     background-color @dt cubic-bezier(0,1,0,1);
 }
 
-.card-active:hover .card-overlay,
-.card-selected .card-overlay {
+div.card-active:hover div.card-overlay,
+div.card-selected div.card-overlay {
   background-color: white;
   opacity: 0.2;
 }
 
-.card-inactive .card-overlay {
+div.card-inactive div.card-overlay {
   background-color: black;
   opacity: 0.5
-}
-
-.card-body {
-  transform-origin: center;
-  transition: rotate @dt @ease-in-out-expo;
-}
-
-.card-active:hover .card-body,
-.card-selected .card-body {
-  transform: rotate(-2deg);
-}
-
-.card-body-inner {
-  box-shadow: 2px 2px rgba(0, 0, 0, 0.2);
-  transition: box-shadow @dt ease-out;
-}
-
-.card-selected .card-body-inner {
-  box-shadow: 4px 4px rgba(0, 0, 0, 0.5);
 }

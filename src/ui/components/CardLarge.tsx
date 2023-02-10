@@ -1,3 +1,5 @@
+import "./CardLarge.less";
+
 import { useMemo } from "react";
 import { getLogger } from "loglevel";
 import { Spaces, getCardById } from "../../core/Tableturf";
@@ -284,118 +286,25 @@ function renderWebKit(card: ICard, player: IPlayerId) {
     layout.width / measureTextWidth(cardName, "40pt Splatoon1")
   );
   return (
-    <div style={{ width: layout.width, height: layout.height }}>
-      <img
-        className="card-large-card-bg"
-        src={cardBg}
-        style={{
-          position: "absolute",
-          left: 7,
-          top: 9,
-          width: 330,
-          height: 462,
-        }}
-      />
-      <img
-        className="card-large-ink"
-        src={`/textures/Ink_03.webp`}
-        style={{
-          position: "absolute",
-          width: layout.width,
-          height: layout.height,
-          filter: "brightness(84.7%)",
-        }}
-      />
-      <img
-        className="card-large-footer"
-        src={`/textures/CardFrame_01.webp`}
-        style={{
-          position: "absolute",
-          width: 324,
-          height: 86,
-          left: 10,
-          top: 389,
-          opacity: 0.9,
-        }}
-      />
-      <img
-        className="card-large-frame"
-        src={`/textures/CardFrame_00.webp`}
-        style={{
-          position: "absolute",
-          width: layout.width,
-          height: layout.height,
-        }}
-      />
+    <>
+      <img className="card-large-card-bg" src={cardBg} />
+      <img className="card-large-ink" src={`/textures/Ink_03.webp`} />
+      <img className="card-large-footer" src={`/textures/CardFrame_01.webp`} />
+      <img className="card-large-frame" src={`/textures/CardFrame_00.webp`} />
       <div
         className="card-large-inner-frame"
-        style={{
-          position: "absolute",
-          left: 10,
-          top: 11,
-          width: 324,
-          height: 460,
-          padding: 4,
-          borderRadius: 16,
-          boxSizing: "border-box",
-          // backgroundClip: "border-box",
-          backgroundImage: innerFrameBg,
-          backgroundSize: "100% 100%",
-          WebkitMask:
-            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          WebkitMaskComposite: "xor",
-        }}
+        style={{ backgroundImage: innerFrameBg }}
       />
-      <img
-        className="card-large-bg"
-        src={`/textures/${card.render.bg}`}
-        style={{
-          position: "absolute",
-          width: layout.width,
-          height: layout.height,
-        }}
-      />
-      <img
-        className="card-large-sz-count-base"
-        src={costImg}
-        style={{
-          position: "absolute",
-          width: 64,
-          height: 64,
-          left: 16,
-          top: 400,
-          transform: "rotate(45deg) ",
-        }}
-      />
-      {[{ WebkitTextStroke: "6px black" }, {}].map((style, i) => (
-        <div
-          className="card-large-sz-count"
-          key={i}
-          style={{
-            position: "absolute",
-            width: 0,
-            height: 0,
-            left: 50,
-            top: 398,
-            display: "flex",
-            justifyContent: "center",
-            whiteSpace: "nowrap",
-            color: "#efefef",
-            fontFamily: "Splatoon1",
-            fontSize: 32,
-          }}
-        >
-          <span style={{ ...style }}>{card.count.area}</span>
+      <img className="card-large-bg" src={`/textures/${card.render.bg}`} />
+      <img className="card-large-sz-count-base" src={costImg} />
+      {[0, 1].map((i) => (
+        <div className="card-large-sz-count" key={i}>
+          <span className={`card-large-sz-count-text-${i}`}>
+            {card.count.area}
+          </span>
         </div>
       ))}
-      <div
-        className="card-large-sp-meter"
-        style={{
-          position: "absolute",
-          left: 94,
-          top: 424,
-        }}
-      >
+      <div className="card-large-sp-meter">
         <SquareTilemap
           id={`card-large-sp-${card.count.special}-${player}`}
           player={player}
@@ -407,16 +316,7 @@ function renderWebKit(card: ICard, player: IPlayerId) {
           padding={0.3}
         />
       </div>
-      <div
-        className="card-large-grid"
-        style={{
-          position: "absolute",
-          left: 200,
-          top: 332,
-          transformOrigin: "center",
-          transform: "rotate(7deg)",
-        }}
-      >
+      <div className="card-large-grid">
         <SquareTilemap
           id={`card-grid-${card.id}-${player}`}
           rect={card}
@@ -424,33 +324,20 @@ function renderWebKit(card: ICard, player: IPlayerId) {
           width={122}
         />
       </div>
-      {[{ WebkitTextStroke: "8px black" }, {}].map((style, i) => (
+      {[0, 1].map((i) => (
         <div
           className="card-large-name"
           key={i}
           style={{
-            position: "absolute",
             width: `${80 / cardNameScaleX}%`,
-            height: "30%",
-            left: "50%",
             transform: `translateX(-50%) scaleX(${cardNameScaleX * 100}%)`,
-            transformOrigin: "center",
-            display: "flex",
-            justifyContent: "center",
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
             backgroundImage: nameBg,
-            backgroundSize: "100% 100%",
-            whiteSpace: "nowrap",
-            color: "transparent",
-            fontFamily: "Splatoon1",
-            fontSize: 40,
           }}
         >
-          <span style={{ ...style, paddingTop: 32 }}>{cardName}</span>
+          <span className={`card-large-name-text-${i}`}>{cardName}</span>
         </div>
       ))}
-    </div>
+    </>
   );
 }
 
@@ -486,8 +373,9 @@ export function CardLarge({
 
   return (
     <Card
-      width={width}
-      layout={layout}
+      // width={width}
+      // layout={layout}
+      className="card-large"
       active={active}
       selected={selected}
       onClick={onClick}

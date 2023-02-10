@@ -233,32 +233,37 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
             flex: 1,
           }}
         >
-          {getCards().map((card) => {
-            const idx = index[card.id];
-            const visible = idx != null;
-            return (
-              <Box
-                key={card.id}
-                sx={{
-                  p: 1,
-                  position: "absolute",
-                  opacity: visible ? 1 : 0,
-                  pointerEvents: visible ? "inherit" : "none",
-                  transform: `translate(
+          <div
+            style={{
+              transformOrigin: "top left",
+              transform: `scale(${180 / 344})`,
+            }}
+          >
+            {getCards().map((card) => {
+              const idx = index[card.id];
+              return (
+                <div
+                  className={
+                    "card-margin " + (idx != null ? "" : "card-margin-hidden")
+                  }
+                  key={card.id}
+                  style={{
+                    transform: `translate(
                         ${(idx % 6) * 100}%, 
-                        ${Math.floor(idx / 6) * 270}px
+                        ${Math.floor(idx / 6) * 480}px
                       )`,
-                }}
-              >
-                <CardLarge
-                  width={180}
-                  card={card.id}
-                  active={this.props.excludeCards.indexOf(card.id) < 0}
-                  onClick={handleCardClick(card.id)}
-                />
-              </Box>
-            );
-          })}
+                  }}
+                >
+                  <CardLarge
+                    width={180}
+                    card={card.id}
+                    active={this.props.excludeCards.indexOf(card.id) < 0}
+                    onClick={handleCardClick(card.id)}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </Box>
       );
     }, [state.cards, this.props.excludeCards]);

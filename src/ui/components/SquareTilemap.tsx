@@ -1,3 +1,5 @@
+import "./SquareTilemap.less";
+
 import { getLogger } from "loglevel";
 import { System } from "../../engine/System";
 import { Base64String } from "./Base64String";
@@ -96,16 +98,12 @@ export function SquareTilemap({
   return (
     <svg width={width} height={(h / w) * width}>
       <image
-        className={`tilemap-${id}`}
+        className={`tilemap tilemap-${id}`}
         width={w * dx}
         height={h * dy}
         xlinkHref={`data:image/webp;base64,${base64}`}
         preserveAspectRatio="none"
-        style={{
-          transformBox: "fill-box",
-          transformOrigin: "top left",
-          transform: `scale(${width / (dx * w)})`,
-        }}
+        transform={`scale(${width / (dx * w)})`}
       ></image>
     </svg>
   );

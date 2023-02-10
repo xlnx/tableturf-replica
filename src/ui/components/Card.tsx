@@ -9,21 +9,25 @@ const logger = getLogger("card");
 logger.setLevel("info");
 
 interface CardProps {
-  layout: { width: number; height: number; radius: number };
-  width: number;
+  // layout: { width: number; height: number; radius: number };
+  // width: number;
   children?: ReactNode;
   active?: boolean;
   selected?: boolean;
   onClick?: () => void;
+  //
+  className?: string;
 }
 
 export function Card({
-  layout,
-  width,
+  // layout,
+  // width,
   children,
   active = true,
   selected = false,
   onClick,
+  //
+  className = "",
 }: CardProps) {
   onClick = onClick || (() => {});
 
@@ -54,63 +58,27 @@ export function Card({
   const body = useMemo(() => {
     logger.log(`card rerender`);
     return (
-      <div
-        className="card-body"
-        style={{
-          width: "100%",
-          height: "100%",
-          transformOrigin: "center",
-          pointerEvents: "none",
-        }}
-      >
-        <div
-          ref={bodyRef}
-          style={{
-            width: "100%",
-            height: "100%",
-            transformOrigin: "center",
-          }}
-        >
-          <div
-            className="card-body-inner"
-            style={{
-              position: "relative",
-              width: layout.width,
-              height: layout.height,
-              borderRadius: layout.radius,
-              background: "#9ea28c",
-              overflow: "hidden",
-              transform: `scale(${width / layout.width})`,
-              transformOrigin: "top left",
-            }}
-          >
-            {children}
-            <div
-              className="card-overlay"
-              style={{
-                position: "absolute",
-                left: 0,
-                top: 0,
-                width: "100%",
-                height: "100%",
-              }}
-            ></div>
-          </div>
+      <div className="card-body">
+        <div className="card-body-inner" ref={bodyRef}>
+          {children}
+          <div className="card-overlay" />
         </div>
       </div>
     );
-  }, [children, layout]);
+  }, [children]);
 
   return (
     <div
       className={
-        !active ? "card-inactive" : selected ? "card-selected" : "card-active"
+        "card " +
+        (!active
+          ? "card-inactive"
+          : selected
+          ? "card-selected"
+          : "card-active") +
+        " " +
+        className
       }
-      style={{
-        width,
-        height: (layout.height / layout.width) * width,
-        userSelect: "none",
-      }}
       onClick={handleClick}
     >
       {body}

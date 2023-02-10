@@ -1,3 +1,5 @@
+import "./DeckPanel.less";
+
 import {
   Box,
   Grid,
@@ -128,7 +130,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
               value={-1}
               onChange={handleChange}
             >
-              <MenuItem value={-1} sx={{ display: "none" }}>
+              <MenuItem className="display-none" value={-1}>
                 {(this.props.deck < 0
                   ? "[Untitled]"
                   : decks[this.props.deck].name) + (isModified ? " [*]" : "")}
@@ -163,37 +165,33 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
         <Box
           sx={{
             position: "relative",
+            boxSizing: "border-box",
             width: "100%",
             height: "100%",
             overflow: "hidden",
             flex: 1,
-            pl: 1,
+            pt: 1,
+            pl: 2,
             pr: 1,
           }}
         >
-          {this.props.cards.map((id, i) => (
-            <Box
-              key={id}
-              sx={{
-                p: 1,
-                position: "absolute",
-                transform: `translate(
-                  ${(i % 3) * 108}%,
-                  ${Math.floor(i / 3) * 174}px
-                )`,
-              }}
-            >
-              <CardSmall
-                width={123}
-                card={id}
-                active={
-                  this.props.editing || this.props.excludeCards.indexOf(id) < 0
-                }
-                selected={!this.props.editing && this.props.card == id}
-                onClick={handleCardClick[id - 1]}
-              ></CardSmall>
-            </Box>
-          ))}
+          <Grid container spacing={2}>
+            {this.props.cards.map((id) => (
+              <Grid item xs={4} key={id}>
+                <div className="deck-panel-card-small-margin">
+                  <CardSmall
+                    card={id}
+                    active={
+                      this.props.editing ||
+                      this.props.excludeCards.indexOf(id) < 0
+                    }
+                    selected={!this.props.editing && this.props.card == id}
+                    onClick={handleCardClick[id - 1]}
+                  />
+                </div>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       ),
       [
