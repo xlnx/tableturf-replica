@@ -1,6 +1,6 @@
 import "./Activity.less";
 
-import React from "react";
+import { useMemo, ReactNode } from "react";
 import { Box, Paper, CardHeader, Divider } from "@mui/material";
 import { ReactComponent } from "../engine/ReactComponent";
 import { v4 } from "uuid";
@@ -36,7 +36,7 @@ interface ActivityBodyProps {
 function ActivityBody({ activity }: ActivityBodyProps) {
   return (
     <Paper
-      sx={{
+      style={{
         boxSizing: "border-box",
         position: "absolute",
         width: "100%",
@@ -44,7 +44,7 @@ function ActivityBody({ activity }: ActivityBodyProps) {
         display: "flex",
         flexDirection: "column",
         borderRadius: 0,
-        p: 2,
+        padding: 16,
       }}
     >
       <CardHeader
@@ -72,17 +72,17 @@ function ActivityBody({ activity }: ActivityBodyProps) {
         }
       />
       <Divider />
-      <Box
-        sx={{
+      <div
+        style={{
           position: "relative",
           width: "100%",
           minHeight: 0,
           flexGrow: 1,
-          pt: 2,
+          paddingTop: 16,
         }}
       >
         {activity.node}
-      </Box>
+      </div>
     </Paper>
   );
 }
@@ -126,13 +126,11 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
     await this.show(false);
   }
 
-  render(): React.ReactNode {
-    const w = 128;
-    const wi = 32;
+  render(): ReactNode {
     const dt = 300;
 
     const activities = [];
-    logger.log(this.props.current.props.title);
+    // logger.log(this.props.current.props.title);
     logger.log(this.props.activities);
     this.props.activities.forEach((activity) => {
       let extra: any = {
@@ -185,50 +183,27 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
       );
     });
 
-    return (
-      <Box
-        className={`activity ${
-          this.props.open ? "activity-open" : "activity-closed"
-        }`}
-        sx={{
-          position: "absolute",
-          width: 600,
-          height: 1080,
-        }}
-      >
-        <Paper
-          style={{
-            position: "absolute",
-            left: "100%",
-            top: 0,
-            width: w,
-            height: w,
-            borderRadius: `0 ${wi}px ${wi}px 0`,
-          }}
-        >
-          <Box
-            sx={{
-              boxSizing: "border-box",
-              width: "100%",
-              height: "100%",
-              p: 2,
-            }}
-          >
-            <div
-              style={{
-                backgroundImage: "url(/textures/Squid.webp)",
-                backgroundSize: "100% 100%",
-                width: "100%",
-                height: "100%",
-                pointerEvents: "all",
-                cursor: "pointer",
-              }}
-              onClick={() => this.update({ open: !this.props.open })}
-            ></div>
-          </Box>
+    const squid = useMemo(
+      () => (
+        <Paper className="activitiy-btn-squid">
+          <div
+            className="activitiy-btn-squid-img"
+            onClick={() => this.update({ open: !this.props.open })}
+          />
         </Paper>
+      ),
+      []
+    );
+
+    return (
+      <div
+        className={
+          "activity " + (this.props.open ? "activity-open" : "activity-closed")
+        }
+      >
+        {squid}
         {activities}
-      </Box>
+      </div>
     );
   }
 }

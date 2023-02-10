@@ -104,7 +104,10 @@ class DeckShareDialog_0 extends ReactComponent<DeckShareDialogProps> {
               </div>
             ) : (
               <div style={{ pointerEvents: "none" }}>
-                <CardSmall width={100} card={card} />
+                <CardSmall
+                  // width={100}
+                  card={card}
+                />
               </div>
             )}
           </Box>

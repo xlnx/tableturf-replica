@@ -46,7 +46,7 @@ export class DeckPreview extends ReactComponent<DeckPreviewProps> {
               <Grid item xs={3} key={id}>
                 <CardSmall
                   player={this.props.player}
-                  width={122}
+                  // width={122}
                   card={id}
                   active={this.props.done.indexOf(id) < 0}
                 />

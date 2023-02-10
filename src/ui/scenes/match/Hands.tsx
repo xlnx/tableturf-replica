@@ -82,7 +82,7 @@ export class Hands extends ReactComponent<HandsProps> {
             <CardSmall
               player={this.props.player}
               card={card || 1}
-              width={this.props.wi}
+              // width={this.props.wi}
               active={this.props.mask[i] && this.props.enabled}
               selected={this.props.selected == i}
               onClick={() => {
