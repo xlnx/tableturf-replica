@@ -80,7 +80,7 @@ div.activity-closed {
   pointer-events: none;
 }
 
-div.activitiy-btn-squid {
+div.activity-btn-squid {
   position: absolute;
   box-sizing: border-box;
   padding: 16px;
@@ -91,11 +91,75 @@ div.activitiy-btn-squid {
   border-radius: 0 32px 32px 0;
 }
 
-div.activitiy-btn-squid-img {
+div.activity-btn-squid-img {
   background-image: url(/textures/Squid.webp);
   background-size: 100% 100%;
   width: 100%;
   height: 100%;
   pointer-events: all;
   cursor: pointer;
+}
+
+div.activity-body-margin {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+}
+
+div.activity-body-anim-visible {
+  visibility: inherit;
+}
+
+div.activity-body-anim-hidden {
+  visibility: hidden;
+}
+
+div.activity-body-anim-back-out {
+  animation-name: back-activity-out;
+  animation-duration: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+div.activity-body-anim-front-out {
+  animation-name: front-activity-out;
+  animation-duration: ease-in;
+}
+
+div.activity-body-anim-front-in {
+  animation-name: front-activity-in;
+  animation-duration: ease-out;
+}
+
+div.activity-body-anim-back-in {
+  animation-name: back-activity-in;
+  animation-duration: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+div.activity-body {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+}
+
+div.activity-body-subheader {
+  display: inline;
+  cursor: pointer;
+}
+
+div.activity-body-subheader:hover {
+  text-decoration: underline;
+}
+
+div.activity-body-content-margin {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  flex-grow: 1;
+  padding-top: 16px;
 }

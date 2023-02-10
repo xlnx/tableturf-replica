@@ -1,7 +1,7 @@
 import "./Activity.less";
 
 import { useMemo, ReactNode } from "react";
-import { Box, Paper, CardHeader, Divider } from "@mui/material";
+import { Paper, CardHeader, Divider } from "@mui/material";
 import { ReactComponent } from "../engine/ReactComponent";
 import { v4 } from "uuid";
 import { getLogger } from "loglevel";
@@ -35,31 +35,12 @@ interface ActivityBodyProps {
 
 function ActivityBody({ activity }: ActivityBodyProps) {
   return (
-    <Paper
-      style={{
-        boxSizing: "border-box",
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: 0,
-        padding: 16,
-      }}
-    >
+    <Paper className="activity-body">
       <CardHeader
         title={activity.props.title}
         subheader={
           !activity.props.parent ? null : (
-            <Box
-              sx={{
-                display: "inline",
-                cursor: "pointer",
-                "&:hover": {
-                  textDecoration: "underline",
-                },
-              }}
-            >
+            <div className="activity-body-subheader">
               <span
                 onClick={() =>
                   activity
@@ -67,22 +48,12 @@ function ActivityBody({ activity }: ActivityBodyProps) {
                     .then((ok) => ok && activity.props.parent().show())
                 }
               >{`< ${activity.props.parent().props.title}`}</span>
-            </Box>
+            </div>
           )
         }
       />
       <Divider />
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          minHeight: 0,
-          flexGrow: 1,
-          paddingTop: 16,
-        }}
-      >
-        {activity.node}
-      </div>
+      <div className="activity-body-content-margin">{activity.node}</div>
     </Paper>
   );
 }
@@ -127,56 +98,35 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
   }
 
   render(): ReactNode {
-    const dt = 300;
-
     const activities = [];
     // logger.log(this.props.current.props.title);
     logger.log(this.props.activities);
     this.props.activities.forEach((activity) => {
-      let extra: any = {
-        visibility: "hidden",
-      };
       const isDst = this.props.current == activity;
       const isSrc = this.props.previous == activity;
       logger.log(isSrc, isDst, activity.props.title);
+
+      let tag = "hidden";
       if (!this.props.previous) {
         if (isDst) {
-          extra = { visibility: "inherit" };
+          tag = "visible";
         }
       } else {
         const frontIn =
           this.props.current.props.zIndex > this.props.previous.props.zIndex;
         if (isDst) {
-          extra = {
-            animationName: frontIn ? "front-activity-in" : "back-activity-in",
-            animationDuration: `${dt}ms`,
-            animationTimingFunction: frontIn
-              ? "ease-out"
-              : "cubic-bezier(0.16, 1, 0.3, 1)",
-            animationFillMode: "forwards",
-          };
+          tag = frontIn ? "front-in" : "back-in";
         }
         if (isSrc) {
-          extra = {
-            animationName: frontIn ? "back-activity-out" : "front-activity-out",
-            animationDuration: `${dt}ms`,
-            animationTimingFunction: frontIn
-              ? "cubic-bezier(0.7, 0, 0.84, 0)"
-              : "ease-in",
-            animationFillMode: "forwards",
-          };
+          tag = frontIn ? "back-out" : "front-out";
         }
       }
+
       activities.push(
         <div
+          className={"activity-body-margin activity-body-anim-" + tag}
           key={activity.id}
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            zIndex: activity.props.zIndex,
-            ...extra,
-          }}
+          style={{ zIndex: activity.props.zIndex }}
         >
           <ActivityBody activity={activity} />
         </div>
@@ -185,9 +135,9 @@ class ActivityPanel_0 extends ReactComponent<ActivityPanelProps> {
 
     const squid = useMemo(
       () => (
-        <Paper className="activitiy-btn-squid">
+        <Paper className="activity-btn-squid">
           <div
-            className="activitiy-btn-squid-img"
+            className="activity-btn-squid-img"
             onClick={() => this.update({ open: !this.props.open })}
           />
         </Paper>
