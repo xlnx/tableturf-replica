@@ -162,16 +162,7 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
 
     const historyPanel = useMemo(
       () => (
-        <List
-          sx={{
-            position: "absolute",
-            width: 350,
-            maxHeight: 600,
-            left: 1550,
-            top: 16,
-            overflow: "auto",
-          }}
-        >
+        <List className="entry-history-panel">
           <TransitionGroup>
             {this.props.history
               .slice()
@@ -182,28 +173,23 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
                   classNames="entry-history-bar"
                   key={card}
                 >
-                  <Box sx={{ p: 1 }}>
+                  <div className="entry-history-bar-margin">
                     <Paper
-                      sx={{
-                        height: 72,
-                        p: 1,
-                        boxSizing: "border-box",
-                        boxShadow: "4px 4px 2px rgba(0, 0, 0, 0.3)",
-                        display: "flex",
-                        alignItems: "center",
+                      className="entry-history-bar"
+                      style={{
                         backgroundColor: isInDeck
                           ? ColorPalette.Main.bg.primary.hexSharp
                           : Color.BLACK.hexSharp,
                       }}
                     >
-                      <Typography sx={{ textShadow: "2px 2px black" }}>
+                      <Typography>
                         {I18n.localize(
                           "CommonMsg/MiniGame/MiniGameCardName",
                           getCardById(card).name
                         )}
                       </Typography>
                     </Paper>
-                  </Box>
+                  </div>
                 </CSSTransition>
               ))}
           </TransitionGroup>
@@ -213,8 +199,8 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
     );
 
     const btnPanel = useMemo(() => {
-      const y0 = 650;
-      const h = 105;
+      const y0 = 60.2;
+      const h = 9.72;
 
       const stageMenuItems = [3, 6, 7, 5, 2, 1, 4, 0]
         .map(getStageById)
@@ -227,13 +213,8 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
       return (
         <>
           <BasicButton
-            sx={{
-              position: "absolute",
-              width: 220,
-              height: 90,
-              left: 1650,
-              top: y0 + h * 0,
-            }}
+            className="entry-ctrl-btn"
+            sx={{ top: `${y0 + h * 0}vh` }}
             onClick={async () => {
               await this.reset();
               await DeckPanel.edit();
@@ -242,25 +223,15 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
             Edit Deck
           </BasicButton>
           <BasicButton
-            sx={{
-              position: "absolute",
-              width: 220,
-              height: 90,
-              left: 1650,
-              top: y0 + h * 1,
-            }}
+            className="entry-ctrl-btn"
+            sx={{ top: `${y0 + h * 1}vh` }}
             onClick={() => this.reset()}
           >
             Reset
           </BasicButton>
           <BasicButton
-            sx={{
-              position: "absolute",
-              width: 220,
-              height: 90,
-              left: 1650,
-              top: y0 + h * 2,
-            }}
+            className="entry-ctrl-btn"
+            sx={{ top: `${y0 + h * 2}vh` }}
             onClick={() => this.undo()}
           >
             Undo
@@ -271,9 +242,10 @@ class EntryWindowPanel extends ReactComponent<EntryWindowPanelProps> {
             value={this.props.stage}
             sx={{
               position: "absolute",
-              left: 1510,
-              top: y0 + h * 3,
-              width: 360,
+              left: "78.65vw",
+              top: `${y0 + h * 3}vh`,
+              width: "18.75vw",
+              height: "8.33vh",
             }}
             onChange={({ target }) => this.reset({ stage: +target.value })}
           >

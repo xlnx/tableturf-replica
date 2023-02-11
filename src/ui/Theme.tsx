@@ -18,13 +18,16 @@ import ToggleButton, { ToggleButtonTypeMap } from "@mui/material/ToggleButton";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 
-export function BasicButton<T extends ToggleButtonTypeMap["props"]>({
-  children,
-  sx,
-  ...rest
-}: Partial<T>) {
+export function BasicButton<
+  T extends ToggleButtonTypeMap["props"] & { className: string }
+>({ children, sx, className = "", ...rest }: Partial<T>) {
   return (
-    <ToggleButton className="basic-btn" value="" sx={{ ...sx }} {...rest}>
+    <ToggleButton
+      className={"basic-btn " + className}
+      value=""
+      sx={{ ...sx }}
+      {...rest}
+    >
       {children}
     </ToggleButton>
   );
@@ -200,6 +203,7 @@ export function Collapsible({
 const theme = createTheme({});
 
 export const Theme = createTheme({
+  spacing: (factor) => `${0.74074 * factor}vmin`,
   typography: {
     fontFamily: ["Splatoon2"].join(",") + "," + theme.typography.fontFamily,
     button: {
@@ -261,7 +265,14 @@ export const Theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "rgba(0, 0, 0, 0.92)",
-          boxShadow: "5px 5px 10px 5px rgba(0, 0, 0, 0.4)",
+          boxShadow: "0.5vmin 0.5vmin 1vmin 0.5vmin rgba(0, 0, 0, 0.4)",
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          padding: "1.53vh 1.3vh",
         },
       },
     },

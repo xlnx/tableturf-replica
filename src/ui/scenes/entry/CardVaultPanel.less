@@ -6,13 +6,13 @@ div.card-vault-closed {
   pointer-events: none;
 }
 
-div.card-vault {
+div.card-vault-margin {
   transition: all @dt cubic-bezier(0.65, 0, 0.35, 1),
 }
 
 div.card-vault-card-large-margin {
-  width: 180px;
-  height: 251px;
+  width: 16.667vmin;
+  height: 23.241vmin;
 }
 
 div.card-vault-card-large-margin div.card {
@@ -26,4 +26,17 @@ div.card-vault-card-large-hidden {
 
 svg.card-vault-icon-btn-svg {
   font-size: 2rem;
+}
+
+div.card-vault {
+  position: absolute;
+  width: 67.7vw;
+  height: 94.4vh;
+  left: 30.6vw;
+  top: 2.22vh;
+  padding: 3vh;
+  box-sizing: border-box;
+  box-shadow: 0.5vmin 0.5vmin 0.2vmin rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }

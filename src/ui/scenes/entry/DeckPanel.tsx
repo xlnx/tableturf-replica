@@ -203,20 +203,7 @@ class DeckPanel_0 extends ReactComponent<DeckPanelProps> {
     );
 
     return (
-      <Paper
-        sx={{
-          position: "absolute",
-          width: 520,
-          height: 1020,
-          left: 32,
-          top: 24,
-          p: 4,
-          display: "flex",
-          flexDirection: "column",
-          boxSizing: "border-box",
-          boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-        }}
-      >
+      <Paper className="deck-panel">
         {ctrlPanel}
         {cardsPanel}
       </Paper>

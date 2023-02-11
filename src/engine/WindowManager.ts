@@ -113,10 +113,10 @@ export class WindowManager {
       const ty = (document.body.clientHeight - height) / 2;
       this.root.style.transform = `translate(${tx}px, ${ty}px)`;
 
-      for (const layer of this._layers) {
-        layer.root.style.transformOrigin = "top left";
-        layer.root.style.transform = `scale(${width / w0})`;
-      }
+      // for (const layer of this._layers) {
+      //   layer.root.style.transformOrigin = "top left";
+      //   layer.root.style.transform = `scale(${width / w0})`;
+      // }
     };
     new ResizeObserver(resize).observe(document.body);
     setTimeout(resize, 0);

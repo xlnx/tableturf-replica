@@ -116,7 +116,7 @@ class RootActivity_0 extends Activity {
             <Typography
               style={{
                 color: "grey",
-                fontSize: 16,
+                fontSize: "0.33rem",
                 fontFamily: "ui-sans-serif,system-ui",
                 textAlign: "center",
               }}

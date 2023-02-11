@@ -96,7 +96,14 @@ export function SquareTilemap({
   }
 
   return (
-    <svg width={width} height={(h / w) * width}>
+    <svg
+      width={width}
+      height={(h / w) * width}
+      style={{
+        transformOrigin: "top left",
+        transform: `scale(${window.innerHeight / 1080})`,
+      }}
+    >
       <image
         className={`tilemap tilemap-${id}`}
         width={w * dx}

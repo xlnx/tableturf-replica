@@ -253,24 +253,11 @@ class CardVaultPanel_0 extends ReactComponent<CardVaultProps> {
     return (
       <div
         className={
-          "card-vault " +
+          "card-vault-margin " +
           (this.props.open ? "card-vault-open" : "card-vault-closed")
         }
       >
-        <Paper
-          sx={{
-            position: "absolute",
-            width: 1300,
-            height: 1020,
-            left: 1920 - 1300 - 32,
-            top: 24,
-            p: 4,
-            boxSizing: "border-box",
-            boxShadow: "5px 5px 2px rgba(0, 0, 0, 0.3)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <Paper className="card-vault">
           {topBar}
           {cardPanel}
         </Paper>
