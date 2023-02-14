@@ -11,6 +11,10 @@ export class Platform {
     return isMobile;
   }
 
+  static get isIOS() {
+    return parser.getOS().name == "iOS";
+  }
+
   // support -webkit-* extensions ?
   static get isWebKit() {
     const { name } = parser.getEngine();

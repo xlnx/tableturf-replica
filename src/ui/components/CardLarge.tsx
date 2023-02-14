@@ -376,7 +376,12 @@ export function CardLarge({
       selected={selected}
       onClick={onClick}
     >
-      {node}
+      {Platform.isIOS
+        ? I18n.localize(
+            "CommonMsg/MiniGame/MiniGameCardName",
+            getCardById(cardId).name
+          )
+        : node}
     </Card>
   );
 }
