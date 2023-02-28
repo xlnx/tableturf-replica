@@ -616,16 +616,16 @@ export class PlayerPanel extends ReactComponent<PlayerPanelProps> {
               console.assert(reason == "tle");
               msg = "Both players time out, draw";
             } else {
-              const otherName = playerNames[1 - replay.winner];
+              const rivalName = playerNames[1 - player];
               if (winnerID == match.playerID) {
                 // you win
                 const what = reason == "giveup" ? "give up" : "time out";
-                msg = `${otherName} ${what}, you win`;
+                msg = `${rivalName} ${what}, you win`;
               } else {
                 msg =
                   reason == "giveup"
                     ? "You give up"
-                    : `You time out, ${otherName} win`;
+                    : `You time out, ${rivalName} win`;
               }
             }
             break;
